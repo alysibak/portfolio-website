@@ -1,4 +1,3 @@
-// app/experience/page.js
 "use client";
 
 import React, { useState } from "react";
@@ -148,7 +147,7 @@ export default function Experience() {
           transition={{ duration: 0.8, delay: 0.8 }}
         >
           <h2 className="text-3xl font-bold text-blue-600 mb-4">Interested in working together?</h2>
-          <p className="text-gray-600 mb-6">I'm always open to discussing new opportunities and challenges</p>
+          <p className="text-gray-600 mb-6">I&apos;m always open to discussing new opportunities and challenges</p>
           <div className="flex gap-4 justify-center">
             <Link href="/projects" className="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-3 rounded-lg text-white hover:opacity-90 transition-opacity duration-300">
               View My Projects

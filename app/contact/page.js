@@ -1,5 +1,3 @@
-
-// app/contact/page.js
 "use client";
 
 import React, { useState } from "react";
@@ -42,10 +40,10 @@ export default function Contact() {
           transition={{ duration: 0.8 }}
         >
           <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-4">
-            Let's Connect
+            Let&apos;s Connect
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Ready to contribute to your next project! I'm always open to discussing opportunities, collaborations, and new challenges.
+            Ready to contribute to your next project! I&apos;m always open to discussing opportunities, collaborations, and new challenges.
           </p>
         </motion.div>
 
@@ -120,7 +118,7 @@ export default function Contact() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h2 className="text-2xl font-bold text-blue-600 mb-6">What I'm Looking For</h2>
+            <h2 className="text-2xl font-bold text-blue-600 mb-6">What I&apos;m Looking For</h2>
             
             <div className="space-y-4">
               <div>

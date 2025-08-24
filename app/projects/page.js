@@ -112,7 +112,7 @@ export default function Projects() {
             Featured Projects
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            A showcase of applications and software I've built, demonstrating full-stack development skills and problem-solving abilities
+            A showcase of applications and software I&apos;ve built, demonstrating full-stack development skills and problem-solving abilities
           </p>
         </motion.div>
 
@@ -130,9 +130,9 @@ export default function Projects() {
           transition={{ duration: 0.8, delay: 0.8 }}
         >
           <h2 className="text-3xl font-bold text-blue-600 mb-4">Have a project in mind?</h2>
-          <p className="text-gray-600 mb-6">I'm always interested in taking on new challenges and building innovative solutions</p>
+          <p className="text-gray-600 mb-6">I&apos;m always interested in taking on new challenges and building innovative solutions</p>
           <Link href="/contact" className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-3 rounded-lg text-white hover:opacity-90 transition-opacity duration-300 inline-block">
-            Let's Collaborate
+            Let&apos;s Collaborate
           </Link>
         </motion.div>
       </div>

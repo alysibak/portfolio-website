@@ -1,4 +1,3 @@
-// app/skills/page.js
 "use client";
 
 import React, { useState } from "react";
@@ -72,7 +71,7 @@ export default function Skills() {
             Technical Skills
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Technologies and tools I've mastered through hands-on experience at P&P Optica and personal projects
+            Technologies and tools I&apos;ve mastered through hands-on experience at P&P Optica and personal projects
           </p>
         </motion.div>
 
@@ -109,7 +108,7 @@ export default function Skills() {
           transition={{ duration: 0.8, delay: 0.8 }}
         >
           <h2 className="text-3xl font-bold text-blue-600 mb-4">Ready to build something amazing?</h2>
-          <p className="text-gray-600 mb-6">Let's discuss how these skills can benefit your next project</p>
+          <p className="text-gray-600 mb-6">Let&apos;s discuss how these skills can benefit your next project</p>
           <Link href="/contact" className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-3 rounded-lg text-white hover:opacity-90 transition-opacity duration-300 inline-block">
             Get in Touch
           </Link>

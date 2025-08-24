@@ -1,4 +1,3 @@
-// app/page.js (Homepage)
 "use client";
 
 import React, { useState } from "react";
@@ -91,7 +90,7 @@ export default function Home() {
             <Link href="/contact" className="bg-white bg-opacity-80 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 text-center">
               <div className="text-2xl mb-2">📧</div>
               <h3 className="font-semibold text-blue-600">Contact</h3>
-              <p className="text-sm text-gray-600">Let's connect!</p>
+              <p className="text-sm text-gray-600">Let&apos;s connect!</p>
             </Link>
           </div>
         </header>
