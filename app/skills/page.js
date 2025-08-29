@@ -109,7 +109,7 @@ export default function Skills() {
             Technical Skills
           </h1>
           <p className={`text-xl max-w-3xl mx-auto leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            Technologies and tools I've mastered through hands-on experience at P&P Optica and personal projects
+            Technologies and tools I&apos;ve mastered through hands-on experience at P&P Optica and personal projects
           </p>
         </motion.div>
 
@@ -158,7 +158,7 @@ export default function Skills() {
             Ready to build something amazing?
           </h2>
           <p className={`text-lg mb-8 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            Let's discuss how these skills can benefit your next project
+            Let&apos;s discuss how these skills can benefit your next project
           </p>
           <div className="flex gap-4 justify-center">
             <Link 

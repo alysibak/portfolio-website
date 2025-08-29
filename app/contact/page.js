@@ -50,7 +50,6 @@ export default function Contact() {
             <Link href="/contact" className={`relative font-semibold transition-colors duration-300 ${darkMode ? 'text-white hover:text-blue-400' : 'hover:text-blue-600'}`}>
               Contact
               <span className="absolute bottom-[-4px] left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-cyan-600"></span>
-            </Link>
           </div>
         </div>
       </nav>
@@ -64,10 +63,10 @@ export default function Contact() {
           transition={{ duration: 0.8 }}
         >
           <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-purple-600 bg-clip-text text-transparent mb-6">
-            Let's Connect
+            Let&apos;s Connect
           </h1>
           <p className={`text-xl max-w-3xl mx-auto leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            Ready to contribute to your next project! I'm always open to discussing opportunities, collaborations, and new challenges.
+            Ready to contribute to your next project! I&apos;m always open to discussing opportunities, collaborations, and new challenges.
           </p>
         </motion.div>
 
@@ -158,7 +157,7 @@ export default function Contact() {
             <div className={`mt-8 pt-8 ${darkMode ? 'border-t border-gray-600' : 'border-t border-blue-200'}`}>
               <h3 className={`font-bold text-lg mb-6 ${darkMode ? 'text-white' : 'text-gray-800'}`}>Quick Links</h3>
               <div className="space-y-3">
-                <a href="/AlySibakResume (13).pdf" target="_blank" rel="noopener noreferrer" className="block text-blue-600 hover:text-blue-500 transition-colors duration-300 text-lg font-medium">
+                <a href="/AlySibakResume.pdf" target="_blank" rel="noopener noreferrer" className="block text-blue-600 hover:text-blue-500 transition-colors duration-300 text-lg font-medium">
                   View Resume
                 </a>
                 <Link href="/projects" className="block text-blue-600 hover:text-blue-500 transition-colors duration-300 text-lg font-medium">
@@ -183,7 +182,7 @@ export default function Contact() {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <h2 className="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-purple-600 bg-clip-text text-transparent mb-8">
-              What I'm Looking For
+              What I&apos;m Looking For
             </h2>
             
             <div className="space-y-6">
@@ -301,7 +300,7 @@ export default function Contact() {
         : "bg-white bg-opacity-80 backdrop-blur-sm py-8 text-center border-t border-blue-200"
       }>
         <p className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
-          © 2024 Aly Sibak • Built with Next.js & Tailwind CSS
+          © Aly Sibak. Built with Next.js & Tailwind CSS
         </p>
       </footer>
     </div>

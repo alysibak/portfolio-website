@@ -1,6 +1,8 @@
 "use client";
+
 import React, { useState, useEffect, useCallback } from "react";
 import { FaGithub, FaLinkedin, FaEnvelope, FaSun, FaMoon, FaDownload, FaCode, FaBriefcase, FaRocket, FaComments, FaChevronDown, FaPlay, FaExternalLinkAlt } from "react-icons/fa";
+import Image from "next/image";
 
 const THEME_KEY = 'aly-sibak-theme';
 
@@ -210,23 +212,13 @@ export default function AwardWinningHome() {
           <ParallaxSection offset={0.2}>
             <div className="mb-8">
               <div className="w-48 h-48 mx-auto rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 p-1">
-                <img 
+                <Image 
                   src="/profile.jpeg" 
                   alt="Aly Sibak - Full Stack Developer"
+                  width={192}
+                  height={192}
                   className="w-full h-full rounded-full object-cover"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
                 />
-                <div 
-                  className={`w-full h-full rounded-full ${
-                    darkMode ? 'bg-gray-800' : 'bg-white'
-                  } flex items-center justify-center text-6xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent`}
-                  style={{ display: 'none' }}
-                >
-                  AS
-                </div>
               </div>
             </div>
             
@@ -292,7 +284,7 @@ export default function AwardWinningHome() {
             Technology Stack
           </h2>
           <p className={`text-xl text-center mb-16 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            Technologies I've used in professional and academic projects
+            Technologies I&apos;ve used in professional and academic projects
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {techStack.map((stack, index) => (

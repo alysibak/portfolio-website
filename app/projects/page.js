@@ -44,7 +44,6 @@ const ProjectCard = ({ project, index, darkMode }) => (
     transition={{ duration: 0.6, delay: index * 0.2 }}
     whileHover={{ scale: 1.02, y: -5 }}
   >
-    {/* Gradient overlay on hover */}
     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
     
     <div className="relative z-10">
@@ -169,7 +168,7 @@ export default function Projects() {
             Featured Projects
           </h1>
           <p className={`text-xl max-w-3xl mx-auto leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            A showcase of applications and software I've built, demonstrating full-stack development skills and problem-solving abilities
+            A showcase of applications and software I&apos;ve built, demonstrating full-stack development skills and problem-solving abilities
           </p>
         </motion.div>
 
@@ -194,13 +193,13 @@ export default function Projects() {
             Have a project in mind?
           </h2>
           <p className={`text-lg mb-8 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            I'm always interested in taking on new challenges and building innovative solutions
+            I&apos;m always interested in taking on new challenges and building innovative solutions
           </p>
           <Link 
             href="/contact" 
             className="bg-gradient-to-r from-blue-600 to-cyan-600 px-10 py-4 rounded-xl text-white hover:scale-105 transition-all duration-300 shadow-lg font-semibold inline-block"
           >
-            Let's Collaborate
+            Let&apos;s Collaborate
           </Link>
         </motion.div>
       </div>

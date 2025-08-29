@@ -208,7 +208,7 @@ export default function Experience() {
             Interested in working together?
           </h2>
           <p className={`text-lg mb-8 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            I'm always open to discussing new opportunities and challenges
+            I&apos;m always open to discussing new opportunities and challenges
           </p>
           <div className="flex gap-6 justify-center">
             <Link 
