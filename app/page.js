@@ -191,10 +191,10 @@ export default function AwardWinningHome() {
               Home
               <span className="absolute bottom-[-4px] left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
             </a>
-            <a href="#about" className="font-medium transition-colors duration-300 hover:text-blue-600">About</a>
             <a href="#skills" className="font-medium transition-colors duration-300 hover:text-blue-600">Skills</a>
             <a href="#projects" className="font-medium transition-colors duration-300 hover:text-blue-600">Projects</a>
-            <a href="#contact" className="font-medium transition-colors duration-300 hover:text-blue-600">Contact</a>
+            <a href="/experience" className="font-medium transition-colors duration-300 hover:text-blue-600">Experience</a>
+            <a href="/contact" className="font-medium transition-colors duration-300 hover:text-blue-600">Contact</a>
           </div>
           <button 
             onClick={toggleTheme}
@@ -406,7 +406,7 @@ export default function AwardWinningHome() {
           <div className={`mt-8 pt-8 border-t text-center ${
             darkMode ? 'border-gray-700 text-gray-400' : 'border-blue-200 text-gray-600'
           }`}>
-            <p>© Aly Sibak. Built with React, Next.js, and passion for great UX.</p>
+            <p>Built with React, Next.js, and passion for great UX.</p>
           </div>
         </div>
       </footer>
