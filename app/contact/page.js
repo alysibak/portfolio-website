@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { FaGithub, FaLinkedin, FaEnvelope, FaSun, FaMoon, FaMapMarkerAlt, FaCalendarCheck } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Analytics } from "@vercel/analytics/next"
 
 export default function Contact() {
   const [darkMode, setDarkMode] = useState(false);
@@ -302,7 +301,7 @@ export default function Contact() {
         : "bg-white bg-opacity-80 backdrop-blur-sm py-8 text-center border-t border-blue-200"
       }>
         <p className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
-          Aly Sibak. Built with Next.js & Tailwind CSS
+          © Aly Sibak. Built with Next.js & Tailwind CSS
         </p>
       </footer>
     </div>
