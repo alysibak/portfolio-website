@@ -50,6 +50,7 @@ export default function Contact() {
             <Link href="/contact" className={`relative font-semibold transition-colors duration-300 ${darkMode ? 'text-white hover:text-blue-400' : 'hover:text-blue-600'}`}>
               Contact
               <span className="absolute bottom-[-4px] left-0 w-full h-0.5 bg-gradient-to-r from-blue-600 to-cyan-600"></span>
+            </Link>
           </div>
         </div>
       </nav>
