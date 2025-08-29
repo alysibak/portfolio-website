@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { FaGithub, FaLinkedin, FaEnvelope, FaSun, FaMoon, FaMapMarkerAlt, FaCalendarCheck } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { Analytics } from "@vercel/analytics/next"
 
 export default function Contact() {
   const [darkMode, setDarkMode] = useState(false);
