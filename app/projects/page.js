@@ -49,7 +49,7 @@ const projects = [
   },
   {
     title: "PocketChange",
-    description: "Fintech application with live bank connectivity via Plaid API and Stripe payment processing for donations across 40+ charities. Features JWT authentication, role-based access control, rate limiting, and anomaly detection for secure transactions.",
+    description: "Fintech application with live bank connectivity via Plaid API and Stripe payment processing for donations across 40+ charities. Features JWT authentication, role-based access control, rate limiting, and anomaly detection.",
     techStack: "React, Next.js, TypeScript, Node.js, PostgreSQL, Plaid API, Stripe",
     githubLink: "https://github.com/alysibak",
     liveLink: "https://alysibak.vercel.app",
@@ -64,23 +64,41 @@ const projects = [
     liveLink: null,
     status: "In Development",
     category: "Web Application"
+  },
+  {
+    title: "Business Website Portfolio",
+    description: "Multiple responsive websites for local businesses using modern web technologies, featuring clean design principles and optimized user experience.",
+    techStack: "React, Next.js, JavaScript, HTML, CSS",
+    githubLink: "https://github.com/alysibak",
+    liveLink: null,
+    status: "Completed",
+    category: "Client Work"
+  },
+  {
+    title: "Investment Portfolio Manager",
+    description: "Java console application for managing stock and mutual fund investments with automated transaction processing and real-time portfolio evaluation.",
+    techStack: "Java, Object-Oriented Programming",
+    githubLink: "https://github.com/alysibak",
+    liveLink: null,
+    status: "Completed",
+    category: "Desktop Application"
   }
 ];
 
 const ProjectCard = ({ project, index, darkMode }) => (
   <motion.div
     className={`group relative rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 overflow-hidden ${
-      darkMode 
-        ? 'bg-gray-800 bg-opacity-80 border-gray-600 hover:border-blue-500' 
+      darkMode
+        ? 'bg-gray-800 bg-opacity-80 border-gray-600 hover:border-blue-500'
         : 'bg-white bg-opacity-90 border-blue-200 hover:border-blue-400'
     }`}
     initial={{ opacity: 0, y: 50 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, delay: index * 0.2 }}
+    transition={{ duration: 0.6, delay: index * 0.1 }}
     whileHover={{ scale: 1.02, y: -5 }}
   >
     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-    
+
     <div className="relative z-10">
       <div className="flex justify-between items-start mb-6">
         <div>
@@ -93,30 +111,30 @@ const ProjectCard = ({ project, index, darkMode }) => (
             {project.title}
           </h3>
         </div>
-        <span className={`px-4 py-2 rounded-full text-xs font-bold shadow-md ${
-          project.status === 'Completed' 
+        <span className={`px-4 py-2 rounded-full text-xs font-bold shadow-md flex-shrink-0 ml-2 ${
+          project.status === 'Completed'
             ? (darkMode ? 'bg-green-900 text-green-200 border border-green-700' : 'bg-green-100 text-green-700 border border-green-300')
             : (darkMode ? 'bg-yellow-900 text-yellow-200 border border-yellow-700' : 'bg-yellow-100 text-yellow-700 border border-yellow-300')
         }`}>
           {project.status}
         </span>
       </div>
-      
+
       <p className={`leading-relaxed mb-6 text-lg ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
         {project.description}
       </p>
-      
+
       <div className="mb-8">
         <p className={`text-sm font-semibold mb-3 ${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
           Technologies Used:
         </p>
         <div className="flex flex-wrap gap-2">
           {project.techStack.split(', ').map((tech, i) => (
-            <span 
-              key={i} 
+            <span
+              key={i}
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-300 ${
-                darkMode 
-                  ? 'bg-blue-900 text-blue-200 hover:bg-blue-800' 
+                darkMode
+                  ? 'bg-blue-900 text-blue-200 hover:bg-blue-800'
                   : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
               }`}
             >
@@ -125,25 +143,25 @@ const ProjectCard = ({ project, index, darkMode }) => (
           ))}
         </div>
       </div>
-      
+
       <div className="flex gap-3 justify-center">
-        <a 
-          href={project.githubLink} 
-          target="_blank" 
-          rel="noopener noreferrer" 
+        <a
+          href={project.githubLink}
+          target="_blank"
+          rel="noopener noreferrer"
           className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-3 rounded-lg text-white hover:scale-105 transition-all duration-300 shadow-lg font-semibold"
         >
           <FaGithub />
           <span>GitHub</span>
         </a>
         {project.liveLink && (
-          <a 
-            href={project.liveLink} 
-            target="_blank" 
-            rel="noopener noreferrer" 
+          <a
+            href={project.liveLink}
+            target="_blank"
+            rel="noopener noreferrer"
             className={`flex items-center gap-2 px-6 py-3 rounded-lg border-2 hover:scale-105 transition-all duration-300 shadow-lg font-semibold ${
-              darkMode 
-                ? 'border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white' 
+              darkMode
+                ? 'border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white'
                 : 'border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white'
             }`}
           >
@@ -160,9 +178,7 @@ export default function Projects() {
   const { darkMode, toggleTheme, isLoading } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
   if (isLoading || !mounted) {
     return (
@@ -174,8 +190,8 @@ export default function Projects() {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
-      darkMode 
-        ? "bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800 text-white" 
+      darkMode
+        ? "bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800 text-white"
         : "bg-gradient-to-br from-blue-50 via-cyan-50 to-indigo-50 text-gray-900"
     }`}>
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -195,14 +211,23 @@ export default function Projects() {
             </Link>
             <Link href="/contact" className="font-medium transition-colors duration-300 hover:text-blue-600">Contact</Link>
           </div>
-          <button onClick={toggleTheme} className="p-3 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg hover:scale-105 transition-all duration-300" aria-label={`Switch to ${darkMode ? 'light' : 'dark'} mode`}>
+          <button
+            onClick={toggleTheme}
+            className="p-3 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg hover:scale-105 transition-all duration-300"
+            aria-label={`Switch to ${darkMode ? 'light' : 'dark'} mode`}
+          >
             {darkMode ? <FaSun /> : <FaMoon />}
           </button>
         </div>
       </nav>
 
       <div className="container mx-auto px-6 py-16 pt-32 max-w-7xl">
-        <motion.div className="text-center mb-16" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
           <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-purple-600 bg-clip-text text-transparent mb-6">
             Featured Projects
           </h1>
@@ -218,8 +243,12 @@ export default function Projects() {
         </div>
 
         <motion.div
-          className={`text-center rounded-xl p-10 shadow-xl border-2 ${darkMode ? 'bg-gray-800 bg-opacity-80 border-gray-600' : 'bg-white bg-opacity-90 border-blue-200'}`}
-          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.8 }}
+          className={`text-center rounded-xl p-10 shadow-xl border-2 ${
+            darkMode ? 'bg-gray-800 bg-opacity-80 border-gray-600' : 'bg-white bg-opacity-90 border-blue-200'
+          }`}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
         >
           <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-4">
             Have a project in mind?
@@ -227,7 +256,10 @@ export default function Projects() {
           <p className={`text-lg mb-8 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             I&apos;m always interested in taking on new challenges and building innovative solutions
           </p>
-          <Link href="/contact" className="bg-gradient-to-r from-blue-600 to-cyan-600 px-10 py-4 rounded-xl text-white hover:scale-105 transition-all duration-300 shadow-lg font-semibold inline-block">
+          <Link
+            href="/contact"
+            className="bg-gradient-to-r from-blue-600 to-cyan-600 px-10 py-4 rounded-xl text-white hover:scale-105 transition-all duration-300 shadow-lg font-semibold inline-block"
+          >
             Let&apos;s Collaborate
           </Link>
         </motion.div>

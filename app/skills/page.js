@@ -38,15 +38,15 @@ const useTheme = () => {
 };
 
 const frontendSkills = ["React", "TypeScript", "JavaScript", "HTML/CSS", "TSX", "Next.js", "Tailwind CSS", "Responsive Design"];
-const backendSkills = ["Node.js", "NestJS", "Python", "C", "RESTful APIs", "PostgreSQL", "SQL", "Data Processing"];
-const cloudAndTools = ["AWS (S3, RDS, EC2, IAM)", "Git", "CI/CD", "Docker", "Linux", "Agile / Scrum"];
-const aiAndData = ["Google Gemini API", "Prompt Engineering", "LLM Integration", "Anomaly Detection", "Pandas / NumPy", "Data Pipelines"];
+const backendSkills = ["Node.js", "NestJS", "Python", "Java", "C", "RESTful APIs", "PostgreSQL", "SQL", "Database Design", "Data Processing"];
+const cloudAndTools = ["AWS (S3, RDS, EC2, IAM)", "Git", "CI/CD", "Docker", "Linux", "Version Control", "Agile Development"];
+const aiAndData = ["Google Gemini API", "Prompt Engineering", "LLM Integration", "Anomaly Detection", "Pandas", "NumPy"];
 
 const SkillCategory = ({ title, skills, icon, delay = 0, darkMode }) => (
   <motion.div
     className={`rounded-xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 ${
-      darkMode 
-        ? 'bg-gray-800 bg-opacity-80 border-gray-600 hover:border-blue-500' 
+      darkMode
+        ? 'bg-gray-800 bg-opacity-80 border-gray-600 hover:border-blue-500'
         : 'bg-white bg-opacity-90 border-blue-200 hover:border-blue-400'
     }`}
     initial={{ opacity: 0, y: 50 }}
@@ -67,8 +67,8 @@ const SkillCategory = ({ title, skills, icon, delay = 0, darkMode }) => (
         <motion.div
           key={index}
           className={`px-4 py-3 rounded-lg shadow-sm border transition-all duration-300 text-center hover:scale-105 ${
-            darkMode 
-              ? 'bg-blue-900 bg-opacity-50 text-blue-200 border-blue-700 hover:border-blue-500' 
+            darkMode
+              ? 'bg-blue-900 bg-opacity-50 text-blue-200 border-blue-700 hover:border-blue-500'
               : 'bg-gradient-to-br from-blue-50 to-cyan-50 text-blue-700 border-blue-200 hover:border-cyan-400'
           }`}
           whileHover={{ scale: 1.05 }}
@@ -96,11 +96,17 @@ export default function Skills() {
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
-      darkMode ? "bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800 text-white" : "bg-gradient-to-br from-blue-50 via-cyan-50 to-indigo-50 text-gray-900"
+      darkMode
+        ? "bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800 text-white"
+        : "bg-gradient-to-br from-blue-50 via-cyan-50 to-indigo-50 text-gray-900"
     }`}>
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${darkMode ? 'bg-gray-900/90 border-gray-700' : 'bg-white/90 border-blue-200'} backdrop-blur-xl border-b`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        darkMode ? 'bg-gray-900/90 border-gray-700' : 'bg-white/90 border-blue-200'
+      } backdrop-blur-xl border-b`}>
         <div className="container mx-auto flex justify-between items-center p-4 max-w-6xl">
-          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Aly Sibak</Link>
+          <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+            Aly Sibak
+          </Link>
           <div className="hidden md:flex space-x-8">
             <Link href="/" className="font-medium transition-colors duration-300 hover:text-blue-600">Home</Link>
             <Link href="/skills" className="relative font-semibold transition-colors duration-300 hover:text-blue-600 group">
@@ -111,15 +117,26 @@ export default function Skills() {
             <Link href="/projects" className="font-medium transition-colors duration-300 hover:text-blue-600">Projects</Link>
             <Link href="/contact" className="font-medium transition-colors duration-300 hover:text-blue-600">Contact</Link>
           </div>
-          <button onClick={toggleTheme} className="p-3 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg hover:scale-105 transition-all duration-300" aria-label={`Switch to ${darkMode ? 'light' : 'dark'} mode`}>
+          <button
+            onClick={toggleTheme}
+            className="p-3 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg hover:scale-105 transition-all duration-300"
+            aria-label={`Switch to ${darkMode ? 'light' : 'dark'} mode`}
+          >
             {darkMode ? <FaSun /> : <FaMoon />}
           </button>
         </div>
       </nav>
 
       <div className="container mx-auto px-6 py-16 pt-32 max-w-6xl">
-        <motion.div className="text-center mb-16" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-          <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-purple-600 bg-clip-text text-transparent mb-6">Technical Skills</h1>
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-purple-600 bg-clip-text text-transparent mb-6">
+            Technical Skills
+          </h1>
           <p className={`text-xl max-w-3xl mx-auto leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             Technologies and tools I&apos;ve applied through production co-op work and personal projects
           </p>
@@ -136,14 +153,26 @@ export default function Skills() {
         </div>
 
         <motion.div
-          className={`text-center mt-12 rounded-xl p-10 shadow-xl border-2 ${darkMode ? 'bg-gray-800 bg-opacity-80 border-gray-600' : 'bg-white bg-opacity-90 border-blue-200'}`}
-          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.0 }}
+          className={`text-center mt-12 rounded-xl p-10 shadow-xl border-2 ${
+            darkMode ? 'bg-gray-800 bg-opacity-80 border-gray-600' : 'bg-white bg-opacity-90 border-blue-200'
+          }`}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.0 }}
         >
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-4">Ready to build something amazing?</h2>
-          <p className={`text-lg mb-8 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Let&apos;s discuss how these skills can benefit your next project</p>
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-4">
+            Ready to build something amazing?
+          </h2>
+          <p className={`text-lg mb-8 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+            Let&apos;s discuss how these skills can benefit your next project
+          </p>
           <div className="flex gap-4 justify-center">
-            <Link href="/projects" className="bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-4 rounded-xl text-white hover:scale-105 transition-all duration-300 shadow-lg font-semibold">View My Work</Link>
-            <Link href="/contact" className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-4 rounded-xl text-white hover:scale-105 transition-all duration-300 shadow-lg font-semibold">Get in Touch</Link>
+            <Link href="/projects" className="bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-4 rounded-xl text-white hover:scale-105 transition-all duration-300 shadow-lg font-semibold">
+              View My Work
+            </Link>
+            <Link href="/contact" className="bg-gradient-to-r from-blue-600 to-cyan-600 px-8 py-4 rounded-xl text-white hover:scale-105 transition-all duration-300 shadow-lg font-semibold">
+              Get in Touch
+            </Link>
           </div>
         </motion.div>
       </div>
