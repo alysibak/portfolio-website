@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { FaSun, FaMoon, FaGithub } from "react-icons/fa";
+import { FaSun, FaMoon, FaGithub, FaExternalLinkAlt } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -39,28 +39,31 @@ const useTheme = () => {
 
 const projects = [
   {
+    title: "CarInfo",
+    description: "Full-stack vehicle research platform covering 15,470 vehicles with advanced multi-criteria filtering, sorting algorithms, and detailed spec comparisons. Features a responsive UI with real-time search and data visualization.",
+    techStack: "React, Next.js, TypeScript, Node.js, PostgreSQL, Tailwind CSS",
+    githubLink: "https://github.com/alysibak",
+    liveLink: "https://alysibak.vercel.app",
+    status: "Completed",
+    category: "Full-Stack Application"
+  },
+  {
+    title: "PocketChange",
+    description: "Fintech application with live bank connectivity via Plaid API and Stripe payment processing for donations across 40+ charities. Features JWT authentication, role-based access control, rate limiting, and anomaly detection for secure transactions.",
+    techStack: "React, Next.js, TypeScript, Node.js, PostgreSQL, Plaid API, Stripe",
+    githubLink: "https://github.com/alysibak",
+    liveLink: "https://alysibak.vercel.app",
+    status: "Completed",
+    category: "Fintech Application"
+  },
+  {
     title: "3D Interactive Fitness App",
     description: "Web application that visually connects muscle groups to exercises with interactive 3D elements and responsive design for optimal user experience across all devices.",
     techStack: "React, Next.js, TypeScript, CSS",
     githubLink: "https://github.com/alysibak",
+    liveLink: null,
     status: "In Development",
     category: "Web Application"
-  },
-  {
-    title: "Business Website Portfolio",
-    description: "Multiple responsive websites for local businesses using modern web technologies, featuring clean design principles and optimized user experience.",
-    techStack: "React, Next.js, JavaScript, HTML, CSS",
-    githubLink: "https://github.com/alysibak",
-    status: "Completed",
-    category: "Client Work"
-  },
-  {
-    title: "Investment Portfolio Manager",
-    description: "Java console application for managing stock and mutual fund investments with automated transaction processing and real-time portfolio evaluation.",
-    techStack: "Java, Object-Oriented Programming",
-    githubLink: "https://github.com/alysibak",
-    status: "Completed",
-    category: "Desktop Application"
   }
 ];
 
@@ -123,7 +126,7 @@ const ProjectCard = ({ project, index, darkMode }) => (
         </div>
       </div>
       
-      <div className="flex justify-center">
+      <div className="flex gap-3 justify-center">
         <a 
           href={project.githubLink} 
           target="_blank" 
@@ -131,8 +134,23 @@ const ProjectCard = ({ project, index, darkMode }) => (
           className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-3 rounded-lg text-white hover:scale-105 transition-all duration-300 shadow-lg font-semibold"
         >
           <FaGithub />
-          <span>View on GitHub</span>
+          <span>GitHub</span>
         </a>
+        {project.liveLink && (
+          <a 
+            href={project.liveLink} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className={`flex items-center gap-2 px-6 py-3 rounded-lg border-2 hover:scale-105 transition-all duration-300 shadow-lg font-semibold ${
+              darkMode 
+                ? 'border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white' 
+                : 'border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white'
+            }`}
+          >
+            <FaExternalLinkAlt />
+            <span>Live Demo</span>
+          </a>
+        )}
       </div>
     </div>
   </motion.div>
@@ -160,11 +178,8 @@ export default function Projects() {
         ? "bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800 text-white" 
         : "bg-gradient-to-br from-blue-50 via-cyan-50 to-indigo-50 text-gray-900"
     }`}>
-      {/* Navigation */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        darkMode 
-          ? 'bg-gray-900/90 border-gray-700' 
-          : 'bg-white/90 border-blue-200'
+        darkMode ? 'bg-gray-900/90 border-gray-700' : 'bg-white/90 border-blue-200'
       } backdrop-blur-xl border-b`}>
         <div className="container mx-auto flex justify-between items-center p-4 max-w-6xl">
           <Link href="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
@@ -180,24 +195,14 @@ export default function Projects() {
             </Link>
             <Link href="/contact" className="font-medium transition-colors duration-300 hover:text-blue-600">Contact</Link>
           </div>
-          <button 
-            onClick={toggleTheme}
-            className="p-3 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg hover:scale-105 transition-all duration-300"
-            aria-label={`Switch to ${darkMode ? 'light' : 'dark'} mode`}
-          >
+          <button onClick={toggleTheme} className="p-3 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg hover:scale-105 transition-all duration-300" aria-label={`Switch to ${darkMode ? 'light' : 'dark'} mode`}>
             {darkMode ? <FaSun /> : <FaMoon />}
           </button>
         </div>
       </nav>
 
-      {/* Projects Content */}
       <div className="container mx-auto px-6 py-16 pt-32 max-w-7xl">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
+        <motion.div className="text-center mb-16" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-600 via-cyan-600 to-purple-600 bg-clip-text text-transparent mb-6">
             Featured Projects
           </h1>
@@ -212,16 +217,9 @@ export default function Projects() {
           ))}
         </div>
 
-        {/* Call to Action */}
         <motion.div
-          className={`text-center rounded-xl p-10 shadow-xl border-2 ${
-            darkMode 
-              ? 'bg-gray-800 bg-opacity-80 border-gray-600' 
-              : 'bg-white bg-opacity-90 border-blue-200'
-          }`}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
+          className={`text-center rounded-xl p-10 shadow-xl border-2 ${darkMode ? 'bg-gray-800 bg-opacity-80 border-gray-600' : 'bg-white bg-opacity-90 border-blue-200'}`}
+          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.8 }}
         >
           <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-4">
             Have a project in mind?
@@ -229,35 +227,21 @@ export default function Projects() {
           <p className={`text-lg mb-8 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             I&apos;m always interested in taking on new challenges and building innovative solutions
           </p>
-          <Link 
-            href="/contact" 
-            className="bg-gradient-to-r from-blue-600 to-cyan-600 px-10 py-4 rounded-xl text-white hover:scale-105 transition-all duration-300 shadow-lg font-semibold inline-block"
-          >
+          <Link href="/contact" className="bg-gradient-to-r from-blue-600 to-cyan-600 px-10 py-4 rounded-xl text-white hover:scale-105 transition-all duration-300 shadow-lg font-semibold inline-block">
             Let&apos;s Collaborate
           </Link>
         </motion.div>
       </div>
 
-      {/* Footer */}
-      <footer className={`py-12 px-6 border-t ${
-        darkMode 
-          ? 'bg-gray-900/80 border-gray-700' 
-          : 'bg-white/80 border-blue-200'
-      } backdrop-blur-sm`}>
+      <footer className={`py-12 px-6 border-t ${darkMode ? 'bg-gray-900/80 border-gray-700' : 'bg-white/80 border-blue-200'} backdrop-blur-sm`}>
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                Aly Sibak
-              </h3>
-              <p className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
-                Full-stack developer passionate about creating impactful solutions
-              </p>
+              <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Aly Sibak</h3>
+              <p className={darkMode ? 'text-gray-400' : 'text-gray-600'}>Full-stack developer passionate about creating impactful solutions</p>
             </div>
             <div>
-              <h4 className={`font-semibold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                Quick Links
-              </h4>
+              <h4 className={`font-semibold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>Quick Links</h4>
               <div className="space-y-2">
                 <Link href="/skills" className="block text-blue-600 hover:text-blue-500 transition-colors">Skills</Link>
                 <Link href="/experience" className="block text-blue-600 hover:text-blue-500 transition-colors">Experience</Link>
@@ -266,25 +250,15 @@ export default function Projects() {
               </div>
             </div>
             <div>
-              <h4 className={`font-semibold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                Connect
-              </h4>
+              <h4 className={`font-semibold mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>Connect</h4>
               <div className="flex space-x-4">
-                <a href="https://github.com/alysibak" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clipRule="evenodd"></path></svg>
-                </a>
-                <a href="https://linkedin.com/in/aly-sibak-721b85252" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z"></path></svg>
-                </a>
-                <a href="mailto:asibak@uoguelph.ca" className="text-gray-600 hover:text-blue-600 transition-colors">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
-                </a>
+                <a href="https://github.com/alysibak" className="text-gray-600 hover:text-blue-600 transition-colors"><svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clipRule="evenodd"></path></svg></a>
+                <a href="https://linkedin.com/in/aly-sibak-721b85252" className="text-gray-600 hover:text-blue-600 transition-colors"><svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z"></path></svg></a>
+                <a href="mailto:asibak@uoguelph.ca" className="text-gray-600 hover:text-blue-600 transition-colors"><svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg></a>
               </div>
             </div>
           </div>
-          <div className={`mt-8 pt-8 border-t text-center ${
-            darkMode ? 'border-gray-700 text-gray-400' : 'border-blue-200 text-gray-600'
-          }`}>
+          <div className={`mt-8 pt-8 border-t text-center ${darkMode ? 'border-gray-700 text-gray-400' : 'border-blue-200 text-gray-600'}`}>
             <p>Built with React, Next.js, and passion for great UX.</p>
           </div>
         </div>
