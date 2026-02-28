@@ -83,7 +83,7 @@ const experience = [
   {
     title: "Teaching Assistant – Web Design",
     company: "University of Guelph",
-    period: "Jan – Apr 2025",
+    period: "Jan – Apr 2026",
     location: "Guelph, ON",
     accent: "#38bdf8",
     icon: <FaBriefcase />,
