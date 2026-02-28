@@ -67,7 +67,7 @@ const experience = [
   {
     title: "Software Developer Co-op",
     company: "P&P Optica",
-    period: "May 2025 – Present",
+    period: "May 2025 – Dec 2025",
     location: "Waterloo, ON",
     accent: "#06b6d4",
     icon: <FaBriefcase />,
