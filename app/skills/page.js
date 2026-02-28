@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { FaCode, FaServer, FaCloud, FaBrain, FaArrowRight } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import Link from "next/link";
 
 const Nav = ({ active }) => {
   const links = [
