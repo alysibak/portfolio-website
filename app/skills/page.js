@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { FaCode, FaServer, FaCloud, FaBrain, FaArrowRight } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Link from "next/link";
 
 const Nav = ({ active }) => {
   const links = [
@@ -18,9 +19,9 @@ const Nav = ({ active }) => {
     <>
       <nav className="nav-glass fixed top-0 left-0 right-0 z-50">
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
-          <a href="/" className="font-display font-bold text-xl text-[#e2e8f0] tracking-tight">
+          <Link href="/" className="font-display font-bold text-xl text-[#e2e8f0] tracking-tight">
             aly<span className="text-[#06b6d4]">.</span>sibak
-          </a>
+          </Link>
           <div className="hidden md:flex items-center gap-7">
             {links.map(l => (
               <a key={l.href} href={l.href}
