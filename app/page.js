@@ -1,356 +1,409 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
-import { FaGithub, FaLinkedin, FaEnvelope, FaSun, FaMoon, FaDownload, FaCode, FaBriefcase, FaRocket, FaComments, FaChevronDown, FaPlay, FaExternalLinkAlt } from "react-icons/fa";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { FaGithub, FaLinkedin, FaEnvelope, FaDownload, FaCode, FaBriefcase, FaRocket, FaComments, FaArrowRight, FaChevronDown } from "react-icons/fa";
 import Image from "next/image";
+import { motion, useInView } from "framer-motion";
 
 const THEME_KEY = 'aly-sibak-theme';
 
-const useTheme = () => {
-  const [darkMode, setDarkMode] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+/* ─── Typewriter ─────────────────────────────── */
+const TypewriterText = ({ texts }) => {
+  const [current, setCurrent] = useState('');
+  const [idx, setIdx] = useState(0);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    try {
-      const savedTheme = localStorage.getItem(THEME_KEY);
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setDarkMode(savedTheme ? savedTheme === 'dark' : prefersDark);
-    } catch (error) {
-      console.warn('Failed to load theme preference:', error);
-      setDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const toggleTheme = useCallback(() => {
-    const newTheme = !darkMode;
-    setDarkMode(newTheme);
-    try {
-      localStorage.setItem(THEME_KEY, newTheme ? 'dark' : 'light');
-    } catch (error) {
-      console.warn('Failed to save theme preference:', error);
-    }
-  }, [darkMode]);
-
-  return { darkMode, toggleTheme, isLoading };
-};
-
-const TypewriterText = ({ texts, className }) => {
-  const [currentText, setCurrentText] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  useEffect(() => {
+    const word = texts[idx];
     const timeout = setTimeout(() => {
-      const current = texts[currentIndex];
-      if (isDeleting) {
-        setCurrentText(prev => prev.slice(0, -1));
-        if (currentText === '') {
-          setIsDeleting(false);
-          setCurrentIndex((prev) => (prev + 1) % texts.length);
-        }
+      if (deleting) {
+        setCurrent(prev => prev.slice(0, -1));
+        if (current === '') { setDeleting(false); setIdx(p => (p + 1) % texts.length); }
       } else {
-        setCurrentText(current.slice(0, currentText.length + 1));
-        if (currentText === current) {
-          setTimeout(() => setIsDeleting(true), 2000);
-        }
+        setCurrent(word.slice(0, current.length + 1));
+        if (current === word) setTimeout(() => setDeleting(true), 2200);
       }
-    }, isDeleting ? 50 : 100);
+    }, deleting ? 45 : 95);
     return () => clearTimeout(timeout);
-  }, [currentText, currentIndex, isDeleting, texts]);
+  }, [current, idx, deleting, texts]);
 
   return (
-    <span className={className}>
-      {currentText}
-      <span className="animate-pulse">|</span>
+    <span className="font-display text-gradient-cyan">
+      {current}
+      <span className="inline-block w-0.5 h-8 md:h-10 bg-[#06b6d4] ml-1 animate-pulse align-middle" />
     </span>
   );
 };
 
-const ParallaxSection = ({ children, offset = 0.5 }) => {
-  const [scrollY, setScrollY] = useState(0);
+/* ─── Count Up ───────────────────────────────── */
+const CountUp = ({ target, suffix = "" }) => {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    if (!inView) return;
+    const duration = 1600;
+    const steps = 60;
+    const inc = target / steps;
+    let cur = 0;
+    const t = setInterval(() => {
+      cur += inc;
+      if (cur >= target) { setCount(target); clearInterval(t); }
+      else setCount(Math.floor(cur));
+    }, duration / steps);
+    return () => clearInterval(t);
+  }, [inView, target]);
+
+  return <span ref={ref}>{count}{suffix}</span>;
+};
+
+/* ─── Nav ────────────────────────────────────── */
+const Nav = ({ active }) => {
+  const links = [
+    { label: "Home", href: "/" },
+    { label: "Skills", href: "/skills" },
+    { label: "Experience", href: "/experience" },
+    { label: "Projects", href: "/projects" },
+    { label: "Contact", href: "/contact" },
+  ];
+  const [open, setOpen] = useState(false);
+
   return (
-    <div style={{ transform: `translateY(${scrollY * offset}px)`, transition: 'transform 0.1s ease-out' }}>
-      {children}
-    </div>
+    <>
+      <nav className="nav-glass fixed top-0 left-0 right-0 z-50">
+        <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+          <a href="/" className="font-display font-bold text-xl text-[#e2e8f0] tracking-tight">
+            aly<span className="text-[#06b6d4]">.</span>sibak
+          </a>
+          <div className="hidden md:flex items-center gap-7">
+            {links.map(l => (
+              <a key={l.href} href={l.href}
+                className={`nav-link ${active === l.label ? 'nav-link-active' : ''}`}>
+                {l.label}
+              </a>
+            ))}
+          </div>
+          <button onClick={() => setOpen(p => !p)} className="md:hidden p-2 text-[#64748b] hover:text-[#e2e8f0] transition-colors">
+            <div className="w-5 flex flex-col gap-1.5">
+              <span className={`h-px bg-current transition-all duration-300 ${open ? 'rotate-45 translate-y-2.5 w-5' : 'w-5'}`} />
+              <span className={`h-px bg-current transition-all duration-300 ${open ? 'opacity-0 w-5' : 'w-3.5'}`} />
+              <span className={`h-px bg-current transition-all duration-300 ${open ? '-rotate-45 -translate-y-2.5 w-5' : 'w-5'}`} />
+            </div>
+          </button>
+        </div>
+      </nav>
+      {open && (
+        <div className="fixed inset-0 z-40 bg-[#080c14]/95 backdrop-blur-xl pt-20 md:hidden">
+          <div className="px-6 flex flex-col gap-1">
+            {links.map(l => (
+              <a key={l.href} href={l.href} onClick={() => setOpen(false)}
+                className="py-3.5 px-4 rounded-lg text-[#94a3b8] hover:text-[#e2e8f0] hover:bg-white/4 transition-all text-lg font-medium">
+                {l.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
-const MetricCard = ({ number, label, suffix = "", darkMode }) => (
-  <div className={`text-center p-3 sm:p-4 xl:p-6 rounded-xl transition-all duration-300 hover:scale-105 ${
-    darkMode ? 'bg-gray-800/50 border border-gray-700' : 'bg-white/50 border border-blue-200'
-  } backdrop-blur-sm`}>
-    <div className="text-2xl sm:text-3xl xl:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-      {number}{suffix}
+/* ─── Footer ─────────────────────────────────── */
+const Footer = () => (
+  <footer className="border-t border-[#1a2540] py-12 px-6 mt-0">
+    <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+      <div>
+        <p className="font-display font-bold text-lg text-[#e2e8f0]">aly<span className="text-[#06b6d4]">.</span>sibak</p>
+        <p className="text-[#64748b] text-sm mt-1">Building software that matters.</p>
+      </div>
+      <div className="flex items-center gap-5">
+        <a href="https://github.com/alysibak" target="_blank" rel="noopener noreferrer"
+          className="text-[#475569] hover:text-[#06b6d4] transition-colors"><FaGithub size={18} /></a>
+        <a href="https://linkedin.com/in/aly-sibak-721b85252" target="_blank" rel="noopener noreferrer"
+          className="text-[#475569] hover:text-[#06b6d4] transition-colors"><FaLinkedin size={18} /></a>
+        <a href="mailto:asibak@uoguelph.ca"
+          className="text-[#475569] hover:text-[#06b6d4] transition-colors"><FaEnvelope size={18} /></a>
+      </div>
+      <p className="text-[#334155] text-xs font-mono-label">Built with Next.js &amp; Tailwind</p>
     </div>
-    <div className={`text-xs sm:text-sm xl:text-base ${darkMode ? 'text-gray-400' : 'text-gray-600'} leading-tight mt-1`}>{label}</div>
-  </div>
+  </footer>
 );
 
+/* ─── Home Page ──────────────────────────────── */
 export default function HomePage() {
-  const { darkMode, toggleTheme, isLoading } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return <div className="min-h-screen bg-[#080c14]" />;
 
-  useEffect(() => { setMounted(true); }, []);
+  const metrics = [
+    { value: 20, suffix: "+", label: "Global Facilities" },
+    { value: 330, suffix: "+", label: "Students Supported" },
+    { value: 83, suffix: "%", label: "Current GPA" },
+    { value: 1, suffix: "", label: "Co-op Completed" },
+  ];
 
-  if (isLoading || !mounted) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  const heroTexts = ["Full-Stack Developer", "AI Systems Builder", "Problem Solver", "Tech Innovator"];
 
-  const heroTexts = ["Full-Stack Developer", "Problem Solver", "Tech Innovator", "AI Enthusiast"];
+  const highlights = [
+    {
+      accent: "cyan",
+      icon: <FaBriefcase />,
+      company: "P&P Optica",
+      role: "Software Developer Co-op",
+      points: [
+        "Integrated Google Gemini API across a system tracking 1,000+ daily incidents at 20+ global facilities",
+        "Built full-stack features with React, TypeScript, Node.js for AI-powered food safety systems",
+        "Optimized PostgreSQL and managed AWS (S3, RDS, EC2, IAM) in production",
+      ],
+    },
+    {
+      accent: "amber",
+      icon: <FaCode />,
+      company: "University of Guelph",
+      role: "Academic Excellence",
+      points: [
+        "Maintaining 83% GPA in CS (Co-op) with a Project Management area of application",
+        "TA for Web Design (80+ students) and Discrete Structures (250+ students)",
+        "Built CarInfo and PocketChange — production full-stack apps with live API integrations",
+      ],
+    },
+  ];
+
+  const cards = [
+    { href: "/skills", label: "Skills", desc: "React · TypeScript · Python · AWS", icon: <FaCode />, color: "#06b6d4" },
+    { href: "/experience", label: "Experience", desc: "P&P Optica · Teaching Assistant", icon: <FaBriefcase />, color: "#38bdf8" },
+    { href: "/projects", label: "Projects", desc: "CarInfo · PocketChange · More", icon: <FaRocket />, color: "#a78bfa" },
+    { href: "/contact", label: "Contact", desc: "Available Summer 2026", icon: <FaComments />, color: "#f59e0b" },
+  ];
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${
-      darkMode ? "bg-gradient-to-br from-gray-900 via-blue-900 to-gray-800 text-white" : "bg-gradient-to-br from-blue-50 via-cyan-50 to-indigo-50 text-gray-900"
-    }`}>
-      {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        darkMode ? 'bg-gray-900/95 border-gray-700' : 'bg-white/95 border-blue-200'
-      } backdrop-blur-xl border-b`}>
-        <div className="container mx-auto flex justify-between items-center px-4 py-3 max-w-7xl xl:max-w-8xl">
-          <div className="text-xl md:text-2xl xl:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent flex-shrink-0">
+    <div className="min-h-screen bg-[#080c14] text-[#e2e8f0] overflow-x-hidden">
+      {/* Fixed bg layers */}
+      <div className="fixed inset-0 bg-dot-grid pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-glow-top pointer-events-none z-0" />
+      <div className="fixed inset-0 bg-glow-bottom pointer-events-none z-0" />
+
+      <Nav active="Home" />
+
+      {/* ── Hero ── */}
+      <section id="home" className="relative z-10 min-h-screen flex flex-col items-center justify-center px-5 pt-20 pb-12">
+        <motion.div
+          className="text-center w-full max-w-4xl"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+        >
+          {/* Available badge */}
+          <motion.div
+            className="flex justify-center mb-8"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <span className="badge-available">
+              <span className="badge-dot" />
+              Available for Summer 2026 Co-op
+            </span>
+          </motion.div>
+
+          {/* Photo */}
+          <motion.div
+            className="flex justify-center mb-8"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            <div className="profile-ring w-28 h-28 md:w-36 md:h-36">
+              <Image src="/profile.jpeg" alt="Aly Sibak" width={144} height={144}
+                className="w-full h-full rounded-full object-cover" />
+            </div>
+          </motion.div>
+
+          {/* Name */}
+          <motion.h1
+            className="font-display font-extrabold text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-[#e2e8f0] tracking-tight mb-4 leading-none"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
             Aly Sibak
-          </div>
-          <div className="hidden md:flex space-x-4 lg:space-x-6 xl:space-x-8 2xl:space-x-10">
-            <a href="#home" className="relative font-semibold transition-colors duration-300 hover:text-blue-600 group text-sm lg:text-base xl:text-lg whitespace-nowrap">
-              Home
-              <span className="absolute bottom-[-4px] left-0 w-0 h-0.5 bg-gradient-to-r from-blue-600 to-cyan-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="#highlights" className="font-medium transition-colors duration-300 hover:text-blue-600 text-sm lg:text-base xl:text-lg whitespace-nowrap">Highlights</a>
-            <a href="/skills" className="font-medium transition-colors duration-300 hover:text-blue-600 text-sm lg:text-base xl:text-lg whitespace-nowrap">Skills</a>
-            <a href="/experience" className="font-medium transition-colors duration-300 hover:text-blue-600 text-sm lg:text-base xl:text-lg whitespace-nowrap">Experience</a>
-            <a href="/projects" className="font-medium transition-colors duration-300 hover:text-blue-600 text-sm lg:text-base xl:text-lg whitespace-nowrap">Projects</a>
-            <a href="/contact" className="font-medium transition-colors duration-300 hover:text-blue-600 text-sm lg:text-base xl:text-lg whitespace-nowrap">Contact</a>
-          </div>
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 rounded-lg transition-colors duration-300 hover:bg-gray-100 dark:hover:bg-gray-800" aria-label="Toggle mobile menu">
-              <div className="w-6 h-6 flex flex-col justify-center items-center">
-                <span className={`bg-current block h-0.5 w-6 rounded-sm transition-all duration-300 ${mobileMenuOpen ? 'rotate-45 translate-y-1' : '-translate-y-0.5'}`}></span>
-                <span className={`bg-current block h-0.5 w-6 rounded-sm transition-all duration-300 ${mobileMenuOpen ? 'opacity-0' : 'opacity-100'}`}></span>
-                <span className={`bg-current block h-0.5 w-6 rounded-sm transition-all duration-300 ${mobileMenuOpen ? '-rotate-45 -translate-y-1' : 'translate-y-0.5'}`}></span>
-              </div>
-            </button>
-            <button onClick={toggleTheme} className="p-2 md:p-3 xl:p-4 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg hover:scale-105 transition-all duration-300" aria-label={`Switch to ${darkMode ? 'light' : 'dark'} mode`}>
-              {darkMode ? <FaSun className="text-sm md:text-base xl:text-lg" /> : <FaMoon className="text-sm md:text-base xl:text-lg" />}
-            </button>
-          </div>
-        </div>
-      </nav>
+          </motion.h1>
 
-      {mobileMenuOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setMobileMenuOpen(false)} />}
+          {/* Typewriter */}
+          <motion.div
+            className="text-xl sm:text-2xl md:text-3xl font-semibold mb-6 h-10 md:h-12 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.45 }}
+          >
+            <TypewriterText texts={heroTexts} />
+          </motion.div>
 
-      <div className={`fixed top-0 left-0 right-0 z-45 md:hidden transition-all duration-300 ${
-        mobileMenuOpen ? 'translate-y-0' : '-translate-y-full'
-      } ${darkMode ? 'bg-gray-900' : 'bg-white'} shadow-xl`} style={{ paddingTop: '76px' }}>
-        <div className="px-4 py-6 space-y-2">
-          {['#home', '#highlights', '/skills', '/experience', '/projects', '/contact'].map((href, i) => (
-            <a key={i} href={href} className="block py-3 px-4 rounded-lg transition-colors duration-300 hover:bg-blue-50 dark:hover:bg-gray-800" onClick={() => setMobileMenuOpen(false)}>
-              {['Home', 'Highlights', 'Skills', 'Experience', 'Projects', 'Contact'][i]}
-            </a>
-          ))}
-        </div>
-      </div>
+          {/* Description */}
+          <motion.p
+            className="text-[#64748b] text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-10"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55 }}
+          >
+            3rd-year CS Co-op student at the University of Guelph with production experience building
+            AI-powered systems at P&P Optica. Passionate about scalable software and real-world impact.
+          </motion.p>
 
-      {/* Hero Section */}
-      <section id="home" className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-16 pb-8 relative" style={{ zIndex: 1 }}>
-        <div className="max-w-5xl xl:max-w-6xl 2xl:max-w-7xl w-full text-center relative">
-          <ParallaxSection offset={0.2}>
-            <div className="mb-6 md:mb-8 xl:mb-10">
-              <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 xl:w-56 xl:h-56 2xl:w-64 2xl:h-64 mx-auto rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 p-1">
-                <Image src="/profile.jpeg" alt="Aly Sibak - Full Stack Developer" width={256} height={256} className="w-full h-full rounded-full object-cover" />
-              </div>
-            </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-extrabold mb-4 md:mb-6 xl:mb-8 bg-gradient-to-r from-blue-600 via-cyan-600 to-purple-600 bg-clip-text text-transparent leading-tight">
-              Aly Sibak
-            </h1>
-            <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-bold mb-6 md:mb-8 xl:mb-10 h-12 sm:h-14 md:h-16 xl:h-20 2xl:h-24">
-              <TypewriterText texts={heroTexts} className={darkMode ? 'text-gray-200' : 'text-gray-700'} />
-            </div>
-            <p className={`text-base sm:text-lg md:text-xl xl:text-2xl max-w-3xl xl:max-w-4xl mx-auto mb-8 md:mb-10 xl:mb-12 leading-relaxed px-4 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-              3rd-year Computer Science Co-op student at the University of Guelph with production experience building AI-powered systems at P&P Optica using React, TypeScript, Python, and AWS. Passionate about creating scalable software that solves real-world problems.
-            </p>
-          </ParallaxSection>
-
-          <div className="flex flex-col sm:flex-row gap-4 md:gap-6 xl:gap-8 justify-center mb-10 md:mb-12 xl:mb-16 px-4" style={{ position: 'relative', zIndex: 10 }}>
-            <a href="/AlySibakResume.pdf" target="_blank" rel="noopener noreferrer" className="group bg-gradient-to-r from-blue-600 to-cyan-600 px-6 sm:px-8 xl:px-10 py-3 sm:py-4 xl:py-5 rounded-xl text-white hover:scale-105 transition-all duration-300 shadow-xl hover:shadow-2xl flex items-center justify-center space-x-2 sm:space-x-3 text-sm sm:text-base xl:text-lg font-semibold min-w-max">
-              <FaDownload className="group-hover:animate-bounce text-sm sm:text-base xl:text-lg" />
-              <span>Download Resume</span>
+          {/* CTAs */}
+          <motion.div
+            className="flex flex-col sm:flex-row gap-4 justify-center mb-14"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.65 }}
+          >
+            <a href="/AlySibakResume.pdf" target="_blank" rel="noopener noreferrer" className="btn-primary">
+              <FaDownload size={14} />
+              Download Resume
             </a>
-            <a href="/projects" className={`group border-2 px-6 sm:px-8 xl:px-10 py-3 sm:py-4 xl:py-5 rounded-xl font-semibold hover:scale-105 transition-all duration-300 shadow-lg flex items-center justify-center space-x-2 sm:space-x-3 text-sm sm:text-base xl:text-lg min-w-max ${
-              darkMode ? 'border-blue-500 text-blue-400 hover:bg-blue-500 hover:text-white' : 'border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white'
-            }`}>
-              <FaPlay className="group-hover:translate-x-1 transition-transform text-sm sm:text-base xl:text-lg" />
-              <span>View My Work</span>
+            <a href="/projects" className="btn-outline">
+              View My Work
+              <FaArrowRight size={13} />
             </a>
-          </div>
+          </motion.div>
 
           {/* Metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 xl:gap-6 mb-8 md:mb-10 xl:mb-12 px-4 max-w-4xl xl:max-w-5xl mx-auto">
-            <MetricCard number="20" suffix="+" label="Global Facilities Served" darkMode={darkMode} />
-            <MetricCard number="330" suffix="+" label="Students Supported as TA" darkMode={darkMode} />
-            <MetricCard number="83" suffix="%" label="Current GPA" darkMode={darkMode} />
-            <MetricCard number="1" suffix="" label="Co-op Completed" darkMode={darkMode} />
-          </div>
+          <motion.div
+            className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.75 }}
+          >
+            {metrics.map((m, i) => (
+              <div key={i} className="metric-card">
+                <div className="font-display font-extrabold text-3xl text-gradient-cyan">
+                  <CountUp target={m.value} suffix={m.suffix} />
+                </div>
+                <div className="text-[#64748b] text-xs mt-1.5 font-mono-label">{m.label}</div>
+              </div>
+            ))}
+          </motion.div>
+        </motion.div>
 
-          <div className="flex justify-center mt-8 md:mt-10">
-            <div className="animate-bounce">
-              <FaChevronDown className={`text-xl md:text-2xl ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} />
-            </div>
-          </div>
-        </div>
+        {/* Scroll arrow */}
+        <motion.a
+          href="#highlights"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-[#334155] hover:text-[#06b6d4] transition-colors"
+          animate={{ y: [0, 6, 0] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+        >
+          <FaChevronDown size={16} />
+        </motion.a>
       </section>
 
-      {/* Experience Highlights */}
-      <section id="highlights" className="py-12 md:py-16 xl:py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl xl:max-w-7xl mx-auto">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold text-center mb-6 md:mb-8 xl:mb-12 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-            Experience Highlights
-          </h2>
-          <p className={`text-lg sm:text-xl xl:text-2xl text-center mb-12 md:mb-16 xl:mb-20 px-4 max-w-4xl mx-auto ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            Real impact from professional software development and academic excellence
-          </p>
+      {/* ── Highlights ── */}
+      <section id="highlights" className="relative z-10 py-24 px-5">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            className="text-center mb-14"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <p className="font-mono-label text-[#06b6d4] mb-3">Experience</p>
+            <h2 className="font-display font-bold text-4xl md:text-5xl text-[#e2e8f0]">Highlights</h2>
+            <div className="section-divider" />
+          </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 xl:gap-16">
-            <div className={`p-6 md:p-8 xl:p-10 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
-              darkMode ? 'bg-gray-800/80 border-gray-700 hover:border-blue-500' : 'bg-white/80 border-blue-200 hover:border-blue-400'
-            } backdrop-blur-sm shadow-xl hover:shadow-2xl`}>
-              <div className="flex items-center gap-4 xl:gap-6 mb-6 xl:mb-8">
-                <div className="p-3 md:p-4 xl:p-5 rounded-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white flex-shrink-0">
-                  <FaBriefcase className="text-xl md:text-2xl xl:text-3xl" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-xl md:text-2xl xl:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">P&P Optica</h3>
-                  <p className={`text-sm md:text-base xl:text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Software Developer Co-op</p>
-                </div>
-              </div>
-              <div className="space-y-3 md:space-y-4 xl:space-y-5">
-                {[
-                  "Integrated Google Gemini API across a production system tracking 1,000+ daily incidents at 20+ global facilities",
-                  "Optimized PostgreSQL databases and managed AWS infrastructure including S3, RDS, EC2, and IAM",
-                  "Built full-stack features with React, TypeScript, and Node.js for AI-powered food safety systems"
-                ].map((text, i) => (
-                  <div key={i} className="flex items-start gap-3 xl:gap-4">
-                    <span className="text-green-500 text-lg md:text-xl xl:text-2xl flex-shrink-0">✓</span>
-                    <p className={`text-sm md:text-base xl:text-lg ${darkMode ? 'text-gray-300' : 'text-gray-700'} leading-relaxed`}>{text}</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {highlights.map((h, i) => (
+              <motion.div
+                key={i}
+                className={`rounded-2xl p-7 ${h.accent === 'cyan' ? 'glass-cyan' : 'glass-amber'}`}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.15 }}
+              >
+                <div className="flex items-center gap-3 mb-5">
+                  <div className={`p-2.5 rounded-lg text-sm ${h.accent === 'cyan' ? 'bg-[#06b6d4]/15 text-[#06b6d4]' : 'bg-[#f59e0b]/15 text-[#f59e0b]'}`}>
+                    {h.icon}
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className={`p-6 md:p-8 xl:p-10 rounded-2xl border-2 transition-all duration-300 hover:scale-105 ${
-              darkMode ? 'bg-gray-800/80 border-gray-700 hover:border-cyan-500' : 'bg-white/80 border-blue-200 hover:border-cyan-400'
-            } backdrop-blur-sm shadow-xl hover:shadow-2xl`}>
-              <div className="flex items-center gap-4 xl:gap-6 mb-6 xl:mb-8">
-                <div className="p-3 md:p-4 xl:p-5 rounded-full bg-gradient-to-r from-cyan-600 to-purple-600 text-white flex-shrink-0">
-                  <FaCode className="text-xl md:text-2xl xl:text-3xl" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-xl md:text-2xl xl:text-3xl font-bold bg-gradient-to-r from-cyan-600 to-purple-600 bg-clip-text text-transparent">Academic Excellence</h3>
-                  <p className={`text-sm md:text-base xl:text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>University of Guelph</p>
-                </div>
-              </div>
-              <div className="space-y-3 md:space-y-4 xl:space-y-5">
-                {[
-                  "Maintaining 83% GPA in Computer Science (Co-op) with a Project Management area of application",
-                  "Teaching Assistant for both Web Design (80+ students) and Discrete Structures (250+ students)",
-                  "Built CarInfo and PocketChange — production-grade full-stack applications with live API integrations"
-                ].map((text, i) => (
-                  <div key={i} className="flex items-start gap-3 xl:gap-4">
-                    <span className="text-green-500 text-lg md:text-xl xl:text-2xl flex-shrink-0">✓</span>
-                    <p className={`text-sm md:text-base xl:text-lg ${darkMode ? 'text-gray-300' : 'text-gray-700'} leading-relaxed`}>{text}</p>
+                  <div>
+                    <h3 className={`font-display font-bold text-lg ${h.accent === 'cyan' ? 'text-gradient-cyan' : 'text-gradient-amber'}`}>{h.company}</h3>
+                    <p className="text-[#64748b] text-xs font-mono-label">{h.role}</p>
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+                <ul className="space-y-3">
+                  {h.points.map((pt, j) => (
+                    <li key={j} className="flex items-start gap-3">
+                      <span className={`mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${h.accent === 'cyan' ? 'bg-[#06b6d4]' : 'bg-[#f59e0b]'}`} />
+                      <p className="text-[#94a3b8] text-sm leading-relaxed">{pt}</p>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
           </div>
 
-          <div className="text-center mt-12 md:mt-16 xl:mt-20">
-            <a href="/experience" className="bg-gradient-to-r from-purple-600 to-pink-600 px-8 md:px-10 xl:px-12 py-3 md:py-4 xl:py-5 rounded-xl text-white hover:scale-105 transition-all duration-300 shadow-lg font-semibold inline-block text-sm md:text-base xl:text-lg">
-              View Full Experience
+          <motion.div
+            className="text-center mt-10"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+          >
+            <a href="/experience" className="btn-outline inline-flex">
+              View Full Experience <FaArrowRight size={12} />
             </a>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Quick Access Cards */}
-      <section className="py-16 md:py-20 xl:py-24 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl xl:max-w-7xl mx-auto">
-          <h2 className="text-2xl md:text-3xl xl:text-4xl font-bold text-center mb-8 md:mb-12 xl:mb-16 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-            Explore My Work
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 xl:gap-10 max-w-5xl xl:max-w-6xl mx-auto">
-            {[
-              { href: "/skills", color: "blue", icon: <FaCode className="text-2xl md:text-3xl xl:text-4xl" />, title: "Technical Skills", desc: "React, TypeScript, Python, AWS, and more" },
-              { href: "/experience", color: "cyan", icon: <FaBriefcase className="text-2xl md:text-3xl xl:text-4xl" />, title: "Experience", desc: "Software development at P&P Optica" },
-              { href: "/projects", color: "purple", icon: <FaRocket className="text-2xl md:text-3xl xl:text-4xl" />, title: "Projects", desc: "CarInfo, PocketChange, and more" },
-              { href: "/contact", color: "pink", icon: <FaComments className="text-2xl md:text-3xl xl:text-4xl" />, title: "Contact", desc: "Available for Summer 2026 Co-op" },
-            ].map(({ href, color, icon, title, desc }) => (
-              <a key={href} href={href} className={`group relative p-6 md:p-8 xl:p-10 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border-2 hover:scale-110 overflow-hidden cursor-pointer transform-gpu ${
-                darkMode ? `bg-gray-800/90 border-gray-600 hover:border-${color}-400 hover:bg-gray-700` : `bg-white/90 border-${color}-300 hover:border-${color}-500 hover:bg-${color}-50`
-              } backdrop-blur-sm ring-2 ring-transparent hover:ring-${color}-500/30`}>
-                <div className={`absolute inset-0 bg-gradient-to-br from-${color}-500/20 to-${color}-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
-                <div className="relative z-10 text-center">
-                  <div className="mb-4 xl:mb-6 flex justify-center">
-                    <div className={`p-3 xl:p-4 rounded-full bg-gradient-to-r from-${color}-500 to-${color}-600 text-white group-hover:scale-110 transition-transform duration-300`}>
-                      {icon}
-                    </div>
-                  </div>
-                  <h3 className={`text-lg md:text-xl xl:text-2xl font-bold mb-2 xl:mb-3 text-${color}-600 group-hover:text-${color}-500`}>{title}</h3>
-                  <p className={`mb-4 xl:mb-6 text-sm md:text-base xl:text-lg leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>{desc}</p>
-                  <div className={`flex items-center justify-center text-${color}-600 opacity-60 group-hover:opacity-100 transition-opacity duration-300`}>
-                    <span className="mr-2 text-sm xl:text-base font-medium">Click to explore</span>
-                    <FaExternalLinkAlt className="text-xs xl:text-sm" />
-                  </div>
+      {/* ── Quick Access ── */}
+      <section className="relative z-10 py-20 px-5">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            className="text-center mb-14"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <p className="font-mono-label text-[#06b6d4] mb-3">Navigate</p>
+            <h2 className="font-display font-bold text-4xl md:text-5xl text-[#e2e8f0]">Explore</h2>
+            <div className="section-divider" />
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {cards.map((c, i) => (
+              <motion.a
+                key={c.href}
+                href={c.href}
+                className="glass rounded-2xl p-6 flex flex-col gap-4 group cursor-pointer"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                whileHover={{ y: -4 }}
+              >
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm transition-all duration-300"
+                  style={{ background: `${c.color}18`, color: c.color }}>
+                  {c.icon}
                 </div>
-              </a>
+                <div>
+                  <h3 className="font-display font-semibold text-[#e2e8f0] text-base mb-1 group-hover:text-[#06b6d4] transition-colors">
+                    {c.label}
+                  </h3>
+                  <p className="text-[#64748b] text-xs leading-relaxed">{c.desc}</p>
+                </div>
+                <div className="flex items-center gap-1 text-xs mt-auto" style={{ color: c.color, opacity: 0.7 }}>
+                  <span>Explore</span>
+                  <FaArrowRight size={10} className="group-hover:translate-x-1 transition-transform" />
+                </div>
+              </motion.a>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className={`py-8 md:py-12 xl:py-16 px-4 sm:px-6 lg:px-8 border-t ${
-        darkMode ? 'bg-gray-900/80 border-gray-700' : 'bg-white/80 border-blue-200'
-      } backdrop-blur-sm`}>
-        <div className="max-w-6xl xl:max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 xl:gap-12">
-            <div>
-              <h3 className="text-xl md:text-2xl xl:text-3xl font-bold mb-3 md:mb-4 xl:mb-6 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">Aly Sibak</h3>
-              <p className={`text-sm md:text-base xl:text-lg leading-relaxed ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Full-stack developer passionate about creating impactful solutions</p>
-            </div>
-            <div>
-              <h4 className={`font-semibold mb-3 md:mb-4 xl:mb-6 text-base md:text-lg xl:text-xl ${darkMode ? 'text-white' : 'text-gray-800'}`}>Quick Links</h4>
-              <div className="space-y-2 xl:space-y-3">
-                {['/skills', '/experience', '/projects', '/contact'].map((href) => (
-                  <a key={href} href={href} className="block text-blue-600 hover:text-blue-500 transition-colors text-sm md:text-base xl:text-lg capitalize">{href.slice(1)}</a>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h4 className={`font-semibold mb-3 md:mb-4 xl:mb-6 text-base md:text-lg xl:text-xl ${darkMode ? 'text-white' : 'text-gray-800'}`}>Connect</h4>
-              <div className="flex space-x-4 xl:space-x-6">
-                <a href="https://github.com/alysibak" className="text-gray-600 hover:text-blue-600 transition-colors group"><FaGithub className="text-xl md:text-2xl xl:text-3xl group-hover:scale-110 transition-transform duration-300" /></a>
-                <a href="https://linkedin.com/in/aly-sibak-721b85252" className="text-gray-600 hover:text-blue-600 transition-colors group"><FaLinkedin className="text-xl md:text-2xl xl:text-3xl group-hover:scale-110 transition-transform duration-300" /></a>
-                <a href="mailto:asibak@uoguelph.ca" className="text-gray-600 hover:text-blue-600 transition-colors group"><FaEnvelope className="text-xl md:text-2xl xl:text-3xl group-hover:scale-110 transition-transform duration-300" /></a>
-              </div>
-            </div>
-          </div>
-          <div className={`mt-6 md:mt-8 xl:mt-12 pt-6 md:pt-8 xl:pt-12 border-t text-center ${darkMode ? 'border-gray-700 text-gray-400' : 'border-blue-200 text-gray-600'}`}>
-            <p className="text-xs md:text-sm xl:text-base">Built with React, Next.js, and passion for great UX.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
