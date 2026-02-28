@@ -3,13 +3,12 @@
 import React, { useState, useEffect } from "react";
 import {
   SiReact, SiNextdotjs, SiTypescript, SiJavascript, SiHtml5, SiCss3, SiTailwindcss,
-  SiNodedotjs, SiNestjs, SiPython, SiPostgresql, SiAmazons3, SiAmazonrds, SiAmazonec2,
-  SiGit, SiDocker, SiLinux, SiGooglegemini,
+  SiNodedotjs, SiNestjs, SiPython, SiPostgresql,
+  SiGit, SiDocker, SiLinux,
   SiPandas, SiNumpy, SiJira, SiVercel, SiGithub,
   SiStripe
 } from "react-icons/si";
-import { FaJava, FaCode, FaBrain, FaCloud, FaServer, FaArrowRight, FaDatabase } from "react-icons/fa";
-import { DiC } from "react-icons/di";
+import { FaJava, FaCode, FaBrain, FaCloud, FaServer, FaArrowRight, FaDatabase, FaAws } from "react-icons/fa";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
@@ -100,7 +99,7 @@ const categories = [
       { name: "NestJS", icon: <SiNestjs />, color: "#e0234e", level: 75 },
       { name: "Python", icon: <SiPython />, color: "#3776ab", level: 80 },
       { name: "Java", icon: <FaJava />, color: "#f89820", level: 75 },
-      { name: "C", icon: <DiC />, color: "#a8b9cc", level: 70 },
+      { name: "C", icon: <FaCode />, color: "#a8b9cc", level: 70 },
       { name: "PostgreSQL", icon: <SiPostgresql />, color: "#336791", level: 80 },
       { name: "SQL", icon: <FaDatabase />, color: "#00758f", level: 85 },
       { name: "RESTful APIs", icon: <FaCode />, color: "#94a3b8", level: 90 },
@@ -114,9 +113,9 @@ const categories = [
     accent: "#a78bfa",
     description: "Cloud infrastructure, deployment pipelines, and tooling",
     skills: [
-      { name: "AWS S3", icon: <SiAmazons3 />, color: "#ff9900", level: 80 },
-      { name: "AWS RDS", icon: <SiAmazonrds />, color: "#ff9900", level: 75 },
-      { name: "AWS EC2", icon: <SiAmazonec2 />, color: "#ff9900", level: 75 },
+      { name: "AWS S3", icon: <FaAws />, color: "#ff9900", level: 80 },
+      { name: "AWS RDS", icon: <FaAws />, color: "#ff9900", level: 75 },
+      { name: "AWS EC2", icon: <FaAws />, color: "#ff9900", level: 75 },
       { name: "AWS IAM", icon: <FaCloud />, color: "#ff9900", level: 80 },
       { name: "Git", icon: <SiGit />, color: "#f05032", level: 90 },
       { name: "GitHub", icon: <SiGithub />, color: "#ffffff", level: 90 },
@@ -134,7 +133,7 @@ const categories = [
     accent: "#f59e0b",
     description: "AI integrations, data pipelines, and machine learning tools",
     skills: [
-      { name: "Gemini API", icon: <SiGooglegemini />, color: "#4285f4", level: 80 },
+      { name: "Gemini API", icon: <FaBrain />, color: "#4285f4", level: 80 },
       { name: "Prompt Engineering", icon: <FaBrain />, color: "#f59e0b", level: 85 },
       { name: "LLM Integration", icon: <FaBrain />, color: "#a78bfa", level: 80 },
       { name: "Pandas", icon: <SiPandas />, color: "#150458", level: 75 },
