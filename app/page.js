@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { FaGithub, FaLinkedin, FaEnvelope, FaDownload, FaCode, FaBriefcase, FaRocket, FaComments, FaArrowRight, FaChevronDown } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaEnvelope, FaCode, FaBriefcase, FaRocket, FaComments, FaArrowRight, FaChevronDown } from "react-icons/fa";
 import Image from "next/image";
 import { motion, useInView } from "framer-motion";
 import Link from "next/link";
@@ -260,8 +260,8 @@ export default function HomePage() {
             transition={{ delay: 0.65 }}
           >
             <a href="/AlySibakResume.pdf" target="_blank" rel="noopener noreferrer" className="btn-primary">
-              <FaDownload size={14} />
-              Download Resume
+              <FaArrowRight size={14} />
+              View Resume
             </a>
             <a href="/projects" className="btn-outline">
               View My Work
