@@ -1,0 +1,43 @@
+---
+import Base from "../layouts/Base.astro";
+import ShellHint from "../components/ShellHint.astro";
+import { experience, site } from "../lib/data";
+---
+
+<Base title="Experience, Aly Sibak">
+  <div class="mx-auto max-w-xl">
+    <h1 class="text-2xl font-medium">Experience</h1>
+    <ShellHint variant="page" />
+
+    <ul class="mt-12 divide-y divide-border">
+      {
+        experience.map((item) => (
+          <li class="py-8 first:pt-0 last:pb-0">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p class="text-[0.9375rem] font-medium">
+                  {item.role}
+                  {item.current && (
+                    <span class="meta ml-1.5 font-normal text-subtle">· now</span>
+                  )}
+                </p>
+                <p class="text-[0.9375rem] text-muted">{item.company}</p>
+              </div>
+              <p class="meta shrink-0 tabular-nums text-subtle">{item.period}</p>
+            </div>
+            <p class="mt-2 text-[0.9375rem] text-muted">{item.context}</p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="mt-14 border-t border-border pt-10">
+      <p class="text-[0.9375rem] font-medium">Education</p>
+      <p class="mt-2 text-[0.9375rem] text-muted">{site.education.degree}</p>
+      <p class="mt-1 text-[0.9375rem] text-muted">{site.education.school}</p>
+      <p class="meta mt-1 text-subtle">{site.education.detail}</p>
+    </div>
+
+    <a href="/" class="meta mt-16 inline-block text-subtle link">← Home</a>
+  </div>
+</Base>

@@ -1,29 +1,25 @@
 {
-  "name": "my-portfolio",
-  "version": "0.1.0",
+  "name": "aly-portfolio",
+  "type": "module",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
   },
   "dependencies": {
-    "@vercel/analytics": "^1.5.0",
-    "framer-motion": "^12.4.10",
-    "next": "15.2.8",
+    "@astrojs/react": "^4.2.0",
+    "@astrojs/tailwind": "^6.0.0",
+    "astro": "^5.7.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-icons": "^5.5.0",
-    "react-intersection-observer": "^9.16.0",
-    "react-tsparticles": "^2.12.2",
-    "tsparticles": "^3.8.1"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "15.2.1",
-    "tailwindcss": "^4"
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.0"
   }
 }

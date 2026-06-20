@@ -1,0 +1,26 @@
+---
+import { navLinks, site } from "../lib/data";
+const pathname = Astro.url.pathname;
+---
+
+<header class="border-b border-border px-6 py-4 md:px-8">
+  <div class="mx-auto flex max-w-xl items-center justify-between">
+    <a href="/" class="text-base font-medium text-ink">{site.name.split(" ")[0]}</a>
+    <nav aria-label="Primary" class="meta flex items-center gap-4 md:gap-5">
+      {
+        navLinks.map((link) => (
+          <a
+            href={link.href}
+            aria-current={pathname === link.href ? "page" : undefined}
+            class:list={[
+              "transition-colors hover:text-ink",
+              pathname === link.href ? "text-ink" : "text-muted",
+            ]}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</header>

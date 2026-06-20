@@ -1,0 +1,57 @@
+---
+import "../styles/global.css";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import Console from "../components/Console";
+import DevToolsEgg from "../components/DevToolsEgg.astro";
+
+interface Props {
+  title?: string;
+  center?: boolean;
+}
+
+const { title = "Aly Sibak", center = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Source Protection Software Developer at Centre Wellington. Fourth-year CS co-op." />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content="Source Protection Software Developer. Fourth-year CS co-op." />
+    <meta property="og:url" content="https://alysibak.vercel.app" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-ink focus:px-3 focus:py-2 focus:text-paper focus:text-sm">
+      Skip to content
+    </a>
+
+    {center ? (
+      <main id="main">
+        <slot />
+        <Footer />
+      </main>
+    ) : (
+      <>
+        <Nav />
+        <main id="main" class="px-6 py-16 md:px-8 md:py-20">
+          <slot />
+        </main>
+        <Footer />
+      </>
+    )}
+
+    <Console client:idle />
+    <DevToolsEgg />
+  </body>
+</html>

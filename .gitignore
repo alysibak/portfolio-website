@@ -13,12 +13,13 @@
 # testing
 /coverage
 
-# next.js
+# next.js (legacy)
 /.next/
 /out/
 
-# production
-/build
+# astro
+/dist/
+/.astro/
 
 # misc
 .DS_Store

@@ -1,0 +1,7 @@
+{
+  "redirects": [
+    { "source": "/projects", "destination": "/work", "permanent": true },
+    { "source": "/skills", "destination": "/experience", "permanent": true },
+    { "source": "/contact", "destination": "/", "permanent": true }
+  ]
+}

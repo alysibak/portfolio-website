@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Source Sans 3", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .cursor-blink {
+    animation: none !important;
+    opacity: 0;
+  }
+}
+
+body {
+  @apply bg-paper text-ink antialiased;
+  font-family: var(--font-sans);
+}
+
+.meta {
+  font-family: var(--font-mono);
+  @apply text-[0.8125rem] tracking-tight;
+}
+
+.link {
+  @apply text-ink no-underline;
+  background-image: linear-gradient(#1e3a5f, #1e3a5f);
+  background-size: 0% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  transition: background-size 0.2s ease, color 0.2s ease;
+}
+
+.link:hover {
+  @apply text-accent;
+  background-size: 100% 1px;
+}
+
+.link-accent {
+  @apply text-accent no-underline;
+  background-image: linear-gradient(#1e3a5f, #1e3a5f);
+  background-size: 0% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  transition: background-size 0.2s ease;
+}
+
+.link-accent:hover {
+  background-size: 100% 1px;
+}
+
+.inspectable {
+  @apply relative cursor-default;
+}
+
+.inspectable::after {
+  content: attr(data-diff);
+  font-family: var(--font-mono);
+  @apply absolute left-0 top-full z-10 mt-1 hidden max-w-md text-[0.6875rem] leading-snug text-subtle;
+}
+
+.inspectable:hover::after,
+.inspectable:focus-visible::after {
+  @apply block;
+}
+
+.case-file summary {
+  list-style: none;
+}
+
+.case-file summary::-webkit-details-marker {
+  display: none;
+}
+
+.shell-kbd {
+  font-family: var(--font-mono);
+  @apply rounded border border-border bg-paper px-1.5 py-0.5 text-[0.75rem] text-ink;
+}
+
+.shell-hint {
+  font-family: var(--font-mono);
+  @apply border-l-2 border-accent/50 pl-3.5 text-[0.8125rem] leading-relaxed text-muted;
+}
+
+.console-cursor {
+  @apply inline-block h-[0.9em] w-[7px] bg-accent;
+  animation: blink 1.1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .console-cursor {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+.cursor-blink {
+  @apply inline-block w-[2px] h-[0.85em] bg-subtle ml-0.5 align-middle;
+  animation: blink 1.1s step-end infinite;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

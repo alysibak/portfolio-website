@@ -1,0 +1,19 @@
+---
+import { site } from "../lib/data";
+---
+
+<footer class="border-t border-border px-6 py-8 md:px-8">
+  <div class="mx-auto max-w-xl">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div class="meta flex flex-wrap gap-x-4 gap-y-1 text-subtle">
+        <a href={`mailto:${site.email}`} class="link-accent">{site.email}</a>
+        <a href={site.github} target="_blank" rel="noopener noreferrer" class="link">GitHub</a>
+        <a href={site.linkedin} target="_blank" rel="noopener noreferrer" class="link">LinkedIn</a>
+      </div>
+      <p class="meta text-subtle">{site.availability}</p>
+    </div>
+    <p class="meta mt-4 text-[0.6875rem] text-subtle/50" aria-hidden="true">
+      [portfolio] render:static status:ok layer:surface shell:idle
+    </p>
+  </div>
+</footer>

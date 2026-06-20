@@ -1,0 +1,35 @@
+---
+interface Props {
+  variant?: "home" | "work" | "page";
+}
+
+const { variant = "page" } = Astro.props;
+---
+
+<div
+  class:list={[
+    "shell-hint",
+    variant === "home" && "mt-8",
+    (variant === "work" || variant === "page") && "mt-5",
+  ]}
+>
+  {
+    variant === "work" ? (
+      <p>
+        Each project has a full case file. Expand below, or press <kbd class="shell-kbd">/</kbd>{" "}
+        and run <span class="text-accent">cat bystander</span>.
+      </p>
+    ) : variant === "home" ? (
+      <p>
+        This site has an interactive shell. Press <kbd class="shell-kbd">/</kbd> or{" "}
+        <kbd class="shell-kbd">~</kbd> to open it, then try{" "}
+        <span class="text-accent">help</span> or <span class="text-accent">cat carinfo</span>.
+      </p>
+    ) : (
+      <p>
+        Press <kbd class="shell-kbd">/</kbd> or <kbd class="shell-kbd">~</kbd> to open the shell.
+        Try <span class="text-accent">git log</span> or <span class="text-accent">whoami</span>.
+      </p>
+    )
+  }
+</div>
