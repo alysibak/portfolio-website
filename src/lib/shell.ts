@@ -59,16 +59,17 @@ export function getCompletion(input: string): string | null {
 
   if (cmd === "ls" && parts.length >= 2 && !endsWithSpace) {
     const path = parts.slice(1).join(" ").toLowerCase();
-    if ("projects/bystander".startsWith(path) && path.length > 0) {
-      if (path === "projects/bystander") return null;
-      return "ls projects/bystander";
-    }
-    if ("projects/".startsWith(path)) return "ls projects/";
-    for (const id of projectIds) {
-      if (`projects/${id}`.startsWith(path)) {
-        return `ls projects/${id}`;
-      }
-    }
+    if (!path) return null;
+    const candidates = [
+      "projects/",
+      "experience/",
+      "contact/",
+      ...projectIds.map((id) => `projects/${id}`),
+    ];
+    const matches = candidates.filter(
+      (c) => c.startsWith(path) && c !== path
+    );
+    if (matches.length === 1) return `ls ${matches[0]}`;
   }
 
   if (cmd === "git" && parts[1]?.startsWith("l")) {
@@ -104,12 +105,19 @@ export function executeCommand(
       const path = arg.toLowerCase().replace(/\/$/, "");
       if (!path) {
         lines.push({ type: "output", text: commandOutputs.ls });
-      } else if (path === "projects/bystander") {
-        lines.push({ type: "output", text: commandOutputs.lsProjectBystander });
+      } else if (path === "projects") {
+        lines.push({ type: "output", text: projectIds.join("  ") });
+      } else if (path === "experience") {
+        lines.push({ type: "output", text: commandOutputs.lsExperience });
+      } else if (path === "contact") {
+        lines.push({ type: "output", text: commandOutputs.lsContact });
       } else if (path.startsWith("projects/")) {
         const id = normalizeProjectArg(path.replace("projects/", ""));
         if (getProject(id)) {
-          lines.push({ type: "output", text: commandOutputs.lsProjectBystander });
+          lines.push({
+            type: "output",
+            text: `${commandOutputs.lsProjectFields}   (try 'cat ${id}')`,
+          });
         } else {
           lines.push({
             type: "output",

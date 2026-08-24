@@ -29,14 +29,15 @@ export type ExperienceItem = {
 
 export const site = {
   name: "Aly Sibak",
-  roleLine:
-    "Source Protection Software Developer, Township of Centre Wellington",
-  now: "Currently building government compliance software at Centre Wellington.",
+  roleLine: "I build and debug production systems",
+  now: "Most recently a multi-tenant compliance platform used by Ontario municipalities, and a foreign-object detection platform for food processing.",
   school: "Fourth-year CS co-op, University of Guelph",
-  availability: "Available Fall 2026 co-op",
+  availability: "Seeking Winter 2027 co-op, January–April",
+  description:
+    "Aly Sibak, Computer Science co-op student at the University of Guelph. Two co-op terms building and debugging production systems. Seeking Winter 2027.",
   email: "asibak@uoguelph.ca",
   github: "https://github.com/alysibak",
-  linkedin: "https://linkedin.com/in/aly-sibak-721b85252",
+  linkedin: "https://www.linkedin.com/in/aly-sibak-721b85252",
   resume: "/Aly_Sibak_Base_Resume_1Page.pdf",
   education: {
     degree: "B.Comp (Hons), Computer Science (Co-op)",
@@ -51,7 +52,7 @@ export const projects: Project[] = [
     title: "Bystander",
     year: "2026",
     sentence: "AI emergency triage app built at HackCanada.",
-    stat: "Best Use of Presage Technologies, 1 of 800+ teams",
+    stat: "Best Use of Presage Technologies, out of 800 participants",
     diff: "surface: triage UI, internal: presage capture mode gate",
     links: [
       { label: "Devpost", href: "https://devpost.com/software/bystander" },
@@ -66,7 +67,7 @@ export const projects: Project[] = [
       "End-to-end path sensor -> Presage SDK -> websocket -> triage scorer. SDK returned HTTP 200 with zero-length payload. UI showed 'waiting for data' indefinitely. Only visible in SDK debug logs.",
     fix: "Validated capture mode at init; enforced continuous mode before subscribing; added heartbeat watchdog that surfaces stale streams within 3s.",
     impact:
-      "Restored the biometric pipeline before judging. Contributed to Best Use of Presage Technologies, 1 of 800+ teams at HackCanada 2026.",
+      "Restored the biometric pipeline before judging. Won Best Use of Presage Technologies out of 800 participants at HackCanada 2026.",
     catOutput: `bystander, 2026, hackcanada
 ai emergency triage app
 
@@ -79,8 +80,8 @@ ai emergency triage app
   fix    validated capture mode at init; enforced continuous
          before subscribing; heartbeat watchdog surfaces
          stale streams within 3s.
-  impact restored pipeline before judging. best use of
-         presage technologies, 1 of 800+ teams.
+  impact restored pipeline before judging. won best use of
+         presage technologies, out of 800 participants.
 
   -> devpost.com/software/bystander
   -> github.com/hackcanada2026-aaaa/bystander`,
@@ -94,7 +95,7 @@ ai emergency triage app
     diff: "surface: vehicle count, internal: 419 phevs misclassified as ev",
     links: [
       { label: "Live", href: "https://carinfo-client.vercel.app" },
-      { label: "GitHub", href: "https://github.com/alysibak/CarInfo" },
+      { label: "Source", href: "https://github.com/alysibak/carinfo" },
     ],
     openUrl: "https://carinfo-client.vercel.app",
     bug: "The import pipeline applied fuel-type rules before plug-in hybrid normalization, so 419 PHEVs were stored as pure electric, breaking their depreciation curves.",
@@ -121,7 +122,7 @@ car comparison and research platform
          consistent across 28,000 vehicles.
 
   -> carinfo-client.vercel.app
-  -> github.com/alysibak/CarInfo`,
+  -> github.com/alysibak/carinfo`,
   },
   {
     id: "pocketchange",
@@ -164,16 +165,13 @@ fintech app for spare-change donations via plaid and stripe
     title: "TimeVault",
     year: "2026",
     sentence: "WWI military records analysis platform.",
-    stat: "8-person team, QA and integration testing",
+    stat: "8-person team, Flask REST API layer and QA",
     diff: "surface: records search, internal: schema drift between ml and api layers",
     links: [
-      {
-        label: "GitHub",
-        href: "https://github.com/Luiza-s-classes/project-setup-team-timevault-technologies-g6",
-      },
+      { label: "Live", href: "https://timevault-web.onrender.com" },
+      { label: "Source", href: "https://github.com/alysibak/TimeVault" },
     ],
-    openUrl:
-      "https://github.com/Luiza-s-classes/project-setup-team-timevault-technologies-g6",
+    openUrl: "https://timevault-web.onrender.com",
     bug: "The ML team's export schema added nullable rank fields without versioning. Integration tests passed on fixtures but failed on production extracts, where null rank broke sort order silently.",
     trace:
       "Contract tests used hand-made JSON. The real pipeline omitted rank on 12% of records. UI displayed the correct count but wrong ordering. Found during a cross-team integration run, pre-release.",
@@ -197,7 +195,8 @@ ww1 military records analysis platform, 8-person team
   impact blocked a release regression. as qa on an 8-person
          team, caught a class of bug unit tests missed.
 
-  -> github.com/Luiza-s-classes/project-setup-team-timevault-technologies-g6`,
+  -> timevault-web.onrender.com
+  -> github.com/alysibak/TimeVault`,
   },
 ];
 
@@ -207,13 +206,12 @@ export const experience: ExperienceItem[] = [
     company: "Township of Centre Wellington",
     period: "May–Sep 2026",
     context: "Compliance and permitting software for municipal staff.",
-    current: true,
   },
   {
-    role: "Software Developer Co-op",
-    company: "P&P Optica",
-    period: "May–Dec 2025",
-    context: "AI food-safety systems, Gemini API, AWS.",
+    role: "Tech Organizer",
+    company: "HackCanada",
+    period: "2026",
+    context: "Built the event website and the judge-facing judging portal.",
   },
   {
     role: "Teaching Assistant, Web Design",
@@ -222,10 +220,39 @@ export const experience: ExperienceItem[] = [
     context: "80 students in HTML, CSS, and JavaScript.",
   },
   {
+    role: "Software Developer Co-op",
+    company: "P&P Optica",
+    period: "May–Dec 2025",
+    context: "AI food-safety systems, Gemini API, AWS.",
+  },
+  {
     role: "Teaching Assistant, Discrete Structures",
     company: "University of Guelph",
     period: "Sep–Dec 2024",
-    context: "250 students in logic and combinatorics.",
+    context: "250+ students in logic and combinatorics.",
+  },
+  {
+    role: "Governor of Computing",
+    company: "CCMPS Student Council",
+    period: "Ongoing",
+    context:
+      "Elected, representing 2,300 Computing students at the University of Guelph.",
+    current: true,
+  },
+  {
+    role: "Technical Director",
+    company: "Muslim Students Association",
+    period: "Ongoing",
+    context: "Maintain and extend the MSA website.",
+    current: true,
+  },
+  {
+    role: "Workshop Lead",
+    company: "SOCIS and Google Developer Student Club",
+    period: "Ongoing",
+    context:
+      "Design and lead hands-on full-stack and AI workshops for 50+ students.",
+    current: true,
   },
 ];
 
@@ -249,20 +276,37 @@ tip: tab completes. most things you'd guess will work.`,
 
   whoami: `aly sibak
 fourth-year computer science co-op, university of guelph
-source protection software developer, township of centre wellington
-currently: building government compliance software
-available: fall 2026
+most recently: source protection software developer,
+               township of centre wellington
+currently: back at guelph for the fall term
+seeking: winter 2027 co-op (january-april)
 
 i find what's broken. you're in the part of the site that proves it.`,
 
-  ls: `projects/     bystander  carinfo  pocketchange  timevault
-experience/   centre-wellington  pp-optica  teaching
+  ls: `projects/     ${projects.map((p) => p.id).join("  ")}
+experience/   centre-wellington  pp-optica  teaching  hackcanada  msa  ccmps
 contact/      email  github  linkedin  resume.pdf`,
 
-  lsProjectBystander: `bug  trace  fix  impact   (try 'cat bystander')`,
+  lsExperience: `centre-wellington  pp-optica  teaching  hackcanada  msa  ccmps
+socis   (try 'git log')`,
 
-  gitLog: `commit 7f3a9c2  (HEAD -> main, origin/main)
+  lsContact: `${site.email}
+${site.github}
+${site.linkedin}
+${site.resume}`,
+
+  lsProjectFields: `bug  trace  fix  impact`,
+
+  gitLog: `commit 9d4e1a7  (HEAD -> main, origin/main)
 Author: Aly Sibak
+Date:   Sep 2026
+
+    feat: back at guelph for the fall term
+    fourth-year coursework. governor of computing on the
+    ccmps student council, technical director at the msa,
+    workshop lead for socis and gdsc.
+
+commit 7f3a9c2
 Date:   May 2026
 
     feat: source protection software at centre wellington

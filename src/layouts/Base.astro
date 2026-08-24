@@ -4,6 +4,7 @@ import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import Console from "../components/Console";
 import DevToolsEgg from "../components/DevToolsEgg.astro";
+import { site } from "../lib/data";
 
 interface Props {
   title?: string;
@@ -11,6 +12,9 @@ interface Props {
 }
 
 const { title = "Aly Sibak", center = false } = Astro.props;
+
+const description = site.description;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
 ---
 
 <!doctype html>
@@ -18,10 +22,14 @@ const { title = "Aly Sibak", center = false } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Source Protection Software Developer at Centre Wellington. Fourth-year CS co-op." />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content="Source Protection Software Developer. Fourth-year CS co-op." />
-    <meta property="og:url" content="https://alysibak.vercel.app" />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
