@@ -10,14 +10,7 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js (legacy)
-/.next/
-/out/
-
-# astro
+# build output
 /dist/
 /.astro/
 
@@ -39,6 +32,3 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
-
-.vercel

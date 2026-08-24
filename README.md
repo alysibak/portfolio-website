@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# alysibak.vercel.app
 
-## Getting Started
+Personal portfolio for Aly Sibak. Built with [Astro](https://astro.build), styled with
+Tailwind, deployed as a static site on Vercel.
 
-First, run the development server:
+The site is small on purpose: three pages, one content file, and an interactive shell.
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:4321](http://localhost:4321).
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+| Script            | Does                                        |
+| ----------------- | ------------------------------------------- |
+| `npm run dev`     | Dev server with HMR                         |
+| `npm run build`   | Static build to `dist/` (+ `.vercel/output`) |
+| `npm run preview` | Serve the production build locally          |
+| `npm run check`   | `astro check` — types and template diagnostics |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Layout
 
-## Learn More
+```
+src/
+  pages/          index, work, experience  (file-based routes)
+  layouts/        Base.astro — <head>, nav, footer, console mount
+  components/     Nav, Footer, ShellHint, DevToolsEgg, Console.tsx
+  lib/
+    data.ts       all site content lives here
+    shell.ts      command parsing for the console
+  styles/         global.css — Tailwind entry + component classes
+public/           resume PDF, favicon, images
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Editing content
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Everything user-facing — bio, projects, experience, and the shell's command
+output — lives in `src/lib/data.ts`. Editing that file is usually the whole job;
+the pages just map over it.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Each project carries a `bug` / `trace` / `fix` / `impact` case file plus a
+`catOutput` string, which is what the console prints for `cat <project>`. When
+you add or edit a project, update both — the page and the console read the same
+record but render it differently.
 
-## Deploy on Vercel
+## The console
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Press <kbd>/</kbd> or <kbd>~</kbd> anywhere to open an interactive shell.
+Supported commands are defined in `src/lib/shell.ts`: `help`, `whoami`, `ls`,
+`cat <project>`, `git log`, `open <project>`, `clear`, `exit`. Tab completes.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+
+Vercel builds from `main` using `@astrojs/vercel/static`. Redirects for retired
+routes (`/projects`, `/skills`, `/contact`) live in `vercel.json`.
