@@ -5,6 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "astro dev",
+    "verify": "node --experimental-strip-types scripts/verify-content.ts",
+    "prebuild": "npm run verify",
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check"

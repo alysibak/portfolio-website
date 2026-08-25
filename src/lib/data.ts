@@ -3,19 +3,34 @@ export type ProjectLink = {
   href: string;
 };
 
+export type Decision = {
+  title: string;
+  reasoning: string;
+  tradeoff?: string;
+};
+
+export type CaseStudy = {
+  problem?: string;
+  constraints?: string[];
+  decisions: Decision[];
+  outcome?: string;
+};
+
 export type Project = {
   id: string;
   title: string;
-  year: string;
-  sentence: string;
-  stat: string;
-  diff: string;
+  tagline: string;
+  year?: string;
+  role: "solo" | "team";
+  teamSize?: number;
+  /** Required whenever role === "team". Enforced by scripts/verify-content.ts. */
+  ownership?: string;
+  context: string;
   links: ProjectLink[];
   openUrl: string;
-  bug: string;
-  trace: string;
-  fix: string;
-  impact: string;
+  award?: string;
+  finding?: string;
+  caseStudy: CaseStudy;
   catOutput: string;
 };
 
@@ -31,7 +46,8 @@ export const site = {
   name: "Aly Sibak",
   roleLine: "I build and debug production systems",
   now: "Most recently a multi-tenant compliance platform used by Ontario municipalities, and a foreign-object detection platform for food processing.",
-  school: "Fourth-year CS co-op, University of Guelph",
+  school: "Fourth-year Computer Science co-op, University of Guelph",
+  location: "Mississauga, Ontario",
   availability: "Seeking Winter 2027 co-op, January–April",
   description:
     "Aly Sibak, Computer Science co-op student at the University of Guelph. Two co-op terms building and debugging production systems. Seeking Winter 2027.",
@@ -40,172 +56,317 @@ export const site = {
   linkedin: "https://www.linkedin.com/in/aly-sibak-721b85252",
   resume: "/Aly_Sibak_Base_Resume_1Page.pdf",
   education: {
-    degree: "B.Comp (Hons), Computer Science (Co-op)",
+    degree: "Bachelor of Computing (Honours), Computer Science, Co-op",
     school: "University of Guelph",
-    detail: "Expected April 2028. 85% GPA. Dean's Honours List x3",
+    detail: "Expected April 2028. Fourth year.",
   },
 };
 
 export const projects: Project[] = [
   {
-    id: "bystander",
-    title: "Bystander",
-    year: "2026",
-    sentence: "AI emergency triage app built at HackCanada.",
-    stat: "Best Use of Presage Technologies, out of 800 participants",
-    diff: "surface: triage UI, internal: presage capture mode gate",
+    id: "mizan",
+    title: "Mizan",
+    tagline: "Personal wealth and asset tracker with a rules-based calculation engine.",
+    role: "solo",
+    context: "Personal project. Live and open source.",
     links: [
-      { label: "Devpost", href: "https://devpost.com/software/bystander" },
-      {
-        label: "GitHub",
-        href: "https://github.com/hackcanada2026-aaaa/bystander",
-      },
+      { label: "Live", href: "https://mizan-sandy-eight.vercel.app" },
+      { label: "Source", href: "https://github.com/alysibak/mizan" },
     ],
-    openUrl: "https://devpost.com/software/bystander",
-    bug: "Presage biometric capture ran in spot mode while the pipeline assumed continuous sampling. Readings were silently dropped: the SDK returned success, vitals came back empty.",
-    trace:
-      "End-to-end path sensor -> Presage SDK -> websocket -> triage scorer. SDK returned HTTP 200 with zero-length payload. UI showed 'waiting for data' indefinitely. Only visible in SDK debug logs.",
-    fix: "Validated capture mode at init; enforced continuous mode before subscribing; added heartbeat watchdog that surfaces stale streams within 3s.",
-    impact:
-      "Restored the biometric pipeline before judging. Won Best Use of Presage Technologies out of 800 participants at HackCanada 2026.",
-    catOutput: `bystander, 2026, hackcanada
-ai emergency triage app
+    openUrl: "https://mizan-sandy-eight.vercel.app",
+    caseStudy: {
+      problem:
+        "Wealth-obligation calculation under a specific ruleset requires tracking assets over a lunar year, applying threshold tests, and screening holdings against structural criteria. The domain is Islamic wealth calculation, or zakat. A spreadsheet is error-prone and loses history.",
+      constraints: [
+        "One developer, no budget for paid services.",
+        "Correctness outranks features. A wrong number is worse than a missing one.",
+        "The rules are not arbitrary. They must be encoded faithfully and stay testable in isolation.",
+      ],
+      decisions: [
+        {
+          title: "Pure calculation core with zero I/O",
+          reasoning:
+            "A dependency-free module covered by Vitest across threshold, holding-period, and screening logic.",
+          tradeoff:
+            "More plumbing between layers than reading the database inside the calculation.",
+        },
+        {
+          title: "Authorization by construction, not by check",
+          reasoning:
+            "Every update and delete matches on both record ID and owner ID, so a guessed UUID cannot reach another account. Not a middleware guard a future handler might forget: it is in the query itself. I have found this exact vulnerability class twice in production systems, once while auditing my own shipped feature. This is the design that prevents it.",
+          tradeoff:
+            "More verbose queries, and no single place to audit the policy.",
+        },
+        {
+          title: "Sessions hashed at rest",
+          reasoning:
+            "bcrypt for passwords, and session tokens stored as SHA-256 behind httpOnly cookies.",
+          tradeoff: "Active sessions cannot be displayed in human-readable form.",
+        },
+        {
+          title: "No expiring dependencies on critical paths",
+          reasoning:
+            "Every critical path runs locally, so no feature dies when a third-party trial lapses. That includes a self-contained calendar converter rather than an external service.",
+          tradeoff: "More code to own, and no vendor SLA.",
+        },
+        {
+          title: "Three-layer split",
+          reasoning:
+            "Server components, user-scoped REST handlers, and a dependency-free logic core.",
+          tradeoff: "Indirection cost on simple reads.",
+        },
+      ],
+      outcome:
+        "Live and open source. The engine is testable without a database, and the authorization model has no reachable cross-account path.",
+    },
+    catOutput: `mizan
+personal wealth and asset tracker with a rules-based
+calculation engine. solo. live and open source.
 
-  bug    presage capture ran in spot mode; pipeline assumed
-         continuous. readings dropped silently, sdk returned
-         success with empty vitals.
-  trace  sensor -> presage sdk -> websocket -> triage scorer.
-         http 200, zero-length payload. ui stuck on
-         'waiting for data'. only visible in sdk debug logs.
-  fix    validated capture mode at init; enforced continuous
-         before subscribing; heartbeat watchdog surfaces
-         stale streams within 3s.
-  impact restored pipeline before judging. won best use of
-         presage technologies, out of 800 participants.
+  problem   wealth-obligation calculation (zakat) needs assets
+            tracked over a lunar year, threshold tests, and
+            structural screening. a spreadsheet is error-prone
+            and loses history.
 
-  -> devpost.com/software/bystander
-  -> github.com/hackcanada2026-aaaa/bystander`,
+  decisions pure calculation core with zero i/o, covered by
+            vitest.
+            authorization by construction: every update and
+            delete matches on record id AND owner id, so a
+            guessed uuid cannot reach another account.
+            sessions hashed at rest (bcrypt + sha-256).
+            no expiring dependencies on critical paths.
+            three-layer split.
+
+  outcome   engine testable without a database. no reachable
+            cross-account path.
+
+  note      i have found this authorization bug class twice in
+            production. this is the design that prevents it.
+
+  -> mizan-sandy-eight.vercel.app
+  -> github.com/alysibak/mizan`,
   },
   {
     id: "carinfo",
     title: "CarInfo",
+    tagline:
+      "Vehicle research platform over a 28,000-vehicle EPA dataset with NHTSA safety enrichment.",
     year: "2024–",
-    sentence: "Car comparison and research platform.",
-    stat: "28,000-vehicle database",
-    diff: "surface: vehicle count, internal: 419 phevs misclassified as ev",
+    role: "solo",
+    context: "Personal project. Live and open source.",
     links: [
       { label: "Live", href: "https://carinfo-client.vercel.app" },
       { label: "Source", href: "https://github.com/alysibak/carinfo" },
     ],
     openUrl: "https://carinfo-client.vercel.app",
-    bug: "The import pipeline applied fuel-type rules before plug-in hybrid normalization, so 419 PHEVs were stored as pure electric, breaking their depreciation curves.",
-    trace:
-      "Valuation engine pulled the EV multiplier for VINs that still carried ICE range metadata. Spot check: a 2018 Prius Prime showed ~$18k; comps cluster $54k–$71k. Silent, no import error, wrong tier in DB.",
-    fix: "Reordered normalization before classification; added cross-field validator (fuel_type x battery_kwh x electric_range); backfilled affected rows.",
-    impact:
-      "419 records corrected. One representative vehicle moved from ~$18k to the $54k–$71k band. Search and compare are now consistent across 28,000 vehicles.",
+    finding:
+      "Caught an import bug misclassifying 419 plug-in hybrids, causing 60–70% valuation errors. Found by checking output against expectations rather than trusting the import.",
+    caseStudy: {
+      problem:
+        "Public vehicle data is spread across federal datasets of differing shape and quality. Merging them naively produces confident-looking numbers that are wrong.",
+      constraints: [
+        "Source data has classification inconsistencies that are not flagged.",
+        "Ownership-cost modelling is regional. A national average misleads.",
+        "A research tool that shows a wrong number without signalling uncertainty is worse than one showing nothing.",
+      ],
+      decisions: [
+        {
+          title: "Provenance and trust system",
+          reasoning:
+            "Every field is labelled verified, curated, or estimated. Surface confidence rather than laundering it.",
+          tradeoff: "A denser interface and more schema surface.",
+        },
+        {
+          title: "Ownership-cost model recalibrated to Ontario assumptions",
+          reasoning: "Regional assumptions live behind one centralized config.",
+          tradeoff:
+            "Accurate for one region and explicitly not others, which the config makes visible instead of hiding.",
+        },
+        {
+          title: "UI redesign across 15 routes and 25+ components",
+          reasoning: "Three-tier progressive disclosure.",
+          tradeoff: "Three tiers means three states to maintain per surface.",
+        },
+      ],
+      outcome:
+        "Live, open source, with per-field trust levels visible to the reader.",
+    },
     catOutput: `carinfo, 2024-present
-car comparison and research platform
+vehicle research platform over a 28,000-vehicle epa dataset
+with nhtsa safety enrichment. solo. live and open source.
 
-  bug    import pipeline applied fuel-type rules before
-         plug-in hybrid normalization. 419 phevs stored as
-         pure electric, breaking depreciation curves.
-  trace  valuation engine pulled ev multiplier for vins that
-         still carried ice range metadata. 2018 prius prime
-         showed ~$18k; comps cluster $54k-$71k. no import
-         error, wrong tier in db.
-  fix    reordered normalization before classification; added
-         cross-field validator (fuel_type x battery_kwh x
-         electric_range); backfilled affected rows.
-  impact 419 records corrected. one vehicle moved from ~$18k
-         to the $54k-$71k band. search and compare now
-         consistent across 28,000 vehicles.
+  problem   federal datasets differ in shape and quality.
+            merging them naively produces confident-looking
+            numbers that are wrong.
+
+  finding   an import bug misclassified 419 plug-in hybrids,
+            causing 60-70% valuation errors. caught by checking
+            output against expectations rather than trusting
+            the import.
+
+  decisions provenance system labels every field verified,
+            curated, or estimated.
+            ownership-cost model recalibrated to ontario behind
+            one centralized regional config.
+            ui redesign across 15 routes and 25+ components.
+
+  outcome   per-field trust levels visible to the reader.
 
   -> carinfo-client.vercel.app
   -> github.com/alysibak/carinfo`,
   },
   {
-    id: "pocketchange",
-    title: "PocketChange",
-    year: "2024–",
-    sentence: "Fintech app for spare-change donations via Plaid and Stripe.",
-    stat: "40 charities, offline",
-    diff: "surface: donation flow, internal: idempotency key collision on retry",
-    links: [],
-    openUrl: "",
-    bug: "Stripe charge retries reused client-generated idempotency keys tied to the session, not the intent. Network blips caused duplicate charge attempts that failed opaquely in the UI.",
-    trace:
-      "Plaid link succeeded -> round-up job queued -> Stripe 409 on retry -> frontend showed generic 'payment failed'. Logs had the key collision; users did not.",
-    fix: "Server-side idempotency keys derived from user_id + ledger_date + charity_id; exposed structured error codes to the client; dead-letter queue for manual review.",
-    impact:
-      "Removed duplicate-charge risk across 40 charity endpoints. Donation completion stabilized once the retry path was fixed.",
-    catOutput: `pocketchange, 2024-present
-fintech app for spare-change donations via plaid and stripe
+    id: "bystander",
+    title: "Bystander",
+    tagline: "Emergency response assistant built in 36 hours.",
+    year: "2026",
+    role: "team",
+    teamSize: 4,
+    ownership:
+      "I personally owned the React frontend, the Node/Express backend, and the Google Gemini integration. The contactless vitals pipeline, voice coach, and SMS alerting were built by teammates.",
+    context: "36-hour hackathon, team of 4.",
+    award: "Best Use of Presage Technologies, out of 800 participants",
+    links: [
+      { label: "Devpost", href: "https://devpost.com/software/bystander" },
+      {
+        label: "Source",
+        href: "https://github.com/hackcanada2026-aaaa/bystander",
+      },
+    ],
+    openUrl: "https://devpost.com/software/bystander",
+    caseStudy: {
+      problem:
+        "A bystander at an emergency does not know what they are looking at or what to do first.",
+      constraints: [
+        "36 hours.",
+        "Four people.",
+        "A live demo at the end.",
+        "A hard dependency on APIs nobody had used before.",
+      ],
+      decisions: [
+        {
+          title:
+            "8-second video scene analysis returning a 1–10 severity score",
+          reasoning:
+            "Built on the Gemini API with a deliberately bounded window, because unbounded video is slow and unreliable under demo conditions.",
+          tradeoff: "Misses context outside the window.",
+        },
+        {
+          title: "Frontend and backend split so the team could parallelize",
+          reasoning:
+            "Splitting the surfaces let the vitals and alerting work proceed independently of mine.",
+          tradeoff:
+            "Interface contracts had to be agreed early, with no time to revise them.",
+        },
+      ],
+      outcome: "Shipped and demoed in 36 hours, and won the named award.",
+    },
+    catOutput: `bystander, 2026
+emergency response assistant built in 36 hours. team of 4.
 
-  bug    stripe charge retries reused client-generated
-         idempotency keys tied to the session, not the intent.
-         network blips caused duplicate charge attempts that
-         failed opaquely in the ui.
-  trace  plaid link succeeded -> round-up job queued ->
-         stripe 409 on retry -> frontend showed generic
-         'payment failed'. logs had the key collision; users
-         did not.
-  fix    server-side idempotency keys from user_id +
-         ledger_date + charity_id; structured error codes to
-         client; dead-letter queue for manual review.
-  impact removed duplicate-charge risk across 40 charity
-         endpoints. donation completion stabilized after the
-         retry path fix.
+  ownership i owned the react frontend, the node/express
+            backend, and the google gemini integration. the
+            contactless vitals pipeline, voice coach, and sms
+            alerting were built by teammates.
 
-  status live backend offline
-  -> github (pocketchange)`,
+  problem   a bystander at an emergency does not know what
+            they are looking at or what to do first.
+
+  decisions 8-second video scene analysis returning a 1-10
+            severity score on the gemini api. bounded window
+            because unbounded video is slow and unreliable
+            under demo conditions.
+            frontend/backend split so the team could
+            parallelize against vitals and alerting.
+
+  outcome   shipped and demoed in 36 hours. won best use of
+            presage technologies, out of 800 participants.
+
+  -> devpost.com/software/bystander
+  -> github.com/hackcanada2026-aaaa/bystander`,
   },
   {
     id: "timevault",
     title: "TimeVault",
+    tagline: "Records platform over 57,000+ WWI military records.",
     year: "2026",
-    sentence: "WWI military records analysis platform.",
-    stat: "8-person team, Flask REST API layer and QA",
-    diff: "surface: records search, internal: schema drift between ml and api layers",
+    role: "team",
+    teamSize: 8,
+    ownership:
+      "I owned the Flask REST API layer serving three ML models and carried QA and integration testing. I did not build the ML models.",
+    context: "Course project, 8-person agile team.",
     links: [
       { label: "Live", href: "https://timevault-web.onrender.com" },
       { label: "Source", href: "https://github.com/alysibak/TimeVault" },
     ],
     openUrl: "https://timevault-web.onrender.com",
-    bug: "The ML team's export schema added nullable rank fields without versioning. Integration tests passed on fixtures but failed on production extracts, where null rank broke sort order silently.",
-    trace:
-      "Contract tests used hand-made JSON. The real pipeline omitted rank on 12% of records. UI displayed the correct count but wrong ordering. Found during a cross-team integration run, pre-release.",
-    fix: "Authored an integration suite against production-shaped fixtures; enforced a schema version header at the API boundary; fail-fast on unknown fields.",
-    impact:
-      "Blocked a release regression. As QA on an 8-person team, caught a class of bug the unit tests missed.",
+    caseStudy: {
+      decisions: [
+        {
+          title: "Three roles enforced through JWT",
+          reasoning:
+            "Admin endpoints return 401 without a token and 403 without the role. The distinction is deliberate: 401 answers who are you, 403 answers you are known and still not allowed.",
+        },
+        {
+          title: "API request log behind an admin view",
+          reasoning:
+            "Records method, path, status, and latency on every call, indexed descending by timestamp for recency reads, with a hook that no-ops so un-migrated databases still run.",
+          tradeoff:
+            "A no-op path is a silent failure mode and needs its own test.",
+        },
+        {
+          title: "Recharts dashboards behind role-based access",
+          reasoning:
+            "Reporting surfaces are gated by the same role check as the admin endpoints.",
+        },
+      ],
+    },
     catOutput: `timevault, 2026
-ww1 military records analysis platform, 8-person team
+records platform over 57,000+ ww1 military records.
+8-person agile course team.
 
-  bug    ml team's export schema added nullable rank fields
-         without versioning. integration tests passed on
-         fixtures but failed on production extracts; null
-         rank broke sort order silently.
-  trace  contract tests used hand-made json. real pipeline
-         omitted rank on 12% of records. ui showed correct
-         count, wrong ordering. found during cross-team
-         integration run, pre-release.
-  fix    authored integration suite against production-shaped
-         fixtures; schema version header enforced at api
-         boundary; fail-fast on unknown fields.
-  impact blocked a release regression. as qa on an 8-person
-         team, caught a class of bug unit tests missed.
+  ownership i owned the flask rest api layer serving three ml
+            models and carried qa and integration testing. i
+            did not build the ml models.
+
+  decisions three roles enforced through jwt. admin endpoints
+            return 401 without a token and 403 without the
+            role; the distinction is deliberate.
+            api request log behind an admin view: method,
+            path, status, latency on every call, indexed
+            descending by timestamp, with a hook that no-ops
+            so un-migrated databases still run.
+            recharts dashboards behind role-based access.
 
   -> timevault-web.onrender.com
   -> github.com/alysibak/TimeVault`,
   },
 ];
 
+export const coursework = {
+  title: "Systems and data structures coursework",
+  items: [
+    "BFS, DFS, and Dijkstra's shortest path over adjacency matrices and adjacency lists (C).",
+    "Expression trees, a max-heap, an RPN stack calculator, and a binary-file record manager (C).",
+    "Manual memory management with pointers. Segmentation faults and leaks debugged with gdb.",
+    "Investment portfolio manager with buy/sell logic, fee handling, and multi-field search (Java).",
+    "Discussion board with registration, posts, and polls persisted through file I/O (Java).",
+  ],
+  links: [
+    { label: "Graph traversal (C)", href: "https://github.com/alysibak/GraphTraversal-ShortestPath" },
+    { label: "Expression parser (C)", href: "https://github.com/alysibak/ExpressionParser-HeapSort" },
+    { label: "ePortfolio (Java)", href: "https://github.com/alysibak/ePortfolio" },
+    { label: "Discussion board (Java)", href: "https://github.com/alysibak/DiscussionBoard" },
+  ],
+};
+
 export const experience: ExperienceItem[] = [
   {
-    role: "Source Protection Software Developer Co-op",
+    role: "Source Protection Software Developer (Co-op)",
     company: "Township of Centre Wellington",
     period: "May–Sep 2026",
-    context: "Compliance and permitting software for municipal staff.",
+    context:
+      "LSWIMS, a multi-tenant Clean Water Act compliance platform used by municipalities and conservation authorities across Ontario.",
   },
   {
     role: "Tech Organizer",
@@ -214,22 +375,19 @@ export const experience: ExperienceItem[] = [
     context: "Built the event website and the judge-facing judging portal.",
   },
   {
-    role: "Teaching Assistant, Web Design",
-    company: "University of Guelph",
-    period: "Jan–Apr 2026",
-    context: "80 students in HTML, CSS, and JavaScript.",
-  },
-  {
-    role: "Software Developer Co-op",
+    role: "Software Developer (Co-op)",
     company: "P&P Optica",
     period: "May–Dec 2025",
-    context: "AI food-safety systems, Gemini API, AWS.",
+    context:
+      "PPO Insights, a foreign-object detection platform for food processing serving 20+ enterprise facilities.",
   },
   {
-    role: "Teaching Assistant, Discrete Structures",
+    role: "Teaching Assistant",
     company: "University of Guelph",
-    period: "Sep–Dec 2024",
-    context: "250+ students in logic and combinatorics.",
+    period: "Sep 2024–present",
+    context:
+      "Three full 1.0 (140-hour) appointments across three courses. Supported 250+ students in Discrete Structures and ran the shared support inbox for an online cohort.",
+    current: true,
   },
   {
     role: "Governor of Computing",
@@ -266,7 +424,7 @@ export const commandOutputs = {
 
   whoami        who I am
   ls            list sections
-  cat <name>    read a project case file
+  cat <name>    read a project case study
   git log       career history
   open <name>   open a project link
   clear         clear the console
@@ -276,26 +434,31 @@ tip: tab completes. most things you'd guess will work.`,
 
   whoami: `aly sibak
 fourth-year computer science co-op, university of guelph
-most recently: source protection software developer,
-               township of centre wellington
-currently: back at guelph for the fall term
-seeking: winter 2027 co-op (january-april)
+mississauga, ontario
 
-i find what's broken. you're in the part of the site that proves it.`,
+two co-op terms on production systems: a multi-tenant
+compliance platform for ontario municipalities, and a
+foreign-object detection platform for food processing.
+
+seeking: winter 2027 co-op (january-april), 4 or 8 months
+
+i find what's broken. you're in the part of the site that
+proves it.`,
 
   ls: `projects/     ${projects.map((p) => p.id).join("  ")}
-experience/   centre-wellington  pp-optica  teaching  hackcanada  msa  ccmps
+experience/   centre-wellington  hackcanada  pp-optica  teaching
+              ccmps  msa  socis
 contact/      email  github  linkedin  resume.pdf`,
 
-  lsExperience: `centre-wellington  pp-optica  teaching  hackcanada  msa  ccmps
-socis   (try 'git log')`,
+  lsExperience: `centre-wellington  hackcanada  pp-optica  teaching
+ccmps  msa  socis   (try 'git log')`,
 
   lsContact: `${site.email}
 ${site.github}
 ${site.linkedin}
 ${site.resume}`,
 
-  lsProjectFields: `bug  trace  fix  impact`,
+  lsProjectFields: `problem  constraints  decisions  outcome`,
 
   gitLog: `commit 9d4e1a7  (HEAD -> main, origin/main)
 Author: Aly Sibak
@@ -310,22 +473,28 @@ commit 7f3a9c2
 Date:   May 2026
 
     feat: source protection software at centre wellington
-    building compliance + permitting software for ontario
-    municipalities. configurable inspection forms, real-time
-    chat, fixed a broken access-control vuln.
+    lswims, a multi-tenant clean water act compliance
+    platform for ontario municipalities and conservation
+    authorities. shipped a threat inspection module, built
+    real-time messaging on signalr, closed five security
+    defects.
 
 commit c41b8e0
 Date:   May 2025
 
     feat: software developer co-op at p&p optica
-    ai food-safety dashboard, 20+ facilities. shipped gemini
-    eval pipeline. eliminated 200+ monthly support tickets.
+    ppo insights, foreign-object detection for food
+    processing across 20+ enterprise facilities. cut a
+    processing job from 3 days to 5 minutes. found a live
+    authorization vulnerability while auditing my own
+    feature.
 
 commit a90f12d
 Date:   Sep 2024
 
-    feat: teaching assistant, discrete structures + web design
-    330 students across two terms.
+    feat: teaching assistant at guelph
+    three 1.0 appointments across three courses. 250+
+    students in discrete structures.
 
 commit 1e7d4b5
 Date:   2023

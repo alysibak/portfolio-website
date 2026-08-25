@@ -13,7 +13,8 @@ import { navLinks, site } from "../lib/data";
 
       <p class="mt-5 text-[0.9375rem] text-muted">{site.roleLine}</p>
       <p class="mt-3 text-[0.9375rem] leading-relaxed text-muted">{site.now}</p>
-      <p class="meta mt-2 text-subtle">{site.school}</p>
+      <p class="meta mt-2 text-subtle">{site.school} · {site.location}</p>
+      <p class="meta mt-1 text-accent">{site.availability}</p>
 
       <ShellHint variant="home" />
 
@@ -22,7 +23,7 @@ import { navLinks, site } from "../lib/data";
           <a href={link.href} class="link w-fit">{link.label}</a>
         ))}
         <a href={site.resume} target="_blank" rel="noopener noreferrer" class="link-accent w-fit">
-          Resume ↗
+          Resume (PDF)<span class="sr-only"> (opens in a new tab)</span><span aria-hidden="true"> ↗</span>
         </a>
       </nav>
     </div>

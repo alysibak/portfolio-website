@@ -1,14 +1,15 @@
 ---
 import Base from "../layouts/Base.astro";
 import ShellHint from "../components/ShellHint.astro";
-import { projects } from "../lib/data";
+import { coursework, projects } from "../lib/data";
 ---
 
-<Base title="Work, Aly Sibak">
+<Base title="Selected work, Aly Sibak">
   <div class="mx-auto max-w-xl">
-    <h1 class="text-2xl font-medium">Work</h1>
+    <h1 class="text-2xl font-medium">Selected work</h1>
     <p class="mt-3 text-[0.9375rem] leading-relaxed text-muted">
-      Selected projects, each one includes a bug I found, how I traced it, and what changed.
+      Each project states the problem, the constraints, the decisions and what
+      each one cost, and where it ended up.
     </p>
     <ShellHint variant="work" />
 
@@ -18,65 +19,142 @@ import { projects } from "../lib/data";
           <li class="py-10 first:pt-0 last:pb-0">
             <div class="flex items-baseline justify-between gap-4">
               <h2 class="text-[0.9375rem] font-medium">{project.title}</h2>
-              <span class="meta shrink-0 tabular-nums text-subtle">{project.year}</span>
+              {project.year && (
+                <span class="meta shrink-0 tabular-nums text-subtle">
+                  {project.year}
+                </span>
+              )}
             </div>
-            <p class="mt-2 text-[0.9375rem] leading-relaxed text-muted">{project.sentence}</p>
-            <p
-              class="inspectable meta mt-1 text-subtle"
-              tabindex="0"
-              data-diff={project.diff}
-            >
-              {project.stat}
+            <p class="mt-2 text-[0.9375rem] leading-relaxed text-muted">
+              {project.tagline}
             </p>
+            <p class="meta mt-1 text-subtle">{project.context}</p>
 
-            {
-              project.links.length > 0 && (
-                <div class="meta mt-4 flex flex-wrap gap-x-4 gap-y-1">
-                  {project.links.map((link) => (
-                    <a
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class:list={[
-                        link.label === "Live" || link.label === "Devpost"
-                          ? "link-accent"
-                          : "link",
-                      ]}
-                    >
-                      {link.label} ↗
-                    </a>
-                  ))}
-                </div>
-              )
-            }
+            {project.ownership && (
+              <p class="ownership meta mt-4 leading-relaxed text-muted">
+                <span class="text-subtle">What I owned </span>
+                {project.ownership}
+              </p>
+            )}
+
+            {project.award && (
+              <p class="meta mt-3 text-accent">{project.award}</p>
+            )}
+
+            {project.finding && (
+              <p class="mt-3 text-[0.9375rem] leading-relaxed text-muted">
+                {project.finding}
+              </p>
+            )}
+
+            {project.links.length > 0 && (
+              <div class="meta mt-4 flex flex-wrap gap-x-4 gap-y-1">
+                {project.links.map((link) => (
+                  <a
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class:list={[
+                      link.label === "Live" || link.label === "Devpost"
+                        ? "link-accent"
+                        : "link",
+                    ]}
+                  >
+                    {link.label}
+                    <span class="sr-only"> (opens in a new tab)</span>
+                    <span aria-hidden="true"> ↗</span>
+                  </a>
+                ))}
+              </div>
+            )}
 
             <details class="case-file group mt-6">
               <summary class="meta cursor-pointer text-subtle select-none">
-                <span class="link">case file</span>
+                <span class="link">case study</span>
               </summary>
               <dl class="mt-5 space-y-5">
+                {project.caseStudy.problem && (
+                  <div>
+                    <dt class="meta text-subtle">Problem</dt>
+                    <dd class="mt-1.5 text-[0.9375rem] leading-relaxed text-muted">
+                      {project.caseStudy.problem}
+                    </dd>
+                  </div>
+                )}
+
+                {project.caseStudy.constraints && (
+                  <div>
+                    <dt class="meta text-subtle">Constraints</dt>
+                    <dd class="mt-1.5">
+                      <ul class="space-y-1 text-[0.9375rem] leading-relaxed text-muted">
+                        {project.caseStudy.constraints.map((c) => (
+                          <li>{c}</li>
+                        ))}
+                      </ul>
+                    </dd>
+                  </div>
+                )}
+
                 <div>
-                  <dt class="meta text-subtle">Bug</dt>
-                  <dd class="mt-1.5 text-[0.9375rem] leading-relaxed text-muted">{project.bug}</dd>
+                  <dt class="meta text-subtle">Decisions</dt>
+                  <dd class="mt-1.5">
+                    <ol class="space-y-4">
+                      {project.caseStudy.decisions.map((d) => (
+                        <li>
+                          <p class="text-[0.9375rem] font-medium leading-relaxed">
+                            {d.title}
+                          </p>
+                          <p class="mt-1 text-[0.9375rem] leading-relaxed text-muted">
+                            {d.reasoning}
+                          </p>
+                          {d.tradeoff && (
+                            <p class="meta mt-1 leading-relaxed text-subtle">
+                              Tradeoff: {d.tradeoff}
+                            </p>
+                          )}
+                        </li>
+                      ))}
+                    </ol>
+                  </dd>
                 </div>
-                <div>
-                  <dt class="meta text-subtle">Trace</dt>
-                  <dd class="mt-1.5 text-[0.9375rem] leading-relaxed text-muted">{project.trace}</dd>
-                </div>
-                <div>
-                  <dt class="meta text-subtle">Fix</dt>
-                  <dd class="mt-1.5 text-[0.9375rem] leading-relaxed text-muted">{project.fix}</dd>
-                </div>
-                <div>
-                  <dt class="meta text-subtle">Impact</dt>
-                  <dd class="mt-1.5 text-[0.9375rem] leading-relaxed text-muted">{project.impact}</dd>
-                </div>
+
+                {project.caseStudy.outcome && (
+                  <div>
+                    <dt class="meta text-subtle">Outcome</dt>
+                    <dd class="mt-1.5 text-[0.9375rem] leading-relaxed text-muted">
+                      {project.caseStudy.outcome}
+                    </dd>
+                  </div>
+                )}
               </dl>
             </details>
           </li>
         ))
       }
     </ul>
+
+    <section class="mt-14 border-t border-border pt-10">
+      <h2 class="text-[0.9375rem] font-medium">{coursework.title}</h2>
+      <ul class="mt-3 space-y-1 text-[0.9375rem] leading-relaxed text-muted">
+        {coursework.items.map((item) => <li>{item}</li>)}
+      </ul>
+      <div class="meta mt-4 flex flex-wrap gap-x-4 gap-y-1">
+        {
+          coursework.links.map((link) => (
+            <a
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="link"
+            >
+              {link.label}
+              <span class="sr-only"> (opens in a new tab)</span>
+              <span aria-hidden="true"> ↗</span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
 
     <a href="/" class="meta mt-16 inline-block text-subtle link">← Home</a>
   </div>
