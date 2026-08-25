@@ -19,12 +19,10 @@ resume, but neither is in the brief's verified-content section, and the rule
 is that a number not in that section does not appear. Restore them if you
 want them, they just need to be traceable.
 
-**"80 students in HTML, CSS, and JavaScript."** Removed with the split
-Teaching Assistant entries. The number was unsourced, and the brief flags
-the Web Design course code and title as unconfirmed. The two TA rows are now
-one entry covering September 2024 to present, carrying only the verified
-figures: three full 1.0 (140-hour) appointments and 250+ students in
-Discrete Structures.
+**"80 students" for Web Design.** The course itself is listed; the
+headcount is not. 80 was unsourced, unlike the 250+ for Discrete
+Structures. The two TA rows are now one entry covering September 2024 to
+present, with the three appointments as a sub-list.
 
 ## Content that could not be completed
 
@@ -93,12 +91,14 @@ A dead link on a portfolio is worse than no link. Click all of them.
 
 From the brief's own "confirm before publishing" list, unresolved:
 
-1. **The third TA course.** Two of the three appointments are named on the
-   site: Discrete Structures (CIS\*1910) and Object-Oriented Programming in
-   Java (CIS\*2430), both confirmed. The third is believed to be Web Design
-   and Development (CIS\*1050) but is unconfirmed, so it is counted in
-   "three different courses" without being named. Confirm the code and title
-   and it can be listed alongside the other two.
+1. **The Web Design course code.** All three appointments are now listed.
+   Web Design was initially left unnamed because the brief flags it as
+   unconfirmed, but that was over-cautious: the previous version of this
+   site and the resume both attest to the appointment. What is genuinely
+   unconfirmed is the formal code and title — believed to be Web Design and
+   Development (CIS\*1050) — so the entry names the course and its term
+   without asserting a code. The other two carry codes because both are
+   confirmed. Confirm CIS\*1050 and it can be added for consistency.
 2. **The Java appointment is future-dated.** The term begins 8 September
    2026, so the site says "appointed to support ... the term begins September
    2026". Once it is underway that wording should change, but never to "led"
