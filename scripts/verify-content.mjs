@@ -5,15 +5,35 @@
  * and the live deployments. These rules are the structural guard against a
  * claim drifting out of line with what is actually verified.
  *
+ * Plain ESM on purpose: the content module is TypeScript, so it is loaded
+ * through Vite (already present via Astro) rather than a Node type-stripping
+ * flag. If Astro can build on this Node version, this check can run on it.
+ *
  * Run directly with:  npm run verify
  */
-import {
-  coursework,
-  experience,
-  projects,
-  site,
-  commandOutputs,
-} from "../src/lib/data.ts";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { createServer } from "vite";
+
+const root = fileURLToPath(new URL("..", import.meta.url));
+
+async function loadContent() {
+  const server = await createServer({
+    root,
+    configFile: false,
+    logLevel: "silent",
+    server: { middlewareMode: true, watch: null },
+    appType: "custom",
+  });
+  try {
+    return await server.ssrLoadModule("/src/lib/data.ts");
+  } finally {
+    await server.close();
+  }
+}
+
+const { site, projects, experience, coursework, commandOutputs } =
+  await loadContent();
 
 /** The only external URLs permitted anywhere in site content. */
 const ALLOWED_URLS = [
@@ -55,14 +75,11 @@ const BANNED_PHRASES = [
   "in today's fast-paced world",
 ];
 
-const errors: string[] = [];
-
-function fail(rule: string, detail: string) {
-  errors.push(`[${rule}] ${detail}`);
-}
+const errors = [];
+const fail = (rule, detail) => errors.push(`[${rule}] ${detail}`);
 
 /** Every string reachable from the content modules, with a path label. */
-function collectStrings(value: unknown, path: string): [string, string][] {
+function collectStrings(value, path) {
   if (typeof value === "string") return [[path, value]];
   if (Array.isArray(value)) {
     return value.flatMap((v, i) => collectStrings(v, `${path}[${i}]`));
@@ -97,14 +114,17 @@ for (const p of projects) {
   }
 }
 
-// 2. Every decision needs reasoning; a stated tradeoff is strongly preferred.
+// 2. Every decision needs a title and reasoning.
 for (const p of projects) {
   if (p.caseStudy.decisions.length === 0) {
     fail("decisions", `project "${p.id}" has no decisions.`);
   }
   p.caseStudy.decisions.forEach((d, i) => {
     if (!d.title?.trim() || !d.reasoning?.trim()) {
-      fail("decisions", `project "${p.id}" decision ${i} is missing title or reasoning.`);
+      fail(
+        "decisions",
+        `project "${p.id}" decision ${i} is missing title or reasoning.`
+      );
     }
   });
 }
@@ -157,11 +177,11 @@ for (const [path, str] of allStrings) {
 // 7. Governor of Computing is university-level, never national or provincial.
 //    Checked per whole record, not per field: the role title and the
 //    description that miscasts it live in two different strings.
-const scopeScopes: [string, string][] = [
-  ...experience.map(
-    (e, i) =>
-      [`experience[${i}]`, `${e.role} ${e.company} ${e.context}`] as [string, string]
-  ),
+const scopeScopes = [
+  ...experience.map((e, i) => [
+    `experience[${i}]`,
+    `${e.role} ${e.company} ${e.context}`,
+  ]),
   ...allStrings,
 ];
 for (const [path, str] of scopeScopes) {
@@ -186,7 +206,10 @@ for (const [path, str] of allStrings) {
 // 9. Titles stay honest: no bare "Software Engineer".
 for (const [path, str] of allStrings) {
   if (/software engineer(?!ing)/i.test(str)) {
-    fail("title-inflation", `${path} uses "Software Engineer". He is a CS co-op student.`);
+    fail(
+      "title-inflation",
+      `${path} uses "Software Engineer". He is a CS co-op student.`
+    );
   }
   if (/software engineering major/i.test(str)) {
     fail("title-inflation", `${path} says "Software Engineering major".`);
@@ -194,13 +217,14 @@ for (const [path, str] of allStrings) {
 }
 
 // 10. The resume link must point at a file that exists.
-import { existsSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 const resumePath = fileURLToPath(
   new URL(`../public${site.resume}`, import.meta.url)
 );
 if (!existsSync(resumePath)) {
-  fail("resume", `site.resume points at ${site.resume}, which is not in public/.`);
+  fail(
+    "resume",
+    `site.resume points at ${site.resume}, which is not in public/.`
+  );
 }
 
 if (errors.length > 0) {

@@ -117,5 +117,12 @@ a teaching appointment, a "Software Engineer" title without the co-op
 qualifier, and a `site.resume` path pointing at a file that is not in
 `public/`.
 
-The rules are in `scripts/verify-content.ts`. Add to them whenever a new
+The rules are in `scripts/verify-content.mjs`. Add to them whenever a new
 claim needs to stay honest.
+
+The checker is plain ESM and loads the TypeScript content module through
+Vite rather than a Node type-stripping flag, so it runs on every Node
+version Astro itself supports. That matters because `prebuild` gates the
+deploy: if the checker cannot run, the site cannot ship. `engines` and
+`.nvmrc` pin the range, and each rule has been tested against a deliberate
+violation rather than assumed to work.
