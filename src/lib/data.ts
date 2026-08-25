@@ -39,7 +39,16 @@ export type ExperienceItem = {
   company: string;
   period: string;
   context: string;
+  /** Optional breakdown rendered as a sub-list, e.g. individual appointments. */
+  details?: string[];
   current?: boolean;
+};
+
+export type ExperienceGroup = {
+  label: string;
+  /** Rendered small and dense, so paid roles are not visually flattened against service roles. */
+  compact?: boolean;
+  items: ExperienceItem[];
 };
 
 export const site = {
@@ -63,89 +72,6 @@ export const site = {
 };
 
 export const projects: Project[] = [
-  {
-    id: "mizan",
-    title: "Mizan",
-    tagline: "Personal wealth and asset tracker with a rules-based calculation engine.",
-    role: "solo",
-    context: "Personal project. Live and open source.",
-    links: [
-      { label: "Live", href: "https://mizan-sandy-eight.vercel.app" },
-      { label: "Source", href: "https://github.com/alysibak/mizan" },
-    ],
-    openUrl: "https://mizan-sandy-eight.vercel.app",
-    caseStudy: {
-      problem:
-        "Wealth-obligation calculation under a specific ruleset requires tracking assets over a lunar year, applying threshold tests, and screening holdings against structural criteria. The domain is Islamic wealth calculation, or zakat. A spreadsheet is error-prone and loses history.",
-      constraints: [
-        "One developer, no budget for paid services.",
-        "Correctness outranks features. A wrong number is worse than a missing one.",
-        "The rules are not arbitrary. They must be encoded faithfully and stay testable in isolation.",
-      ],
-      decisions: [
-        {
-          title: "Pure calculation core with zero I/O",
-          reasoning:
-            "A dependency-free module covered by Vitest across threshold, holding-period, and screening logic.",
-          tradeoff:
-            "More plumbing between layers than reading the database inside the calculation.",
-        },
-        {
-          title: "Authorization by construction, not by check",
-          reasoning:
-            "Every update and delete matches on both record ID and owner ID, so a guessed UUID cannot reach another account. Not a middleware guard a future handler might forget: it is in the query itself. I have found this exact vulnerability class twice in production systems, once while auditing my own shipped feature. This is the design that prevents it.",
-          tradeoff:
-            "More verbose queries, and no single place to audit the policy.",
-        },
-        {
-          title: "Sessions hashed at rest",
-          reasoning:
-            "bcrypt for passwords, and session tokens stored as SHA-256 behind httpOnly cookies.",
-          tradeoff: "Active sessions cannot be displayed in human-readable form.",
-        },
-        {
-          title: "No expiring dependencies on critical paths",
-          reasoning:
-            "Every critical path runs locally, so no feature dies when a third-party trial lapses. That includes a self-contained calendar converter rather than an external service.",
-          tradeoff: "More code to own, and no vendor SLA.",
-        },
-        {
-          title: "Three-layer split",
-          reasoning:
-            "Server components, user-scoped REST handlers, and a dependency-free logic core.",
-          tradeoff: "Indirection cost on simple reads.",
-        },
-      ],
-      outcome:
-        "Live and open source. The engine is testable without a database, and the authorization model has no reachable cross-account path.",
-    },
-    catOutput: `mizan
-personal wealth and asset tracker with a rules-based
-calculation engine. solo. live and open source.
-
-  problem   wealth-obligation calculation (zakat) needs assets
-            tracked over a lunar year, threshold tests, and
-            structural screening. a spreadsheet is error-prone
-            and loses history.
-
-  decisions pure calculation core with zero i/o, covered by
-            vitest.
-            authorization by construction: every update and
-            delete matches on record id AND owner id, so a
-            guessed uuid cannot reach another account.
-            sessions hashed at rest (bcrypt + sha-256).
-            no expiring dependencies on critical paths.
-            three-layer split.
-
-  outcome   engine testable without a database. no reachable
-            cross-account path.
-
-  note      i have found this authorization bug class twice in
-            production. this is the design that prevents it.
-
-  -> mizan-sandy-eight.vercel.app
-  -> github.com/alysibak/mizan`,
-  },
   {
     id: "carinfo",
     title: "CarInfo",
@@ -341,6 +267,89 @@ records platform over 57,000+ ww1 military records.
   -> timevault-web.onrender.com
   -> github.com/alysibak/TimeVault`,
   },
+  {
+    id: "mizan",
+    title: "Mizan",
+    tagline: "Personal wealth and asset tracker with a rules-based calculation engine.",
+    role: "solo",
+    context: "Personal project. Live and open source.",
+    links: [
+      { label: "Live", href: "https://mizan-sandy-eight.vercel.app" },
+      { label: "Source", href: "https://github.com/alysibak/mizan" },
+    ],
+    openUrl: "https://mizan-sandy-eight.vercel.app",
+    caseStudy: {
+      problem:
+        "Wealth-obligation calculation under a specific ruleset requires tracking assets over a lunar year, applying threshold tests, and screening holdings against structural criteria. The domain is Islamic wealth calculation, or zakat. A spreadsheet is error-prone and loses history.",
+      constraints: [
+        "One developer, no budget for paid services.",
+        "Correctness outranks features. A wrong number is worse than a missing one.",
+        "The rules are not arbitrary. They must be encoded faithfully and stay testable in isolation.",
+      ],
+      decisions: [
+        {
+          title: "Pure calculation core with zero I/O",
+          reasoning:
+            "A dependency-free module covered by Vitest across threshold, holding-period, and screening logic.",
+          tradeoff:
+            "More plumbing between layers than reading the database inside the calculation.",
+        },
+        {
+          title: "Authorization by construction, not by check",
+          reasoning:
+            "Every update and delete matches on both record ID and owner ID, so a guessed UUID cannot reach another account. Not a middleware guard a future handler might forget: it is in the query itself. I have found this exact vulnerability class twice in production systems, once while auditing my own shipped feature. This is the design that prevents it.",
+          tradeoff:
+            "More verbose queries, and no single place to audit the policy.",
+        },
+        {
+          title: "Sessions hashed at rest",
+          reasoning:
+            "bcrypt for passwords, and session tokens stored as SHA-256 behind httpOnly cookies.",
+          tradeoff: "Active sessions cannot be displayed in human-readable form.",
+        },
+        {
+          title: "No expiring dependencies on critical paths",
+          reasoning:
+            "Every critical path runs locally, so no feature dies when a third-party trial lapses. That includes a self-contained calendar converter rather than an external service.",
+          tradeoff: "More code to own, and no vendor SLA.",
+        },
+        {
+          title: "Three-layer split",
+          reasoning:
+            "Server components, user-scoped REST handlers, and a dependency-free logic core.",
+          tradeoff: "Indirection cost on simple reads.",
+        },
+      ],
+      outcome:
+        "Live and open source. The engine is testable without a database, and the authorization model has no reachable cross-account path.",
+    },
+    catOutput: `mizan
+personal wealth and asset tracker with a rules-based
+calculation engine. solo. live and open source.
+
+  problem   wealth-obligation calculation (zakat) needs assets
+            tracked over a lunar year, threshold tests, and
+            structural screening. a spreadsheet is error-prone
+            and loses history.
+
+  decisions pure calculation core with zero i/o, covered by
+            vitest.
+            authorization by construction: every update and
+            delete matches on record id AND owner id, so a
+            guessed uuid cannot reach another account.
+            sessions hashed at rest (bcrypt + sha-256).
+            no expiring dependencies on critical paths.
+            three-layer split.
+
+  outcome   engine testable without a database. no reachable
+            cross-account path.
+
+  note      i have found this authorization bug class twice in
+            production. this is the design that prevents it.
+
+  -> mizan-sandy-eight.vercel.app
+  -> github.com/alysibak/mizan`,
+  },
 ];
 
 export const coursework = {
@@ -360,59 +369,84 @@ export const coursework = {
   ],
 };
 
-export const experience: ExperienceItem[] = [
+export const experience: ExperienceGroup[] = [
   {
-    role: "Source Protection Software Developer (Co-op)",
-    company: "Township of Centre Wellington",
-    period: "May–Sep 2026",
-    context:
-      "LSWIMS, a multi-tenant Clean Water Act compliance platform used by municipalities and conservation authorities across Ontario.",
+    label: "Co-op terms",
+    items: [
+      {
+        role: "Source Protection Software Developer (Co-op)",
+        company: "Township of Centre Wellington",
+        period: "May–Sep 2026",
+        context:
+          "LSWIMS, a multi-tenant Clean Water Act compliance platform used by municipalities and conservation authorities across Ontario.",
+      },
+      {
+        role: "Software Developer (Co-op)",
+        company: "P&P Optica",
+        period: "May–Dec 2025",
+        context:
+          "PPO Insights, a foreign-object detection platform for food processing serving 20+ enterprise facilities.",
+      },
+    ],
   },
   {
-    role: "Tech Organizer",
-    company: "HackCanada",
-    period: "2026",
-    context: "Built the event website and the judge-facing judging portal.",
+    label: "Teaching",
+    items: [
+      {
+        role: "Teaching Assistant",
+        company: "University of Guelph",
+        period: "Sep 2024–present",
+        context:
+          "Selected for three full 1.0 (140-hour) paid appointments across three different courses. Graded assignments and exams with detailed written feedback, and ran exam review sessions.",
+        details: [
+          "Discrete Structures (CIS*1910). Supported 250+ students and ran the shared support inbox for an online cohort.",
+          "Object-Oriented Programming in Java (CIS*2430). Appointed to support lab sections, office hours, and grading; the term begins September 2026.",
+        ],
+        current: true,
+      },
+    ],
   },
   {
-    role: "Software Developer (Co-op)",
-    company: "P&P Optica",
-    period: "May–Dec 2025",
-    context:
-      "PPO Insights, a foreign-object detection platform for food processing serving 20+ enterprise facilities.",
-  },
-  {
-    role: "Teaching Assistant",
-    company: "University of Guelph",
-    period: "Sep 2024–present",
-    context:
-      "Three full 1.0 (140-hour) appointments across three courses. Supported 250+ students in Discrete Structures and ran the shared support inbox for an online cohort.",
-    current: true,
-  },
-  {
-    role: "Governor of Computing",
-    company: "CCMPS Student Council",
-    period: "Ongoing",
-    context:
-      "Elected, representing 2,300 Computing students at the University of Guelph.",
-    current: true,
-  },
-  {
-    role: "Technical Director",
-    company: "Muslim Students Association",
-    period: "Ongoing",
-    context: "Maintain and extend the MSA website.",
-    current: true,
-  },
-  {
-    role: "Workshop Lead",
-    company: "SOCIS and Google Developer Student Club",
-    period: "Ongoing",
-    context:
-      "Design and lead hands-on full-stack and AI workshops for 50+ students.",
-    current: true,
+    label: "Leadership and activities",
+    compact: true,
+    items: [
+      {
+        role: "Tech Organizer",
+        company: "HackCanada",
+        period: "2026",
+        context: "Built the event website and the judge-facing judging portal.",
+      },
+      {
+        role: "Governor of Computing",
+        company: "CCMPS Student Council",
+        period: "Ongoing",
+        context:
+          "Elected, representing 2,300 Computing students at the University of Guelph.",
+        current: true,
+      },
+      {
+        role: "Technical Director",
+        company: "Muslim Students Association",
+        period: "Ongoing",
+        context: "Maintain and extend the MSA website.",
+        current: true,
+      },
+      {
+        role: "Workshop Lead",
+        company: "SOCIS and Google Developer Student Club",
+        period: "Ongoing",
+        context:
+          "Design and lead hands-on full-stack and AI workshops for 50+ students.",
+        current: true,
+      },
+    ],
   },
 ];
+
+/** Flat view, for the shell and the content checker. */
+export const experienceItems: ExperienceItem[] = experience.flatMap(
+  (group) => group.items
+);
 
 export const navLinks = [
   { label: "Work", href: "/work" },
@@ -446,12 +480,14 @@ i find what's broken. you're in the part of the site that
 proves it.`,
 
   ls: `projects/     ${projects.map((p) => p.id).join("  ")}
-experience/   centre-wellington  hackcanada  pp-optica  teaching
-              ccmps  msa  socis
+experience/   co-op/  teaching/  leadership/
 contact/      email  github  linkedin  resume.pdf`,
 
-  lsExperience: `centre-wellington  hackcanada  pp-optica  teaching
-ccmps  msa  socis   (try 'git log')`,
+  lsExperience: `co-op/        centre-wellington  pp-optica
+teaching/     university-of-guelph
+leadership/   hackcanada  ccmps  msa  socis
+
+(try 'git log')`,
 
   lsContact: `${site.email}
 ${site.github}

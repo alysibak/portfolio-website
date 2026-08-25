@@ -9,31 +9,78 @@ import { experience, site } from "../lib/data";
     <h1 class="text-2xl font-medium">Experience</h1>
     <ShellHint variant="page" />
 
-    <ul class="mt-12 divide-y divide-border">
-      {
-        experience.map((item) => (
-          <li class="py-8 first:pt-0 last:pb-0">
-            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p class="text-[0.9375rem] font-medium">
-                  {item.role}
-                  {item.current && (
-                    <span class="meta ml-1.5 font-normal text-subtle">· now</span>
-                  )}
-                </p>
-                <p class="text-[0.9375rem] text-muted">{item.company}</p>
-              </div>
-              <p class="meta shrink-0 tabular-nums text-subtle">{item.period}</p>
-            </div>
-            <p class="mt-2 text-[0.9375rem] text-muted">{item.context}</p>
-          </li>
-        ))
-      }
-    </ul>
+    {
+      experience.map((group, groupIndex) => (
+        <section
+          class:list={[
+            groupIndex === 0 ? "mt-12" : "mt-12 border-t border-border pt-8",
+          ]}
+        >
+          <h2 class="meta text-subtle">{group.label}</h2>
 
-    <div class="mt-14 border-t border-border pt-10">
-      <p class="text-[0.9375rem] font-medium">Education</p>
-      <p class="mt-2 text-[0.9375rem] text-muted">{site.education.degree}</p>
+          {group.compact ? (
+            <ul class="mt-4 space-y-4">
+              {group.items.map((item) => (
+                <li>
+                  <div class="flex flex-col gap-x-3 sm:flex-row sm:items-baseline sm:justify-between">
+                    <p class="text-[0.9375rem]">
+                      <span class="font-medium">{item.role}</span>
+                      <span class="text-muted"> · {item.company}</span>
+                      {item.current && (
+                        <span class="meta ml-1.5 text-subtle">· now</span>
+                      )}
+                    </p>
+                    <p class="meta shrink-0 tabular-nums text-subtle">
+                      {item.period}
+                    </p>
+                  </div>
+                  <p class="meta mt-1 leading-relaxed text-muted">
+                    {item.context}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <ul class="mt-5 divide-y divide-border">
+              {group.items.map((item) => (
+                <li class="py-8 first:pt-0 last:pb-0">
+                  <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p class="text-[0.9375rem] font-medium">
+                        {item.role}
+                        {item.current && (
+                          <span class="meta ml-1.5 font-normal text-subtle">
+                            · now
+                          </span>
+                        )}
+                      </p>
+                      <p class="text-[0.9375rem] text-muted">{item.company}</p>
+                    </div>
+                    <p class="meta shrink-0 tabular-nums text-subtle">
+                      {item.period}
+                    </p>
+                  </div>
+                  <p class="mt-2 text-[0.9375rem] leading-relaxed text-muted">
+                    {item.context}
+                  </p>
+                  {item.details && (
+                    <ul class="mt-3 space-y-1.5 border-l border-border pl-4">
+                      {item.details.map((detail) => (
+                        <li class="meta leading-relaxed text-muted">{detail}</li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ))
+    }
+
+    <div class="mt-12 border-t border-border pt-8">
+      <h2 class="meta text-subtle">Education</h2>
+      <p class="mt-4 text-[0.9375rem] font-medium">{site.education.degree}</p>
       <p class="mt-1 text-[0.9375rem] text-muted">{site.education.school}</p>
       <p class="meta mt-1 text-subtle">{site.education.detail}</p>
     </div>

@@ -32,7 +32,7 @@ async function loadContent() {
   }
 }
 
-const { site, projects, experience, coursework, commandOutputs } =
+const { site, projects, experience, experienceItems, coursework, commandOutputs } =
   await loadContent();
 
 /** The only external URLs permitted anywhere in site content. */
@@ -178,9 +178,9 @@ for (const [path, str] of allStrings) {
 //    Checked per whole record, not per field: the role title and the
 //    description that miscasts it live in two different strings.
 const scopeScopes = [
-  ...experience.map((e, i) => [
-    `experience[${i}]`,
-    `${e.role} ${e.company} ${e.context}`,
+  ...experienceItems.map((e, i) => [
+    `experienceItems[${i}]`,
+    `${e.role} ${e.company} ${e.context} ${(e.details ?? []).join(" ")}`,
   ]),
   ...allStrings,
 ];
@@ -235,5 +235,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `content verified: ${projects.length} projects, ${experience.length} roles, ${allStrings.length} strings checked.`
+  `content verified: ${projects.length} projects, ${experienceItems.length} roles in ${experience.length} groups, ${allStrings.length} strings checked.`
 );

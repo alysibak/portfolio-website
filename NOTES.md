@@ -93,12 +93,16 @@ A dead link on a portfolio is worse than no link. Click all of them.
 
 From the brief's own "confirm before publishing" list, unresolved:
 
-1. **The third TA course.** Believed to be Web Design and Development
-   (CIS\*1050), unconfirmed. The site now avoids naming any course except
-   Discrete Structures, so this no longer blocks publishing.
-2. **The Java teaching appointment.** The term begins 8 September 2026. The
-   site does not mention it yet. When it does, the phrasing is "appointed to
-   support", never "led" — `npm run verify` fails the build on the latter.
+1. **The third TA course.** Two of the three appointments are named on the
+   site: Discrete Structures (CIS\*1910) and Object-Oriented Programming in
+   Java (CIS\*2430), both confirmed. The third is believed to be Web Design
+   and Development (CIS\*1050) but is unconfirmed, so it is counted in
+   "three different courses" without being named. Confirm the code and title
+   and it can be listed alongside the other two.
+2. **The Java appointment is future-dated.** The term begins 8 September
+   2026, so the site says "appointed to support ... the term begins September
+   2026". Once it is underway that wording should change, but never to "led"
+   — `npm run verify` fails the build on that.
 3. **The award headcount.** The brief says 800 participants; the resume PDF
    in `public/` says 692. The site uses 800. These disagree and only Aly can
    settle which is right.
