@@ -400,7 +400,7 @@ export const experience: ExperienceGroup[] = [
           "Selected for three full 1.0 (140-hour) paid appointments across three different courses. Graded assignments and exams with detailed written feedback, and ran exam review sessions.",
         details: [
           "Discrete Structures (CIS*1910), Sep–Dec 2024. Supported 250+ students and ran the shared support inbox for an online cohort.",
-          "Web Design, Jan–Apr 2026. HTML, CSS, and JavaScript.",
+          "Web Design and Development (CIS*1050), Jan–Apr 2026. HTML, CSS, and JavaScript.",
           "Object-Oriented Programming in Java (CIS*2430), from Sep 2026. Appointed to support lab sections, office hours, and grading.",
         ],
         current: true,
