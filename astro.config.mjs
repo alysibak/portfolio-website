@@ -6,6 +6,10 @@ import vercel from "@astrojs/vercel/static";
 export default defineConfig({
   integrations: [react(), tailwind({ applyBaseStyles: false })],
   output: "static",
-  adapter: vercel(),
+  adapter: vercel({
+    webAnalytics: {
+      enabled: true,
+    },
+  }),
   site: "https://alysibak.vercel.app",
 });
