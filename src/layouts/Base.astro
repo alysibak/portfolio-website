@@ -36,6 +36,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <!-- Vercel Web Analytics. Cookieless, so no consent banner is needed.
+         Inert until Web Analytics is enabled for the project in the Vercel
+         dashboard; 404s harmlessly on localhost and any non-Vercel host. -->
+    <script defer src="/_vercel/insights/script.js"></script>
     <title>{title}</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
