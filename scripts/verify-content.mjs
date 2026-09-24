@@ -227,6 +227,28 @@ if (!existsSync(resumePath)) {
   );
 }
 
+// 11. Employer work stays vague. Anything tied to an employer names the
+//     domain, never security findings inside it: that is the employer's
+//     information to disclose, not ours. Personal projects are exempt.
+const employerStrings = [
+  ...collectStrings(experienceItems, "experienceItems"),
+  ["commandOutputs.gitLog", commandOutputs.gitLog],
+  ["commandOutputs.whoami", commandOutputs.whoami],
+  ["site.now", site.now],
+  ["site.description", site.description],
+];
+const CONFIDENTIAL_RE =
+  /vulnerab|security\s+(defect|flaw|hole|issue|bug)|exploit|breach|misconfigur/i;
+for (const [path, str] of employerStrings) {
+  const hit = str.match(CONFIDENTIAL_RE);
+  if (hit) {
+    fail(
+      "confidentiality",
+      `${path} mentions "${hit[0].replace(/\s+/g, " ")}" in employer work. Keep company work vague; no security findings.`
+    );
+  }
+}
+
 if (errors.length > 0) {
   console.error(`\ncontent verification failed (${errors.length}):\n`);
   for (const e of errors) console.error(`  ${e}`);

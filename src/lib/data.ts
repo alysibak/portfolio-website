@@ -297,7 +297,7 @@ records platform over 57,000+ ww1 military records.
         {
           title: "Authorization by construction, not by check",
           reasoning:
-            "Every update and delete matches on both record ID and owner ID, so a guessed UUID cannot reach another account. Not a middleware guard a future handler might forget: it is in the query itself. I have found this exact vulnerability class twice in production systems, once while auditing my own shipped feature. This is the design that prevents it.",
+            "Every update and delete matches on both record ID and owner ID, so a guessed UUID cannot reach another account. Not a middleware guard a future handler might forget: it is in the query itself. Cross-account access is one of the most common bugs in multi-tenant apps, and this design rules it out.",
           tradeoff:
             "More verbose queries, and no single place to audit the policy.",
         },
@@ -344,8 +344,8 @@ calculation engine. solo. live and open source.
   outcome   engine testable without a database. no reachable
             cross-account path.
 
-  note      i have found this authorization bug class twice in
-            production. this is the design that prevents it.
+  note      cross-account access is one of the most common
+            bugs in multi-tenant apps. this design rules it out.
 
   -> mizan-sandy-eight.vercel.app
   -> github.com/alysibak/mizan`,
@@ -512,19 +512,14 @@ Date:   May 2026
     feat: source protection software at centre wellington
     lswims, a multi-tenant clean water act compliance
     platform for ontario municipalities and conservation
-    authorities. shipped a threat inspection module, built
-    real-time messaging on signalr, closed five security
-    defects.
+    authorities.
 
 commit c41b8e0
 Date:   May 2025
 
     feat: software developer co-op at p&p optica
     ppo insights, foreign-object detection for food
-    processing across 20+ enterprise facilities. cut a
-    processing job from 3 days to 5 minutes. found a live
-    authorization vulnerability while auditing my own
-    feature.
+    processing across 20+ enterprise facilities.
 
 commit a90f12d
 Date:   Sep 2024
