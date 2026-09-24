@@ -16,6 +16,29 @@ export type CaseStudy = {
   outcome?: string;
 };
 
+/** One box in a project diagram. `owned` is false for anything Aly did not build. */
+export type DiagramNode = {
+  label: string;
+  owned: boolean;
+  /** The box the diagram is about. */
+  key?: boolean;
+};
+
+export type Diagram = {
+  /** Left to right, joined by arrows. */
+  flow: DiagramNode[];
+  /** Pieces that sit beside the main flow rather than in it. */
+  beside?: DiagramNode[];
+};
+
+/** A before/after bar pair for a bug the project caught. */
+export type FindingChart = {
+  label: string;
+  /** Share of the real value shown before the fix, as a [low, high] percent range. */
+  before: [number, number];
+  after: number;
+};
+
 export type Project = {
   id: string;
   title: string;
@@ -30,34 +53,53 @@ export type Project = {
   openUrl: string;
   award?: string;
   finding?: string;
+  findingChart?: FindingChart;
+  diagram: Diagram;
   caseStudy: CaseStudy;
   catOutput: string;
 };
 
-export type ExperienceItem = {
-  role: string;
-  company: string;
+export type Lane = "school" | "co-op" | "teaching";
+
+/** One commit on the Experience page's graph. */
+export type TimelineEntry = {
+  lane: Lane;
+  /** YYYY-MM. Orders the graph and places co-op terms on the degree bar. */
+  start: string;
+  /** YYYY-MM, inclusive. Omitted while ongoing. */
+  end?: string;
   period: string;
-  context: string;
-  /** Optional breakdown rendered as a sub-list, e.g. individual appointments. */
-  details?: string[];
+  role: string;
+  org: string;
+  note?: string;
   current?: boolean;
 };
 
-export type ExperienceGroup = {
+/** Service roles, rendered as badges so they don't read as paid work. */
+export type LeadershipItem = {
+  /** Two or three letters for the badge. */
+  mark: string;
+  role: string;
+  org: string;
+  period: string;
+  context: string;
+  current?: boolean;
+};
+
+export type Stat = {
+  value: number;
+  suffix?: string;
   label: string;
-  /** Rendered small and dense, so paid roles are not visually flattened against service roles. */
-  compact?: boolean;
-  items: ExperienceItem[];
 };
 
 export const site = {
   name: "Aly Sibak",
   roleLine: "I build and debug production systems",
-  now: "Most recently a multi-tenant compliance platform used by Ontario municipalities, and a foreign-object detection platform for food processing.",
   school: "Fourth-year Computer Science co-op, University of Guelph",
   location: "Mississauga, Ontario",
   availability: "Seeking Winter 2027 co-op, January–April",
+  /** The term availability refers to, as YYYY-MM. Drawn on the degree bar. */
+  seeking: { label: "Winter 2027", start: "2027-01", end: "2027-04" },
   description:
     "Aly Sibak, Computer Science co-op student at the University of Guelph. Two co-op terms building and debugging production systems. Seeking Winter 2027.",
   email: "asibak@uoguelph.ca",
@@ -67,7 +109,9 @@ export const site = {
   education: {
     degree: "Bachelor of Computing (Honours), Computer Science, Co-op",
     school: "University of Guelph",
-    detail: "Expected April 2028. Fourth year.",
+    detail: "Expected April 2028",
+    start: "2023-09",
+    end: "2028-04",
   },
 };
 
@@ -87,6 +131,20 @@ export const projects: Project[] = [
     openUrl: "https://carinfo-client.vercel.app",
     finding:
       "Caught an import bug misclassifying 419 plug-in hybrids, causing 60–70% valuation errors. Found by checking output against expectations rather than trusting the import.",
+    findingChart: {
+      label: "419 plug-in hybrids · value shown vs. real value",
+      before: [30, 40],
+      after: 100,
+    },
+    diagram: {
+      flow: [
+        { label: "EPA + NHTSA data", owned: false },
+        { label: "Import", owned: true },
+        { label: "Trust labels", owned: true, key: true },
+        { label: "Research UI", owned: true },
+      ],
+      beside: [{ label: "Ontario cost config", owned: true }],
+    },
     caseStudy: {
       problem:
         "Public vehicle data is spread across federal datasets of differing shape and quality. Merging them naively produces confident-looking numbers that are wrong.",
@@ -160,6 +218,20 @@ with nhtsa safety enrichment. solo. live and open source.
       },
     ],
     openUrl: "https://devpost.com/software/bystander",
+    diagram: {
+      flow: [
+        { label: "8-second clip", owned: true },
+        { label: "Express API", owned: true },
+        { label: "Gemini analysis", owned: true },
+        { label: "Severity 1–10", owned: true, key: true },
+        { label: "React UI", owned: true },
+      ],
+      beside: [
+        { label: "Contactless vitals", owned: false },
+        { label: "Voice coach", owned: false },
+        { label: "SMS alerts", owned: false },
+      ],
+    },
     caseStudy: {
       problem:
         "A bystander at an emergency does not know what they are looking at or what to do first.",
@@ -226,6 +298,18 @@ emergency response assistant built in 36 hours. team of 4.
       { label: "Source", href: "https://github.com/alysibak/TimeVault" },
     ],
     openUrl: "https://timevault-web.onrender.com",
+    diagram: {
+      flow: [
+        { label: "Web client", owned: false },
+        { label: "JWT roles", owned: true },
+        { label: "Flask REST API", owned: true, key: true },
+        { label: "3 ML models", owned: false },
+      ],
+      beside: [
+        { label: "Request log", owned: true },
+        { label: "QA + integration tests", owned: true },
+      ],
+    },
     caseStudy: {
       decisions: [
         {
@@ -278,6 +362,17 @@ records platform over 57,000+ ww1 military records.
       { label: "Source", href: "https://github.com/alysibak/mizan" },
     ],
     openUrl: "https://mizan-sandy-eight.vercel.app",
+    diagram: {
+      flow: [
+        { label: "Server components", owned: true },
+        { label: "User-scoped REST", owned: true },
+        { label: "Logic core, zero I/O", owned: true, key: true },
+      ],
+      beside: [
+        { label: "Vitest suite", owned: true },
+        { label: "Hashed sessions", owned: true },
+      ],
+    },
     caseStudy: {
       problem:
         "Wealth-obligation calculation under a specific ruleset requires tracking assets over a lunar year, applying threshold tests, and screening holdings against structural criteria. The domain is Islamic wealth calculation, or zakat. A spreadsheet is error-prone and loses history.",
@@ -369,85 +464,121 @@ export const coursework = {
   ],
 };
 
-export const experience: ExperienceGroup[] = [
+/** Numbers from personal projects only. Employer work stays vague. */
+export const highlights: Stat[] = [
+  { value: 28000, label: "vehicles in CarInfo" },
+  { value: 419, label: "misclassified hybrids caught" },
+  { value: 36, suffix: " h", label: "to build Bystander" },
+  { value: 57000, suffix: "+", label: "WWI records in TimeVault" },
+];
+
+/** Newest first. The graph draws one lane per `lane`. */
+export const timeline: TimelineEntry[] = [
   {
-    label: "Co-op terms",
-    items: [
-      {
-        role: "Source Protection Software Developer (Co-op)",
-        company: "Township of Centre Wellington",
-        period: "May–Sep 2026",
-        context:
-          "LSWIMS, a multi-tenant Clean Water Act compliance platform used by municipalities and conservation authorities across Ontario.",
-      },
-      {
-        role: "Software Developer (Co-op)",
-        company: "P&P Optica",
-        period: "May–Dec 2025",
-        context:
-          "PPO Insights, a foreign-object detection platform for food processing serving 20+ enterprise facilities.",
-      },
-    ],
+    lane: "teaching",
+    start: "2026-09",
+    period: "From Sep 2026",
+    role: "Teaching Assistant",
+    org: "Object-Oriented Programming in Java (CIS*2430)",
+    note: "Appointed to support lab sections, office hours, and grading.",
+    current: true,
   },
   {
-    label: "Teaching",
-    items: [
-      {
-        role: "Teaching Assistant",
-        company: "University of Guelph",
-        period: "Sep 2024–present",
-        context:
-          "Selected for three full 1.0 (140-hour) paid appointments across three different courses. Graded assignments and exams with detailed written feedback, and ran exam review sessions.",
-        details: [
-          "Discrete Structures (CIS*1910), Sep–Dec 2024. Supported 250+ students and ran the shared support inbox for an online cohort.",
-          "Web Design and Development (CIS*1050), Jan–Apr 2026. HTML, CSS, and JavaScript.",
-          "Object-Oriented Programming in Java (CIS*2430), from Sep 2026. Appointed to support lab sections, office hours, and grading.",
-        ],
-        current: true,
-      },
-    ],
+    lane: "co-op",
+    start: "2026-05",
+    end: "2026-09",
+    period: "May–Sep 2026",
+    role: "Source Protection Software Developer (Co-op)",
+    org: "Township of Centre Wellington",
+    note: "LSWIMS, a multi-tenant Clean Water Act compliance platform used by municipalities and conservation authorities across Ontario.",
   },
   {
-    label: "Leadership and activities",
-    compact: true,
-    items: [
-      {
-        role: "Tech Organizer",
-        company: "HackCanada",
-        period: "2026",
-        context: "Built the event website and the judge-facing judging portal.",
-      },
-      {
-        role: "Governor of Computing",
-        company: "CCMPS Student Council",
-        period: "Ongoing",
-        context:
-          "Elected, representing 2,300 Computing students at the University of Guelph.",
-        current: true,
-      },
-      {
-        role: "Technical Director",
-        company: "Muslim Students Association",
-        period: "Ongoing",
-        context: "Maintain and extend the MSA website.",
-        current: true,
-      },
-      {
-        role: "Workshop Lead",
-        company: "SOCIS and Google Developer Student Club",
-        period: "Ongoing",
-        context:
-          "Design and lead hands-on full-stack and AI workshops for 50+ students.",
-        current: true,
-      },
-    ],
+    lane: "teaching",
+    start: "2026-01",
+    end: "2026-04",
+    period: "Jan–Apr 2026",
+    role: "Teaching Assistant",
+    org: "Web Design and Development (CIS*1050)",
+    note: "HTML, CSS, and JavaScript.",
+  },
+  {
+    lane: "co-op",
+    start: "2025-05",
+    end: "2025-12",
+    period: "May–Dec 2025",
+    role: "Software Developer (Co-op)",
+    org: "P&P Optica",
+    note: "PPO Insights, a foreign-object detection platform for food processing serving 20+ enterprise facilities.",
+  },
+  {
+    lane: "teaching",
+    start: "2024-09",
+    end: "2024-12",
+    period: "Sep–Dec 2024",
+    role: "Teaching Assistant",
+    org: "Discrete Structures (CIS*1910)",
+    note: "Supported 250+ students and ran the shared support inbox for an online cohort.",
+  },
+  {
+    lane: "school",
+    start: "2023-09",
+    period: "2023",
+    role: "Started Computer Science (Co-op)",
+    org: "University of Guelph",
   },
 ];
 
-/** Flat view, for the shell and the content checker. */
-export const experienceItems: ExperienceItem[] = experience.flatMap(
-  (group) => group.items
-);
+/** Three full 1.0 (140-hour) paid appointments across three courses. */
+export const teachingStats: Stat[] = [
+  { value: 3, label: "paid TA appointments" },
+  { value: 420, label: "paid hours" },
+  { value: 250, suffix: "+", label: "students in one course" },
+];
+
+export const teachingNote =
+  "Graded assignments and exams with detailed written feedback, and ran exam review sessions.";
+
+export const leadership: LeadershipItem[] = [
+  {
+    mark: "HC",
+    role: "Tech Organizer",
+    org: "HackCanada",
+    period: "2026",
+    context: "Built the event website and the judge-facing judging portal.",
+  },
+  {
+    mark: "CC",
+    role: "Governor of Computing",
+    org: "CCMPS Student Council",
+    period: "Ongoing",
+    context:
+      "Elected, representing 2,300 Computing students at the University of Guelph.",
+    current: true,
+  },
+  {
+    mark: "MSA",
+    role: "Technical Director",
+    org: "Muslim Students Association",
+    period: "Ongoing",
+    context: "Maintain and extend the MSA website.",
+    current: true,
+  },
+  {
+    mark: "GD",
+    role: "Workshop Lead",
+    org: "SOCIS and Google Developer Student Club",
+    period: "Ongoing",
+    context:
+      "Design and lead hands-on full-stack and AI workshops for 50+ students.",
+    current: true,
+  },
+];
+
+/** Flat view of every role, for the content checker. */
+export const experienceItems = [
+  ...timeline.map((t) => ({ role: t.role, company: t.org, context: t.note ?? "" })),
+  ...leadership.map((l) => ({ role: l.role, company: l.org, context: l.context })),
+];
 
 export const navLinks = [
   { label: "Work", href: "/work" },

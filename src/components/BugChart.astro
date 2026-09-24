@@ -1,0 +1,59 @@
+---
+import type { FindingChart } from "../lib/data";
+
+interface Props {
+  chart: FindingChart;
+}
+
+const { chart } = Astro.props;
+const [low, high] = chart.before;
+---
+
+<figure class="bug-chart mt-4 rounded-md border border-border bg-paper p-4">
+  <figcaption class="meta text-muted">{chart.label}</figcaption>
+  <div class="mt-3 grid grid-cols-[3.5rem_1fr_3.5rem] items-center gap-x-3 gap-y-2.5">
+    <span class="meta text-muted">Before</span>
+    <span class="relative h-3.5 rounded-sm bg-border/70">
+      <span class="bug-bar bg-bad" style={`width:${low}%`}></span>
+      <span class="bug-bar bg-bad/35" style={`left:${low}%;width:${high - low}%`}></span>
+    </span>
+    <span class="meta text-right tabular-nums text-bad">{low}–{high}%</span>
+
+    <span class="meta text-muted">After</span>
+    <span class="relative h-3.5 rounded-sm bg-border/70">
+      <span class="bug-bar bg-good" style={`width:${chart.after}%`}></span>
+    </span>
+    <span class="meta text-right tabular-nums text-good">{chart.after}%</span>
+
+    <span></span>
+    <span class="meta relative h-4 border-t border-border text-[0.6875rem] text-subtle" aria-hidden="true">
+      <span class="absolute left-0 top-1">0</span>
+      <span class="absolute left-1/2 top-1 -translate-x-1/2">50%</span>
+      <span class="absolute right-0 top-1">100%</span>
+    </span>
+    <span></span>
+  </div>
+</figure>
+
+<script>
+  // Bars grow in when the chart scrolls into view. They start collapsed only
+  // once this script is running, so without it they are simply drawn.
+  function watchCharts() {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.replace("is-pending", "is-live");
+          io.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.3 }
+    );
+    document.querySelectorAll(".bug-chart").forEach((el) => {
+      el.classList.add("is-pending");
+      io.observe(el);
+    });
+  }
+  document.addEventListener("astro:page-load", watchCharts);
+</script>

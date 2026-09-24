@@ -1,5 +1,8 @@
 <script is:inline>
   (function () {
+    // Inline scripts rerun on client-side navigation; say hello once.
+    if (window.__devtoolsHello) return;
+    window.__devtoolsHello = true;
     console.log("you opened the console. of course you did.");
     console.log("everything on this site is real, including this.");
     console.log(

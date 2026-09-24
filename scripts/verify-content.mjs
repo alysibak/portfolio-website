@@ -32,8 +32,18 @@ async function loadContent() {
   }
 }
 
-const { site, projects, experience, experienceItems, coursework, commandOutputs } =
-  await loadContent();
+const {
+  site,
+  projects,
+  timeline,
+  leadership,
+  experienceItems,
+  highlights,
+  teachingStats,
+  teachingNote,
+  coursework,
+  commandOutputs,
+} = await loadContent();
 
 /** The only external URLs permitted anywhere in site content. */
 const ALLOWED_URLS = [
@@ -92,7 +102,17 @@ function collectStrings(value, path) {
   return [];
 }
 
-const content = { site, projects, experience, coursework, commandOutputs };
+const content = {
+  site,
+  projects,
+  timeline,
+  leadership,
+  highlights,
+  teachingStats,
+  teachingNote,
+  coursework,
+  commandOutputs,
+};
 const allStrings = collectStrings(content, "content");
 
 // 1. ownership is mandatory on team projects.
@@ -234,7 +254,6 @@ const employerStrings = [
   ...collectStrings(experienceItems, "experienceItems"),
   ["commandOutputs.gitLog", commandOutputs.gitLog],
   ["commandOutputs.whoami", commandOutputs.whoami],
-  ["site.now", site.now],
   ["site.description", site.description],
 ];
 const CONFIDENTIAL_RE =
@@ -257,5 +276,5 @@ if (errors.length > 0) {
 }
 
 console.log(
-  `content verified: ${projects.length} projects, ${experienceItems.length} roles in ${experience.length} groups, ${allStrings.length} strings checked.`
+  `content verified: ${projects.length} projects, ${experienceItems.length} roles, ${allStrings.length} strings checked.`
 );

@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import Console from "../components/Console";
@@ -42,6 +43,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
     <script defer src="/_vercel/insights/script.js"></script>
     <title>{title}</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <ClientRouter />
   </head>
   <body>
     <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-ink focus:px-3 focus:py-2 focus:text-paper focus:text-sm">
@@ -63,18 +65,22 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
       </>
     )}
 
-    <Console client:idle />
+    <Console client:idle transition:persist />
     <DevToolsEgg />
     <script is:inline>
       // Buttons that open the console. The console hydrates on idle, so a tap
-      // before then is queued on window and picked up when it mounts.
-      document.addEventListener("click", function (e) {
-        var target = e.target instanceof Element && e.target.closest("[data-open-console]");
-        if (!target) return;
-        e.preventDefault();
-        window.__consoleRequested = true;
-        window.dispatchEvent(new Event("console:open"));
-      });
+      // before then is queued on window and picked up when it mounts. Inline
+      // scripts rerun on every client-side navigation, hence the guard.
+      if (!window.__consoleClicks) {
+        window.__consoleClicks = true;
+        document.addEventListener("click", function (e) {
+          var target = e.target instanceof Element && e.target.closest("[data-open-console]");
+          if (!target) return;
+          e.preventDefault();
+          window.__consoleRequested = true;
+          window.dispatchEvent(new Event("console:open"));
+        });
+      }
     </script>
   </body>
 </html>

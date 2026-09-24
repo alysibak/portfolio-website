@@ -1,0 +1,58 @@
+---
+import { site } from "../lib/data";
+
+const output = [site.name, site.school, site.roleLine, site.location].map((line) =>
+  line.toLowerCase()
+);
+
+// The whole card opens the shell on click; the header button is the keyboard route in.
+---
+
+<div class="mt-8 cursor-pointer overflow-hidden rounded-md border border-border bg-paper shadow-[0_1px_2px_rgba(22,22,26,0.05),0_8px_24px_rgba(22,22,26,0.06)]" data-open-console>
+  <div class="flex items-center justify-between border-b border-border px-4 py-2.5">
+    <span class="meta text-accent">aly@portfolio shell</span>
+    <button type="button" class="meta text-subtle transition-colors hover:text-accent" data-open-console>
+      <span class="hint-keys">press / to open</span>
+      <span class="hint-touch">tap to open</span>
+    </button>
+  </div>
+  <div class="px-4 py-3.5 font-mono text-[0.8125rem] leading-relaxed" data-whoami>
+    <p>
+      <span class="text-accent">aly@portfolio:~$</span>
+      <span class="text-ink" data-cmd>whoami</span><span class="console-cursor ml-1 align-middle" aria-hidden="true"></span>
+    </p>
+    {
+      output.map((line, i) => (
+        <p class:list={[i === 0 ? "font-medium text-ink" : "text-muted"]} data-out>
+          {line}
+        </p>
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  // Types `whoami` once per visit to the page. All the text is in the markup,
+  // so readers without JS, and anyone with reduced motion, see it at once.
+  function typeWhoami() {
+    const box = document.querySelector<HTMLElement>("[data-whoami]");
+    if (!box || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const cmd = box.querySelector<HTMLElement>("[data-cmd]");
+    if (!cmd) return;
+    const outs = box.querySelectorAll<HTMLElement>("[data-out]");
+    const full = cmd.textContent ?? "";
+    cmd.textContent = "";
+    outs.forEach((o) => (o.style.visibility = "hidden"));
+    let i = 0;
+    const type = () => {
+      if (i < full.length) {
+        cmd.textContent += full[i++];
+        setTimeout(type, 70);
+        return;
+      }
+      outs.forEach((o, k) => setTimeout(() => (o.style.visibility = ""), 160 + k * 140));
+    };
+    setTimeout(type, 250);
+  }
+  document.addEventListener("astro:page-load", typeWhoami);
+</script>

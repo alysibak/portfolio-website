@@ -27,7 +27,9 @@ Open [http://localhost:4321](http://localhost:4321).
 src/
   pages/          index, work, experience  (file-based routes)
   layouts/        Base.astro — <head>, nav, footer, console mount
-  components/     Nav, Footer, ShellHint, DevToolsEgg, Console.tsx
+  components/     Nav, Footer, ShellHint, DevToolsEgg, Console.tsx, and the
+                  visuals: HomeTerminal, Stats, Flow, BugChart, AwardBadge,
+                  GitGraph, DegreeBar
   lib/
     data.ts       all site content lives here
     shell.ts      command parsing for the console

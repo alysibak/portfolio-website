@@ -1,0 +1,93 @@
+---
+import { timeline, type Lane } from "../lib/data";
+
+const lanes: { id: Lane; label: string; dot: string; line: string }[] = [
+  { id: "school", label: "School", dot: "bg-accent", line: "bg-accent/30" },
+  { id: "co-op", label: "Co-op", dot: "bg-teal", line: "bg-teal/30" },
+  { id: "teaching", label: "Teaching", dot: "bg-amber", line: "bg-amber/30" },
+];
+
+/** Index of each lane's oldest entry. The list is newest first. */
+const oldest = new Map<Lane, number>();
+timeline.forEach((entry, i) => oldest.set(entry.lane, i));
+
+/** A lane's line runs from its oldest commit up to the top of the graph. */
+function laneAt(lane: Lane, row: number) {
+  const first = oldest.get(lane);
+  return { alive: first !== undefined && row <= first, start: row === first };
+}
+
+/** Splits a trailing "(Co-op)" off a title so it can't break at the hyphen. */
+function splitRole(role: string) {
+  const i = role.lastIndexOf(" (");
+  return i > 0 && role.endsWith(")")
+    ? { title: role.slice(0, i), suffix: role.slice(i + 1) }
+    : { title: role, suffix: "" };
+}
+---
+
+<div>
+  <ul class="meta flex flex-wrap gap-x-4 gap-y-1 text-muted" aria-hidden="true">
+    {
+      lanes.map((lane) => (
+        <li class="flex items-center gap-1.5">
+          <span class:list={["h-2 w-2 rounded-full", lane.dot]} />
+          {lane.label}
+        </li>
+      ))
+    }
+  </ul>
+
+  <ol class="mt-4">
+    {
+      timeline.map((entry, row) => {
+        const { title, suffix } = splitRole(entry.role);
+        return (
+          <li class="grid grid-cols-[3.75rem_1fr] gap-x-3">
+            <span class="relative grid grid-cols-3" aria-hidden="true">
+              {lanes.map((lane) => {
+                const { alive, start } = laneAt(lane.id, row);
+                return (
+                  <span class="relative">
+                    {alive && (
+                      <span
+                        class:list={[
+                          "absolute left-1/2 top-0 w-0.5 -translate-x-1/2",
+                          lane.line,
+                          start ? "h-[21px]" : "bottom-0",
+                        ]}
+                      />
+                    )}
+                    {entry.lane === lane.id && (
+                      <span
+                        class:list={[
+                          "graph-dot absolute left-1/2 top-[15px] h-3 w-3 -translate-x-1/2 rounded-full ring-[3px] ring-paper",
+                          lane.dot,
+                        ]}
+                        style={`--i:${timeline.length - 1 - row}`}
+                      />
+                    )}
+                  </span>
+                );
+              })}
+            </span>
+            <div class="min-w-0 py-2.5">
+              <p class="flex flex-wrap items-baseline justify-between gap-x-3">
+                <span class="text-[0.9375rem] font-medium">
+                  {title}
+                  {suffix && <span class="whitespace-nowrap">{suffix}</span>}
+                </span>
+                <span class="meta shrink-0 tabular-nums text-subtle">{entry.period}</span>
+              </p>
+              <p class="text-[0.9375rem] text-muted">
+                {entry.org}
+                {entry.current && <span class="meta ml-1.5 text-subtle">· now</span>}
+              </p>
+              {entry.note && <p class="meta mt-1 leading-relaxed text-muted">{entry.note}</p>}
+            </div>
+          </li>
+        );
+      })
+    }
+  </ol>
+</div>

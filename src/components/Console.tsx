@@ -59,7 +59,6 @@ export default function Console() {
         : null;
     setOpen(true);
     setLines(bootLines());
-    setShell({ history: [] });
     setInput("");
     setHistoryIdx(-1);
     draftRef.current = "";
@@ -219,12 +218,12 @@ export default function Console() {
     >
       <button
         type="button"
-        className="absolute inset-0 bg-ink/30"
+        className="console-backdrop absolute inset-0 bg-ink/30"
         aria-label="Close console"
         onClick={close}
       />
 
-      <div className="relative flex h-[min(88vh,520px)] w-full max-w-2xl flex-col overflow-hidden border border-border bg-paper shadow-xl sm:rounded-sm">
+      <div className="console-panel relative flex h-[min(88vh,520px)] w-full max-w-2xl flex-col overflow-hidden border border-border bg-paper shadow-xl sm:rounded-sm">
         <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
           <span className="meta text-accent">aly@portfolio shell</span>
           <button

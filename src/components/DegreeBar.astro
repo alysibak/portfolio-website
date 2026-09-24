@@ -1,0 +1,72 @@
+---
+import { site, timeline } from "../lib/data";
+
+const { degree, school, detail, start, end } = site.education;
+
+const toMonth = (ym: string) => {
+  const [y, m] = ym.split("-").map(Number);
+  return y * 12 + (m - 1);
+};
+const first = toMonth(start);
+const span = toMonth(end) + 1 - first;
+/** Percent along the bar where a month starts, or ends when `through` is set. */
+const at = (ym: string, through = false) => ((toMonth(ym) + (through ? 1 : 0) - first) / span) * 100;
+
+const coops = timeline
+  .filter((t) => t.lane === "co-op" && t.end)
+  .map((t) => ({ period: t.period, left: at(t.start), width: at(t.end!, true) - at(t.start) }));
+const seeking = {
+  left: at(site.seeking.start),
+  width: at(site.seeking.end, true) - at(site.seeking.start),
+};
+const years: { year: number; left: number }[] = [];
+for (let y = Number(start.slice(0, 4)) + 1; y <= Number(end.slice(0, 4)); y++) {
+  years.push({ year: y, left: at(`${y}-01`) });
+}
+const today = new Date();
+const nowPct = Math.min(
+  100,
+  Math.max(0, ((today.getFullYear() * 12 + today.getMonth() + today.getDate() / 31 - first) / span) * 100)
+);
+---
+
+<div>
+  <p class="text-[0.9375rem] font-medium">{degree}</p>
+  <p class="text-[0.9375rem] text-muted">{school} · {detail}</p>
+  <p class="sr-only">
+    Co-op terms: {coops.map((c) => c.period).join(", ")}. Seeking a {site.seeking.label} co-op.
+  </p>
+
+  <div class="relative mt-9 h-4 rounded-sm border border-border bg-paper" aria-hidden="true" data-degree={`${first},${span}`}>
+    <span class="absolute inset-y-0 left-0 rounded-l-sm bg-accent/20" style={`width:${nowPct}%`} data-degree-fill></span>
+    {coops.map((c) => <span class="absolute inset-y-0 bg-accent" style={`left:${c.left}%;width:${c.width}%`}></span>)}
+    <span class="degree-want absolute -inset-y-1 rounded-sm border-[1.5px] border-dashed border-amber" style={`left:${seeking.left}%;width:${seeking.width}%`}></span>
+    <span class="absolute -inset-y-1.5 w-0.5 bg-ink" style={`left:${nowPct}%`} data-degree-now>
+      <span class="meta absolute bottom-full left-1/2 mb-0.5 -translate-x-1/2 text-[0.625rem] font-medium">now</span>
+    </span>
+  </div>
+  <div class="meta relative mt-1.5 h-4 text-[0.6875rem] text-subtle" aria-hidden="true">
+    {years.map((y) => <span class="absolute -translate-x-1/2 tabular-nums" style={`left:${y.left}%`}>{y.year}</span>)}
+  </div>
+
+  <ul class="meta mt-3 flex flex-wrap gap-x-4 gap-y-1 text-muted" aria-hidden="true">
+    <li class="flex items-center gap-1.5"><span class="h-2 w-3.5 rounded-sm bg-accent/20"></span>Degree so far</li>
+    <li class="flex items-center gap-1.5"><span class="h-2 w-3.5 rounded-sm bg-accent"></span>Co-op terms</li>
+    <li class="flex items-center gap-1.5"><span class="degree-want h-2.5 w-3.5 rounded-sm border-[1.5px] border-dashed border-amber"></span>{site.seeking.label}: open</li>
+  </ul>
+</div>
+
+<script>
+  // The site is static, so move "now" to today rather than the build date.
+  function placeNow() {
+    const bar = document.querySelector<HTMLElement>("[data-degree]");
+    if (!bar) return;
+    const [first, span] = (bar.dataset.degree ?? "").split(",").map(Number);
+    const d = new Date();
+    const months = d.getFullYear() * 12 + d.getMonth() + d.getDate() / 31;
+    const pct = Math.min(100, Math.max(0, ((months - first) / span) * 100));
+    bar.querySelector<HTMLElement>("[data-degree-fill]")?.style.setProperty("width", `${pct}%`);
+    bar.querySelector<HTMLElement>("[data-degree-now]")?.style.setProperty("left", `${pct}%`);
+  }
+  document.addEventListener("astro:page-load", placeNow);
+</script>

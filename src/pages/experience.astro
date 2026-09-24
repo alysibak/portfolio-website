@@ -1,15 +1,13 @@
 ---
 import Base from "../layouts/Base.astro";
 import ShellHint from "../components/ShellHint.astro";
-import { experience, site } from "../lib/data";
+import GitGraph from "../components/GitGraph.astro";
+import Stats from "../components/Stats.astro";
+import DegreeBar from "../components/DegreeBar.astro";
+import { leadership, teachingNote, teachingStats } from "../lib/data";
 
-/** Splits a trailing "(Co-op)" off a title so it can't break at the hyphen. */
-function splitRole(role: string) {
-  const i = role.lastIndexOf(" (");
-  return i > 0 && role.endsWith(")")
-    ? { title: role.slice(0, i), suffix: role.slice(i + 1) }
-    : { title: role, suffix: "" };
-}
+/** Badge colours, one per leadership role in order. Full class names so Tailwind keeps them. */
+const markColors = ["bg-plum", "bg-accent", "bg-teal", "bg-amber"];
 ---
 
 <Base title="Experience, Aly Sibak">
@@ -17,82 +15,55 @@ function splitRole(role: string) {
     <h1 class="text-2xl font-medium">Experience</h1>
     <ShellHint variant="page" />
 
-    {
-      experience.map((group, groupIndex) => (
-        <section
-          class:list={[
-            groupIndex === 0 ? "mt-12" : "mt-12 border-t border-border pt-8",
-          ]}
-        >
-          <h2 class="meta text-subtle">{group.label}</h2>
+    <section class="mt-12">
+      <h2 class="meta text-subtle">Timeline</h2>
+      <div class="mt-4">
+        <GitGraph />
+      </div>
+    </section>
 
-          {group.compact ? (
-            <ul class="mt-4 space-y-4">
-              {group.items.map((item) => (
-                <li>
-                  <div class="flex flex-col gap-x-3 sm:flex-row sm:items-baseline sm:justify-between">
-                    <p class="text-[0.9375rem]">
-                      <span class="font-medium">{item.role}</span>
-                      <span class="text-muted"> · {item.company}</span>
-                    </p>
-                    <p class="meta shrink-0 tabular-nums text-subtle">
-                      {item.period}
-                    </p>
-                  </div>
-                  <p class="meta mt-1 leading-relaxed text-muted">
-                    {item.context}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <ul class="mt-5 divide-y divide-border">
-              {group.items.map((item) => {
-                const { title, suffix } = splitRole(item.role);
-                return (
-                <li class="py-8 first:pt-0 last:pb-0">
-                  <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p class="text-[0.9375rem] font-medium">
-                        {title}
-                        {suffix && <span class="whitespace-nowrap">{suffix}</span>}
-                        {item.current && (
-                          <span class="meta ml-1.5 font-normal text-subtle">
-                            · now
-                          </span>
-                        )}
-                      </p>
-                      <p class="text-[0.9375rem] text-muted">{item.company}</p>
-                    </div>
-                    <p class="meta shrink-0 tabular-nums text-subtle">
-                      {item.period}
-                    </p>
-                  </div>
-                  <p class="mt-2 text-[0.9375rem] leading-relaxed text-muted">
-                    {item.context}
-                  </p>
-                  {item.details && (
-                    <ul class="mt-3 space-y-1.5 border-l border-border pl-4">
-                      {item.details.map((detail) => (
-                        <li class="meta leading-relaxed text-muted">{detail}</li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-                );
-              })}
-            </ul>
-          )}
-        </section>
-      ))
-    }
+    <section class="mt-12 border-t border-border pt-8">
+      <h2 class="meta text-subtle">Teaching at Guelph</h2>
+      <div class="mt-4">
+        <Stats stats={teachingStats} columns={3} />
+      </div>
+      <p class="meta mt-3 leading-relaxed text-muted">{teachingNote}</p>
+    </section>
 
-    <div class="mt-12 border-t border-border pt-8">
+    <section class="mt-12 border-t border-border pt-8">
+      <h2 class="meta text-subtle">Leadership and activities</h2>
+      <ul class="mt-4 grid gap-2 sm:grid-cols-2">
+        {
+          leadership.map((item, i) => (
+            <li class="flex gap-3 rounded-md border border-border bg-paper p-3">
+              <span
+                class:list={[
+                  "grid h-9 w-9 shrink-0 place-items-center rounded-md font-mono text-[0.6875rem] font-bold text-paper",
+                  markColors[i % markColors.length],
+                ]}
+                aria-hidden="true"
+              >
+                {item.mark}
+              </span>
+              <div class="min-w-0">
+                <p class="text-[0.9375rem] font-medium leading-snug">{item.role}</p>
+                <p class="text-[0.8125rem] leading-snug text-muted">
+                  {item.org} · {item.period}
+                </p>
+                <p class="meta mt-1.5 leading-relaxed text-muted">{item.context}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="mt-12 border-t border-border pt-8">
       <h2 class="meta text-subtle">Education</h2>
-      <p class="mt-4 text-[0.9375rem] font-medium">{site.education.degree}</p>
-      <p class="mt-1 text-[0.9375rem] text-muted">{site.education.school}</p>
-      <p class="meta mt-1 text-subtle">{site.education.detail}</p>
-    </div>
+      <div class="mt-4">
+        <DegreeBar />
+      </div>
+    </section>
 
     <a href="/" class="meta mt-16 inline-block text-subtle link">← Home</a>
   </div>

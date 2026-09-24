@@ -15,10 +15,6 @@ html {
   html {
     scroll-behavior: auto;
   }
-  .cursor-blink {
-    animation: none !important;
-    opacity: 0;
-  }
 }
 
 body {
@@ -133,9 +129,168 @@ button.shell-kbd {
   }
 }
 
-.cursor-blink {
-  @apply inline-block w-[2px] h-[0.85em] bg-subtle ml-0.5 align-middle;
-  animation: blink 1.1s step-end infinite;
+/* Home: faint graph paper behind the hero, fading out toward the edges. */
+.dot-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(#dcdcd6 1px, transparent 1.3px);
+  background-size: 18px 18px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 30%, transparent 75%);
+}
+
+.pulse-dot {
+  @apply relative inline-block h-2 w-2 shrink-0 rounded-full bg-good;
+}
+
+.pulse-dot::after {
+  content: "";
+  @apply absolute inset-0 rounded-full bg-good;
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+/* Work: project diagrams. Solid boxes are Aly's; dashed are not. */
+.flow-node {
+  font-family: var(--font-mono);
+  @apply inline-block whitespace-nowrap rounded border-[1.5px] border-accent bg-paper px-2.5 py-1.5 text-[0.75rem] leading-none text-ink;
+}
+
+.flow-node.is-key {
+  @apply bg-accent text-paper;
+}
+
+.flow-node.is-external {
+  @apply border-dashed border-subtle text-muted;
+}
+
+.flow-key {
+  @apply mr-1.5 inline-block h-2.5 w-4 rounded-sm border-[1.5px] border-accent align-[-1px];
+}
+
+.flow-key.is-external {
+  @apply border-dashed border-subtle;
+}
+
+.flow.is-live .flow-node:not(.is-external) {
+  animation: flow-signal 1.4s ease-in-out both;
+  animation-delay: calc(var(--i, 0) * 160ms);
+}
+
+.bug-bar {
+  @apply absolute inset-y-0 left-0 rounded-sm;
+  transform-origin: left;
+}
+
+.bug-chart.is-pending .bug-bar {
+  transform: scaleX(0);
+}
+
+.bug-chart.is-live .bug-bar {
+  animation: grow-x 0.9s cubic-bezier(0.3, 0.7, 0.2, 1) both;
+}
+
+.bug-chart.is-live .bug-bar.bg-good {
+  animation-delay: 0.25s;
+}
+
+.award-medal {
+  transition: transform 0.3s ease;
+}
+
+.award:hover .award-medal {
+  transform: rotate(-8deg) scale(1.05);
+}
+
+.case-file[open] > dl {
+  animation: rise 0.25s ease-out;
+}
+
+/* Experience: commits pop in oldest first; the open term breathes. */
+.graph-dot {
+  animation: pop 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.4) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+.degree-want {
+  background: repeating-linear-gradient(45deg, rgba(138, 82, 9, 0.2) 0 4px, transparent 4px 8px);
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+/* Console: a sheet from the bottom on phones, a lift on larger screens. */
+.console-backdrop {
+  animation: fade-in 0.18s ease-out;
+}
+
+.console-panel {
+  animation: sheet-up 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (min-width: 640px) {
+  .console-panel {
+    animation-name: lift-in;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot::after,
+  .flow.is-live .flow-node,
+  .bug-chart .bug-bar,
+  .graph-dot,
+  .degree-want,
+  .console-backdrop,
+  .console-panel,
+  .case-file[open] > dl {
+    animation: none !important;
+  }
+  .bug-chart.is-pending .bug-bar {
+    transform: none;
+  }
+  .award-medal {
+    transition: none;
+  }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+
+@keyframes flow-signal {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  30% { box-shadow: 0 0 0 4px rgba(30, 58, 95, 0.15); }
+}
+
+@keyframes grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes pop {
+  from { transform: translateX(-50%) scale(0.2); opacity: 0; }
+  to { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+@keyframes breathe {
+  50% { opacity: 0.55; }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+}
+
+@keyframes lift-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
 }
 
 @keyframes blink {

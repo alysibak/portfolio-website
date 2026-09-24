@@ -1,0 +1,71 @@
+---
+import type { Project } from "../lib/data";
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const { flow, beside = [] } = project.diagram;
+const notMine = project.role === "team" ? "Teammates built" : "External";
+const hasNotMine = [...flow, ...beside].some((node) => !node.owned);
+---
+
+<figure class="flow mt-5" aria-label={`How ${project.title} fits together`}>
+  <ol class="flex flex-wrap items-center gap-x-1.5 gap-y-2">
+    {
+      flow.map((node, i) => (
+        <li class="flex items-center gap-1.5" style={`--i:${i}`}>
+          <span class:list={["flow-node", !node.owned && "is-external", node.key && "is-key"]}>
+            {node.label}
+            {!node.owned && <span class="sr-only"> ({notMine.toLowerCase()})</span>}
+          </span>
+          {i !== flow.length - 1 && (
+            <span class="meta text-accent" aria-hidden="true">→</span>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+  {
+    beside.length > 0 && (
+      <ul class="mt-2 flex flex-wrap gap-2">
+        {beside.map((node) => (
+          <li>
+            <span class:list={["flow-node", !node.owned && "is-external"]}>
+              {node.label}
+              {!node.owned && <span class="sr-only"> ({notMine.toLowerCase()})</span>}
+            </span>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+  {
+    hasNotMine && (
+      <figcaption class="meta mt-3 flex flex-wrap gap-x-4 gap-y-1 text-subtle" aria-hidden="true">
+        <span><span class="flow-key" />I built</span>
+        <span><span class="flow-key is-external" />{notMine}</span>
+      </figcaption>
+    )
+  }
+</figure>
+
+<script>
+  // One pass of a signal along each flow as it scrolls into view.
+  function watchFlows() {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add("is-live");
+          io.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.6 }
+    );
+    document.querySelectorAll(".flow").forEach((el) => io.observe(el));
+  }
+  document.addEventListener("astro:page-load", watchFlows);
+</script>
