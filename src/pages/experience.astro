@@ -2,6 +2,14 @@
 import Base from "../layouts/Base.astro";
 import ShellHint from "../components/ShellHint.astro";
 import { experience, site } from "../lib/data";
+
+/** Splits a trailing "(Co-op)" off a title so it can't break at the hyphen. */
+function splitRole(role: string) {
+  const i = role.lastIndexOf(" (");
+  return i > 0 && role.endsWith(")")
+    ? { title: role.slice(0, i), suffix: role.slice(i + 1) }
+    : { title: role, suffix: "" };
+}
 ---
 
 <Base title="Experience, Aly Sibak">
@@ -26,9 +34,6 @@ import { experience, site } from "../lib/data";
                     <p class="text-[0.9375rem]">
                       <span class="font-medium">{item.role}</span>
                       <span class="text-muted"> · {item.company}</span>
-                      {item.current && (
-                        <span class="meta ml-1.5 text-subtle">· now</span>
-                      )}
                     </p>
                     <p class="meta shrink-0 tabular-nums text-subtle">
                       {item.period}
@@ -42,12 +47,15 @@ import { experience, site } from "../lib/data";
             </ul>
           ) : (
             <ul class="mt-5 divide-y divide-border">
-              {group.items.map((item) => (
+              {group.items.map((item) => {
+                const { title, suffix } = splitRole(item.role);
+                return (
                 <li class="py-8 first:pt-0 last:pb-0">
                   <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <p class="text-[0.9375rem] font-medium">
-                        {item.role}
+                        {title}
+                        {suffix && <span class="whitespace-nowrap">{suffix}</span>}
                         {item.current && (
                           <span class="meta ml-1.5 font-normal text-subtle">
                             · now
@@ -71,7 +79,8 @@ import { experience, site } from "../lib/data";
                     </ul>
                   )}
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
         </section>

@@ -26,6 +26,12 @@ body {
   font-family: var(--font-sans);
 }
 
+:where(a, button, summary):focus-visible {
+  outline: 2px solid #1e3a5f;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
 .meta {
   font-family: var(--font-mono);
   @apply text-[0.8125rem] tracking-tight;
@@ -58,21 +64,6 @@ body {
   background-size: 100% 1px;
 }
 
-.inspectable {
-  @apply relative cursor-default;
-}
-
-.inspectable::after {
-  content: attr(data-diff);
-  font-family: var(--font-mono);
-  @apply absolute left-0 top-full z-10 mt-1 hidden max-w-md text-[0.6875rem] leading-snug text-subtle;
-}
-
-.inspectable:hover::after,
-.inspectable:focus-visible::after {
-  @apply block;
-}
-
 .case-file summary {
   list-style: none;
 }
@@ -81,9 +72,45 @@ body {
   display: none;
 }
 
+.case-chevron {
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.case-file[open] .case-chevron {
+  transform: rotate(90deg);
+}
+
+.case-file[open] .case-closed,
+.case-file:not([open]) .case-open {
+  display: none;
+}
+
 .shell-kbd {
   font-family: var(--font-mono);
   @apply rounded border border-border bg-paper px-1.5 py-0.5 text-[0.75rem] text-ink;
+}
+
+button.shell-kbd {
+  @apply cursor-pointer transition-colors hover:border-accent hover:text-accent;
+}
+
+.hint-open {
+  @apply cursor-pointer text-accent underline decoration-accent/40 underline-offset-2;
+}
+
+/* Touch screens have no / or ~ key, so they get a button instead. */
+.hint-touch {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .hint-keys {
+    display: none;
+  }
+  .hint-touch {
+    display: inline;
+  }
 }
 
 .shell-hint {
@@ -100,6 +127,9 @@ body {
   .console-cursor {
     animation: none;
     opacity: 1;
+  }
+  .case-chevron {
+    transition: none;
   }
 }
 

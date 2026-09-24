@@ -4,6 +4,9 @@ interface Props {
 }
 
 const { variant = "page" } = Astro.props;
+
+// Keyboard users get the shortcut; touch screens get a button, since there is
+// no / or ~ to press. Both open the same console via [data-open-console].
 ---
 
 <div
@@ -16,18 +19,36 @@ const { variant = "page" } = Astro.props;
   {
     variant === "work" ? (
       <p>
-        Each project has a full case file. Expand below, or press <kbd class="shell-kbd">/</kbd>{" "}
-        and run <span class="text-accent">cat bystander</span>.
+        Every case study is also in the shell.{" "}
+        <span class="hint-keys">
+          Press <button type="button" class="shell-kbd" data-open-console>/</button> and run
+        </span>
+        <span class="hint-touch">
+          <button type="button" class="hint-open" data-open-console>Open it</button> and run
+        </span>{" "}
+        <span class="text-accent">cat bystander</span>.
       </p>
     ) : variant === "home" ? (
       <p>
-        This site has an interactive shell. Press <kbd class="shell-kbd">/</kbd> or{" "}
-        <kbd class="shell-kbd">~</kbd> to open it, then try{" "}
-        <span class="text-accent">help</span> or <span class="text-accent">cat carinfo</span>.
+        This site has an interactive shell.{" "}
+        <span class="hint-keys">
+          Press <button type="button" class="shell-kbd" data-open-console>/</button> or{" "}
+          <button type="button" class="shell-kbd" data-open-console>~</button> to open it,
+        </span>
+        <span class="hint-touch">
+          <button type="button" class="hint-open" data-open-console>Open it</button>,
+        </span>{" "}
+        then try <span class="text-accent">help</span> or <span class="text-accent">cat carinfo</span>.
       </p>
     ) : (
       <p>
-        Press <kbd class="shell-kbd">/</kbd> or <kbd class="shell-kbd">~</kbd> to open the shell.
+        <span class="hint-keys">
+          Press <button type="button" class="shell-kbd" data-open-console>/</button> or{" "}
+          <button type="button" class="shell-kbd" data-open-console>~</button> to open the shell.
+        </span>
+        <span class="hint-touch">
+          <button type="button" class="hint-open" data-open-console>Open the shell</button>.
+        </span>{" "}
         Try <span class="text-accent">git log</span> or <span class="text-accent">whoami</span>.
       </p>
     )

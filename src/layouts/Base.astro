@@ -51,7 +51,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
     {center ? (
       <main id="main">
         <slot />
-        <Footer />
+        <Footer showAvailability={false} />
       </main>
     ) : (
       <>
@@ -65,5 +65,16 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
 
     <Console client:idle />
     <DevToolsEgg />
+    <script is:inline>
+      // Buttons that open the console. The console hydrates on idle, so a tap
+      // before then is queued on window and picked up when it mounts.
+      document.addEventListener("click", function (e) {
+        var target = e.target instanceof Element && e.target.closest("[data-open-console]");
+        if (!target) return;
+        e.preventDefault();
+        window.__consoleRequested = true;
+        window.dispatchEvent(new Event("console:open"));
+      });
+    </script>
   </body>
 </html>

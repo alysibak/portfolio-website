@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import {
   executeCommand,
   getCompletion,
@@ -15,6 +16,21 @@ function isEditableTarget(target: EventTarget | null): boolean {
     target.isContentEditable ||
     target.closest("[data-console-open]") !== null
   );
+}
+
+/**
+ * Column a soft-wrapped row should continue from, so narrow screens keep the
+ * hand-set layout: "  problem   text" wraps under "text", not under "problem".
+ */
+function hangingIndent(row: string): number {
+  const label = row.match(/^\s*\S+(?: \S+)?\s{2,}/);
+  if (label) return label[0].length;
+  const lead = row.length - row.trimStart().length;
+  if (lead === 2) {
+    const word = row.slice(2).match(/^\S+\s/);
+    if (word) return 2 + word[0].length;
+  }
+  return lead;
 }
 
 function bootLines(): ShellLine[] {
@@ -34,8 +50,13 @@ export default function Console() {
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const draftRef = useRef("");
+  const returnFocusRef = useRef<HTMLElement | null>(null);
 
   const openWithHelp = useCallback(() => {
+    returnFocusRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
     setOpen(true);
     setLines(bootLines());
     setShell({ history: [] });
@@ -43,6 +64,35 @@ export default function Console() {
     setHistoryIdx(-1);
     draftRef.current = "";
   }, []);
+
+  const close = useCallback(() => {
+    setOpen(false);
+    setInput("");
+    setHistoryIdx(-1);
+  }, []);
+
+  useEffect(() => {
+    if (!open && returnFocusRef.current) {
+      returnFocusRef.current.focus();
+      returnFocusRef.current = null;
+    }
+  }, [open]);
+
+  // Opened from a button rather than the keyboard. Rendering synchronously and
+  // focusing inside the tap is what lets mobile browsers raise the keyboard.
+  useEffect(() => {
+    const onRequest = () => {
+      window.__consoleRequested = false;
+      flushSync(openWithHelp);
+      inputRef.current?.focus();
+    };
+    if (window.__consoleRequested) {
+      window.__consoleRequested = false;
+      openWithHelp();
+    }
+    window.addEventListener("console:open", onRequest);
+    return () => window.removeEventListener("console:open", onRequest);
+  }, [openWithHelp]);
 
   const scrollBottom = useCallback(() => {
     const el = scrollRef.current;
@@ -62,9 +112,7 @@ export default function Console() {
 
       for (const line of newLines) {
         if (line.type === "system" && line.text === "__CLOSE__") {
-          setOpen(false);
-          setInput("");
-          setHistoryIdx(-1);
+          close();
           return;
         }
         if (line.type === "system" && line.text === "__CLEAR__") {
@@ -86,7 +134,7 @@ export default function Console() {
       setHistoryIdx(-1);
       draftRef.current = "";
     },
-    [shell]
+    [shell, close]
   );
 
   const handleGlobalKeyDown = useCallback(
@@ -107,12 +155,10 @@ export default function Console() {
 
       if (e.key === "Escape") {
         e.preventDefault();
-        setOpen(false);
-        setInput("");
-        setHistoryIdx(-1);
+        close();
       }
     },
-    [open, openWithHelp]
+    [open, openWithHelp, close]
   );
 
   useEffect(() => {
@@ -175,7 +221,7 @@ export default function Console() {
         type="button"
         className="absolute inset-0 bg-ink/30"
         aria-label="Close console"
-        onClick={() => setOpen(false)}
+        onClick={close}
       />
 
       <div className="relative flex h-[min(88vh,520px)] w-full max-w-2xl flex-col overflow-hidden border border-border bg-paper shadow-xl sm:rounded-sm">
@@ -183,7 +229,7 @@ export default function Console() {
           <span className="meta text-accent">aly@portfolio shell</span>
           <button
             type="button"
-            onClick={() => setOpen(false)}
+            onClick={close}
             className="meta text-subtle transition-colors hover:text-ink"
           >
             exit
@@ -192,7 +238,7 @@ export default function Console() {
 
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto px-4 py-4 font-mono text-[0.8125rem] leading-relaxed"
+          className="flex-1 overflow-y-auto px-4 py-4 font-mono text-[0.75rem] leading-relaxed sm:text-[0.8125rem]"
           aria-live="polite"
         >
           {lines.map((line, i) => {
@@ -225,11 +271,19 @@ export default function Console() {
                   ? "text-subtle"
                   : "text-muted";
             return (
-              <pre
-                key={i}
-                className={`mb-3 whitespace-pre-wrap ${color}`}
-              >
-                {line.text}
+              <pre key={i} className={`mb-3 ${color}`}>
+                {line.text.split("\n").map((row, j) => {
+                  const hang = hangingIndent(row);
+                  return (
+                    <span
+                      key={j}
+                      className="block whitespace-pre-wrap"
+                      style={{ paddingLeft: `${hang}ch`, textIndent: `-${hang}ch` }}
+                    >
+                      {row || "\u00a0"}
+                    </span>
+                  );
+                })}
               </pre>
             );
           })}
@@ -251,7 +305,7 @@ export default function Console() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={onInputKeyDown}
-            className="flex-1 bg-transparent font-mono text-[0.8125rem] text-ink outline-none"
+            className="min-w-0 flex-1 bg-transparent font-mono text-base text-ink outline-none sm:text-[0.8125rem]"
             spellCheck={false}
             autoComplete="off"
             autoCorrect="off"
