@@ -477,10 +477,11 @@ export default function Console() {
               <pre key={i} className={`mb-3 ${color}`}>
                 {line.text.split("\n").map((row, j) => {
                   const hang = hangingIndent(row);
+                  const tone = !line.diff ? "" : row.startsWith("+") ? " text-good" : row.startsWith("-") ? " text-bad" : "";
                   return (
                     <span
                       key={j}
-                      className="block whitespace-pre-wrap"
+                      className={`block whitespace-pre-wrap${tone}`}
                       style={{ paddingLeft: `${hang}ch`, textIndent: `-${hang}ch` }}
                     >
                       {row ? linkify(row, actions) : "\u00a0"}

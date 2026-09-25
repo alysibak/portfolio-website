@@ -132,6 +132,8 @@ export const site = {
   roleLine: "I build and debug production systems",
   school: "Fourth-year Computer Science co-op, University of Guelph",
   location: "Mississauga, Ontario",
+  /** For showing visitors what time it is for me. */
+  timeZone: "America/Toronto",
   availability: "Seeking Winter 2027 co-op, January–April",
   /** The term availability refers to, as YYYY-MM. Drawn on the degree bar. */
   seeking: { label: "Winter 2027", start: "2027-01", end: "2027-04" },
@@ -874,7 +876,8 @@ export const commandOutputs = {
   clear          clear the console
   exit           close the console
 
-also: pwd tree uptime fortune cowsay history date echo
+also: pwd tree uptime fortune cowsay diff history date echo
+pipes: cat resume | grep react   fortune | cowsay
 
 keys: g w  work        g e  experience
       g r  resume      g h  home

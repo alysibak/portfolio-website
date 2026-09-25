@@ -33,6 +33,8 @@ export const COMMANDS = [
   "cowsay",
   "date",
   "echo",
+  "diff",
+  "ssh",
   "sudo",
   "clear",
   "exit",
@@ -59,13 +61,18 @@ export const SUGGESTIONS = [
   "uptime",
   "fortune",
   "cowsay hire aly",
+  "cat resume | grep python",
+  "fortune | cowsay",
+  "ls -la",
+  "diff carinfo mizan",
 ];
 
 export type ShellLine =
   | { type: "prompt" }
   /** cwd: where the command was typed, for its prompt. */
   | { type: "input"; text: string; cwd?: string }
-  | { type: "output"; text: string; variant?: "error" | "dim" }
+  /** diff: colour rows by their +/- prefix. */
+  | { type: "output"; text: string; variant?: "error" | "dim"; diff?: boolean }
   | { type: "system"; text: string };
 
 export type ShellState = {
@@ -156,6 +163,89 @@ function cowsay(text: string): string {
   ].join("\n");
 }
 
+/** Long listing for `ls -l`: team projects are in the "team" group. */
+function longListing(path: string): string {
+  const row = (perm: string, group: string, when: string, name: string) =>
+    `${perm}  aly  ${group.padEnd(5)}  ${when.padEnd(5)}  ${name}`;
+  if (path === "projects") {
+    return [
+      `total ${projects.length}`,
+      ...projects.map((p) => row("drwxr-xr-x", p.role === "team" ? "team" : "staff", (p.year ?? "").replace(/–$/, ""), `${p.id}/`)),
+    ].join("\n");
+  }
+  return [
+    "total 6",
+    row("drwxr-xr-x", "staff", "", "."),
+    row("-rw-r--r--", "staff", "", ".plan"),
+    row("drwxr-xr-x", "staff", "", "work/"),
+    row("drwxr-xr-x", "staff", "", "experience/"),
+    row("-rw-r--r--", "staff", "", "resume.md"),
+    row("-rw-r--r--", "staff", "", "contact"),
+  ].join("\n");
+}
+
+/** `cat .plan`, the old finger(1) status file: what I'm doing now. */
+function plan(): string {
+  const now = timeline.filter((t) => t.current).map((t) => `${t.role.toLowerCase()}, ${t.org}`);
+  return [`Plan:`, `  ${site.availability.toLowerCase()}.`, ...now.map((n) => `  now: ${n}.`), `  reach me: ${site.email}`].join("\n");
+}
+
+/** `diff a b`: two projects' stacks, shared lines unmarked. */
+function diffProjects(a: string, b: string): string | null {
+  const left = getProject(a);
+  const right = getProject(b);
+  if (!left || !right) return null;
+  const all = [...new Set([...left.stack, ...right.stack])];
+  const head = (p: typeof left, mark: string) => `${mark} ${p.id}  ${p.year ?? ""}  ${p.role === "team" ? "team" : "solo"}`;
+  return [
+    head(left, "---"),
+    head(right, "+++"),
+    ...all.map((t) => (left.stack.includes(t) && right.stack.includes(t) ? `  ${t}` : left.stack.includes(t) ? `- ${t}` : `+ ${t}`)),
+  ].join("\n");
+}
+
+/** What `a | b | c` does to the text coming in: a few classic filters. */
+function applyFilter(text: string, stage: string): { text: string } | { error: string } {
+  const [name, ...args] = stage.trim().split(/\s+/);
+  const lines = text.split("\n");
+  const count = (fallback: number) => {
+    const n = args.find((a) => /^-?\d+$/.test(a)) ?? (args[0] === "-n" ? args[1] : undefined);
+    const parsed = Math.abs(parseInt(n ?? "", 10));
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  };
+  switch (name?.toLowerCase()) {
+    case "grep": {
+      const flags = args.filter((a) => a.startsWith("-")).join("");
+      const term = args.filter((a) => !a.startsWith("-")).join(" ").replace(/^["']|["']$/g, "").toLowerCase();
+      if (!term) return { error: "usage: ... | grep [-v] [-c] <text>" };
+      const hits = lines.filter((l) => l.toLowerCase().includes(term) !== flags.includes("v"));
+      return { text: flags.includes("c") ? String(hits.length) : hits.join("\n") };
+    }
+    case "head":
+      return { text: lines.slice(0, count(10)).join("\n") };
+    case "tail":
+      return { text: lines.slice(-count(10)).join("\n") };
+    case "wc": {
+      const nonEmpty = text ? lines.length : 0;
+      if (args.includes("-l")) return { text: String(nonEmpty) };
+      const words = text.split(/\s+/).filter(Boolean).length;
+      return { text: `${String(nonEmpty).padStart(7)} ${String(words).padStart(7)} ${String(text.length).padStart(7)}` };
+    }
+    case "sort":
+      return { text: [...lines].sort((x, y) => x.localeCompare(y) * (args.includes("-r") ? -1 : 1)).join("\n") };
+    case "uniq":
+      return { text: lines.filter((l, i) => l !== lines[i - 1]).join("\n") };
+    case "cowsay":
+      return { text: cowsay(text.replace(/\s+/g, " ").trim() || "hire aly") };
+    case "less":
+    case "more":
+    case "cat":
+      return { text };
+    default:
+      return { error: `${name}: can't be used in a pipe here. try grep, head, tail, wc, sort, uniq, or cowsay.` };
+  }
+}
+
 function normalizeProjectArg(arg: string): string {
   return arg.toLowerCase().replace(/\.case$/, "").trim();
 }
@@ -176,7 +266,7 @@ export function getCompletion(input: string): string | null {
   const last = parts[parts.length - 1]?.toLowerCase() ?? "";
 
   if ((cmd === "cat" || cmd === "open" || cmd === "ping") && parts.length >= 2 && !endsWithSpace) {
-    const names = cmd === "cat" ? [...projectIds, "resume"] : projectIds;
+    const names = cmd === "cat" ? [...projectIds, "resume", ".plan"] : projectIds;
     const matches = names.filter((id) => id.startsWith(last));
     if (matches.length === 1) {
       return parts.slice(0, -1).join(" ") + " " + matches[0];
@@ -228,6 +318,33 @@ export function executeCommand(
 
   const newHistory = [...state.history, trimmed];
   const lines: ShellLine[] = [{ type: "input", text: trimmed, cwd }];
+
+  // a | b | c: run the first command for its text, then filter it.
+  if (trimmed.includes("|")) {
+    const [first, ...stages] = trimmed.split("|");
+    const inner = executeCommand({ history: [] }, first, cwd).lines.filter(
+      (l): l is Extract<ShellLine, { type: "output" }> => l.type === "output"
+    );
+    const failed = inner.find((l) => l.variant === "error");
+    if (failed || !first.trim()) {
+      lines.push(failed ?? { type: "output", text: "syntax error near unexpected token '|'", variant: "error" });
+      return { lines, state: { history: newHistory } };
+    }
+    let text = inner.map((l) => l.text).join("\n");
+    // Like real ls, one name per line when the output goes to a pipe.
+    if (/^\s*ls\b/.test(first) && !text.includes("\n")) text = text.split(/\s{2,}/).join("\n");
+    for (const stage of stages) {
+      const out = applyFilter(text, stage);
+      if ("error" in out) {
+        lines.push({ type: "output", text: out.error, variant: "error" });
+        return { lines, state: { history: newHistory } };
+      }
+      text = out.text;
+    }
+    lines.push({ type: "output", text: text || "(no output)", variant: text ? undefined : "dim" });
+    return { lines, state: { history: newHistory } };
+  }
+
   const parts = trimmed.split(/\s+/);
   const cmd = parts[0].toLowerCase();
   const arg = parts.slice(1).join(" ");
@@ -243,10 +360,13 @@ export function executeCommand(
 
     case "ls": {
       const named = parts.slice(1).filter((p) => !p.startsWith("-")).join(" ");
+      const long = parts.slice(1).some((p) => /^-\w*l/.test(p));
       let path = named.toLowerCase().replace(/^~?\//, "").replace(/\/$/, "");
       if (!path && cwd.startsWith("/work")) path = "projects";
       if (path === "work") path = "projects";
-      if (!path) {
+      if (long && (!path || path === "projects")) {
+        lines.push({ type: "output", text: longListing(path) });
+      } else if (!path) {
         lines.push({ type: "output", text: commandOutputs.ls });
       } else if (path === "projects") {
         lines.push({ type: "output", text: projectIds.join("  ") });
@@ -288,6 +408,10 @@ export function executeCommand(
         break;
       }
       const id = normalizeProjectArg(arg);
+      if (id === ".plan" || id === "~/.plan") {
+        lines.push({ type: "output", text: plan() });
+        break;
+      }
       if (id === "resume" || id === "resume.md") {
         lines.push({ type: "output", text: commandOutputs.resume });
         break;
@@ -429,6 +553,25 @@ export function executeCommand(
       lines.push({ type: "output", text: `PING ${new URL(url).host}`, variant: "dim" });
       return { lines, state: { history: newHistory }, ping: { id: project.id, url } };
     }
+
+    case "diff": {
+      const [a, b] = parts.slice(1).map(normalizeProjectArg);
+      const out = a && b ? diffProjects(a, b) : null;
+      lines.push(
+        out
+          ? { type: "output", text: out, diff: true }
+          : { type: "output", text: `usage: diff <project> <project>   e.g. diff carinfo mizan`, variant: "error" }
+      );
+      break;
+    }
+
+    case "ssh":
+      lines.push({
+        type: "output",
+        text: `ssh: connect to host ${arg || "aly"} port 22: Connection refused\n(it's a static site. try 'mail' instead.)`,
+        variant: "dim",
+      });
+      break;
 
     case "cd": {
       const target = resolveCd(cwd, arg);

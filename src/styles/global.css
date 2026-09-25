@@ -860,3 +860,34 @@ button.shell-kbd {
 .shot-dialog::backdrop {
   background: rgb(0 0 0 / 0.7);
 }
+
+/* Project pages: a `tree` of the page's sections in the left margin, on
+   screens wide enough to hold it beside the widest screenshot. */
+.page-outline {
+  display: none;
+}
+
+@media (min-width: 80rem) {
+  .page-outline {
+    display: block;
+    position: fixed;
+    top: 8rem;
+    left: calc(50% - 24rem - 12rem);
+    width: 10.5rem;
+    @apply text-[0.75rem] leading-6;
+  }
+}
+
+.outline-link {
+  @apply text-subtle transition-colors hover:text-ink;
+}
+
+.outline-link[aria-current="location"] {
+  @apply text-accent;
+}
+
+@media print {
+  .page-outline {
+    display: none !important;
+  }
+}

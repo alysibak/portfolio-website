@@ -130,3 +130,26 @@ test("/resume.txt is the plain-text resume", async ({ request }) => {
   expect(res.headers()["content-type"]).toContain("text/plain");
   expect(await res.text()).toContain("# Aly Sibak");
 });
+
+test("pipes filter a command's output", async ({ page }) => {
+  await page.goto("/?cmd=" + encodeURIComponent("cat resume | grep flask"));
+  const out = page.locator("[data-console-open] pre").last();
+  await expect(out).toContainText("Flask");
+  await expect(out).not.toContainText("## Education");
+  await page.getByLabel("Console input").fill("ls projects | wc -l");
+  await page.getByLabel("Console input").press("Enter");
+  await expect(page.locator("[data-console-open] pre").last()).toHaveText("4");
+});
+
+test("diff compares two projects' stacks", async ({ page }) => {
+  await page.goto("/?cmd=" + encodeURIComponent("diff carinfo mizan"));
+  const out = page.locator("[data-console-open] pre").last();
+  await expect(out).toContainText("--- carinfo");
+  await expect(out).toContainText("+++ mizan");
+});
+
+test("the footer shows my local time", async ({ page }) => {
+  await page.goto("/work");
+  await expect(page.locator("[data-local-time]")).toContainText(/\d:\d\d/);
+  await expect(page.locator("[data-status-path]")).toHaveText("~/work");
+});

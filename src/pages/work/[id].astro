@@ -33,6 +33,15 @@ interface Props {
 
 const { project, prev, next } = Astro.props;
 const { caseStudy } = project;
+
+// The page's sections, for the outline beside it on wide screens.
+const outline = [
+  { id: "fits", label: "how it fits together" },
+  project.finding && { id: "bug", label: "the bug" },
+  project.id === "timevault" && { id: "try", label: "try it" },
+  project.code && { id: "code", label: "the code" },
+  { id: "case", label: "case study" },
+].filter((x): x is { id: string; label: string } => Boolean(x));
 ---
 
 <Base title={`${project.title}, Aly Sibak`} description={project.tagline}>
@@ -78,7 +87,21 @@ const { caseStudy } = project;
       )
     }
 
-    <section class="mt-12">
+    <nav class="page-outline meta" aria-label="On this page">
+      <p class="text-muted">{project.id}.md</p>
+      <ul>
+        {
+          outline.map((o, i) => (
+            <li>
+              <span class="text-subtle" aria-hidden="true">{i === outline.length - 1 ? "└── " : "├── "}</span>
+              <a href={`#${o.id}`} class="outline-link">{o.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <section id="fits" class="mt-12 scroll-mt-8">
       <h2 class="md-h2">How it fits together</h2>
       <Flow project={project} />
       {
@@ -94,7 +117,7 @@ const { caseStudy } = project;
 
     {
       project.finding && (
-        <section class="mt-10 border-t border-border pt-8">
+        <section id="bug" class="mt-10 scroll-mt-8 border-t border-border pt-8">
           <h2 class="md-h2">The bug</h2>
           <p class="mt-3 text-[0.9375rem] leading-relaxed text-muted">{project.finding}</p>
           {project.findingChart && <BugChart chart={project.findingChart} />}
@@ -105,7 +128,7 @@ const { caseStudy } = project;
 
     {
       project.id === "timevault" && (
-        <section class="mt-10 border-t border-border pt-8">
+        <section id="try" class="mt-10 scroll-mt-8 border-t border-border pt-8">
           <h2 class="md-h2">Try it</h2>
           <AuthDemo />
         </section>
@@ -114,14 +137,14 @@ const { caseStudy } = project;
 
     {
       project.code && (
-        <section class="mt-10 border-t border-border pt-8">
+        <section id="code" class="mt-10 scroll-mt-8 border-t border-border pt-8">
           <h2 class="md-h2">The code</h2>
           <CodeExcerpt excerpt={project.code} />
         </section>
       )
     }
 
-    <section class="mt-10 border-t border-border pt-8">
+    <section id="case" class="mt-10 scroll-mt-8 border-t border-border pt-8">
       <h2 class="md-h2">Case study</h2>
       <dl class="mt-5 space-y-6">
         {
@@ -181,3 +204,27 @@ const { caseStudy } = project;
     </nav>
   </article>
 </Base>
+
+<script>
+  // Highlights the section being read in the outline.
+  let observer: IntersectionObserver | undefined;
+  document.addEventListener("astro:page-load", () => {
+    observer?.disconnect();
+    const links = new Map<string, HTMLAnchorElement>();
+    document.querySelectorAll<HTMLAnchorElement>(".page-outline .outline-link").forEach((a) => links.set(a.hash.slice(1), a));
+    if (!links.size) return;
+    observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          links.forEach((a, id) => (id === entry.target.id ? a.setAttribute("aria-current", "location") : a.removeAttribute("aria-current")));
+        }
+      },
+      { rootMargin: "-20% 0px -70% 0px" }
+    );
+    links.forEach((_, id) => {
+      const section = document.getElementById(id);
+      if (section) observer!.observe(section);
+    });
+  });
+</script>

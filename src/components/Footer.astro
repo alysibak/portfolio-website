@@ -29,9 +29,16 @@ const { showAvailability = true } = Astro.props;
       <span class="-my-1.5"><ThemeToggle /></span>
     </div>
     {showAvailability && <p class="meta mt-3 text-subtle" data-expires={site.seeking.start}>{site.availability}</p>}
-    <p class="meta mt-4 text-[0.6875rem] text-subtle" aria-hidden="true">
-      [portfolio] render:static status:ok layer:surface shell:idle
-    </p>
+    {/* A tmux-style status line: where you are, the theme, and my local time. */}
+    <div class="meta mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[0.6875rem] text-subtle">
+      <span aria-hidden="true">
+        <span class="bg-accent px-1 text-paper">[portfolio]</span> 0:<span data-status-path>~</span>*
+        <span class="ml-2">theme:<span data-status-theme>system</span></span>
+      </span>
+      <span class="hidden" data-local-time data-tz={site.timeZone}>
+        <span data-clock></span> for me in {site.location.split(",")[0]}
+      </span>
+    </div>
   </div>
 </footer>
 
@@ -62,4 +69,34 @@ const { showAvailability = true } = Astro.props;
     });
   }
   document.addEventListener("astro:page-load", expire);
+
+  // Status line: the page as a shell path, the theme, and my local time, so a
+  // visitor in another time zone knows whether it's a good moment to email.
+  function status() {
+    const path = document.querySelector("[data-status-path]");
+    if (path) path.textContent = `~${window.location.pathname.replace(/\/+$/, "")}`;
+    const theme = document.querySelector("[data-status-theme]");
+    if (theme) {
+      const root = document.documentElement;
+      theme.textContent = root.dataset.crt ?? root.dataset.theme ?? "system";
+    }
+    const local = document.querySelector<HTMLElement>("[data-local-time]");
+    const clock = local?.querySelector("[data-clock]");
+    if (local && clock) {
+      try {
+        clock.textContent = new Intl.DateTimeFormat("en-CA", {
+          hour: "numeric",
+          minute: "2-digit",
+          timeZone: local.dataset.tz,
+          timeZoneName: "short",
+        }).format(new Date());
+        local.classList.remove("hidden");
+      } catch {
+        // An unknown time zone: leave the clock out.
+      }
+    }
+  }
+  document.addEventListener("astro:page-load", status);
+  window.addEventListener("themechange", status);
+  setInterval(status, 30_000);
 </script>

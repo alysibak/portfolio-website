@@ -108,6 +108,44 @@ export default function Palette() {
         keywords: "light theme colour color",
         run: () => applyTheme(effectiveTheme() === "dark" ? "light" : "dark"),
       },
+      {
+        id: "green",
+        label: "Green phosphor theme",
+        hint: "or 'theme green' in the shell",
+        group: "Actions",
+        keywords: "theme retro crt terminal colour color",
+        run: () => applyTheme("green"),
+      },
+      {
+        id: "amber",
+        label: "Amber phosphor theme",
+        hint: "or 'theme amber' in the shell",
+        group: "Actions",
+        keywords: "theme retro crt terminal colour color",
+        run: () => applyTheme("amber"),
+      },
+      {
+        id: "keys",
+        label: "Keyboard shortcuts",
+        hint: "g w · g e · g r · g h · / · ctrl k",
+        group: "Actions",
+        keywords: "keys hotkeys help",
+        // The shell opens on its help, which lists the keys.
+        run: () => {
+          window.__consoleRequested = true;
+          window.dispatchEvent(new Event("console:open"));
+        },
+      },
+      {
+        id: "resume-txt",
+        label: "Resume as plain text",
+        hint: "/resume.txt, for curl",
+        group: "Actions",
+        keywords: "cv txt curl download",
+        run: () => {
+          window.location.href = "/resume.txt";
+        },
+      },
       { id: "github", label: "GitHub", hint: "github.com/alysibak", group: "Actions", keywords: "code source", run: () => openTab(site.github) },
       { id: "linkedin", label: "LinkedIn", hint: "opens in a new tab", group: "Actions", keywords: "profile", run: () => openTab(site.linkedin) },
     ],

@@ -77,7 +77,9 @@ Supported commands are defined in `src/lib/shell.ts`: `help`, `whoami`, `ls`,
 `cd <page>`, `pwd`, `cat <project>`, `grep <tech>`, `ping <project>`,
 `git log`, `open <project>`, `mail`, `neofetch`, `man aly`, `history`,
 `theme <mode>` (including `green` and `amber`), `tree`, `uptime`, `fortune`,
-`cowsay`, `date`, `echo`, `sudo hire aly`, `clear`, `exit`. Tab completes,
+`cowsay`, `diff <a> <b>`, `ssh`, `date`, `echo`, `sudo hire aly`, `clear`,
+`exit`, plus `ls -la` and `cat .plan`. Pipes work with `grep`, `head`, `tail`,
+`wc`, `sort`, `uniq`, and `cowsay` (`cat resume | grep react`). Tab completes,
 <kbd>→</kbd> takes the greyed-out suggestion, and history is kept between
 visits. Commands and links in the output are clickable. Links like
 `/?cmd=cat+carinfo` open the shell and run a command.
