@@ -1,6 +1,6 @@
 ---
 interface Props {
-  variant?: "work" | "page";
+  variant?: "home" | "work" | "page";
 }
 
 const { variant = "page" } = Astro.props;
@@ -9,9 +9,21 @@ const { variant = "page" } = Astro.props;
 // no / or ~ to press. Both open the same console via [data-open-console].
 ---
 
-<div class="shell-hint mt-5">
+<div class:list={["shell-hint", variant === "home" ? "mt-8" : "mt-5"]}>
   {
-    variant === "work" ? (
+    variant === "home" ? (
+      <p>
+        This site has an interactive shell.{" "}
+        <span class="hint-keys">
+          Press <button type="button" class="shell-kbd" data-open-console>/</button> or{" "}
+          <button type="button" class="shell-kbd" data-open-console>~</button> to open it,
+        </span>
+        <span class="hint-touch">
+          <button type="button" class="hint-open" data-open-console>Open it</button>,
+        </span>{" "}
+        then try <span class="text-accent">help</span> or <span class="text-accent">cat carinfo</span>.
+      </p>
+    ) : variant === "work" ? (
       <p>
         Every case study is also in the shell.{" "}
         <span class="hint-keys">

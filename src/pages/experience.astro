@@ -2,13 +2,9 @@
 import Base from "../layouts/Base.astro";
 import ShellHint from "../components/ShellHint.astro";
 import GitGraph from "../components/GitGraph.astro";
-import Stats from "../components/Stats.astro";
 import DegreeBar from "../components/DegreeBar.astro";
 import Prompt from "../components/Prompt.astro";
 import { leadership, teachingNote, teachingStats } from "../lib/data";
-
-/** Badge colours, one per leadership role in order. Full class names so Tailwind keeps them. */
-const markColors = ["bg-plum", "bg-accent", "bg-teal", "bg-amber"];
 ---
 
 <Base
@@ -29,34 +25,30 @@ const markColors = ["bg-plum", "bg-accent", "bg-teal", "bg-amber"];
 
     <section class="mt-12 border-t border-border pt-8">
       <h2 class="md-h2">Teaching at Guelph</h2>
-      <div class="mt-4">
-        <Stats stats={teachingStats} columns={3} />
-      </div>
-      <p class="meta mt-3 leading-relaxed text-muted">{teachingNote}</p>
+      <p class="meta mt-4 leading-relaxed text-muted">
+        {
+          teachingStats.map((stat, i) => (
+            <>
+              {i > 0 && <span class="text-subtle"> · </span>}
+              <span class="text-ink">{stat.value.toLocaleString("en-US")}{stat.suffix}</span> {stat.label}
+            </>
+          ))
+        }
+      </p>
+      <p class="meta mt-1 leading-relaxed text-subtle">{teachingNote}</p>
     </section>
 
     <section class="mt-12 border-t border-border pt-8">
       <h2 class="md-h2">Leadership and activities</h2>
-      <ul class="mt-4 grid gap-2 sm:grid-cols-2">
+      <ul class="mt-4 space-y-4">
         {
-          leadership.map((item, i) => (
-            <li class="flex gap-3 rounded-md border border-border bg-paper p-3">
-              <span
-                class:list={[
-                  "grid h-9 w-9 shrink-0 place-items-center rounded-md font-mono text-[0.6875rem] font-bold text-paper",
-                  markColors[i % markColors.length],
-                ]}
-                aria-hidden="true"
-              >
-                {item.mark}
-              </span>
-              <div class="min-w-0">
-                <p class="text-[0.9375rem] font-medium leading-snug">{item.role}</p>
-                <p class="text-[0.8125rem] leading-snug text-muted">
-                  {item.org} · {item.period}
-                </p>
-                <p class="meta mt-1.5 leading-relaxed text-muted">{item.context}</p>
-              </div>
+          leadership.map((item) => (
+            <li>
+              <p class="text-[0.9375rem] leading-snug">
+                <span class="font-medium">{item.role}</span> <span class="text-subtle">@</span> {item.org}
+              </p>
+              <p class="meta text-subtle">{item.period}</p>
+              <p class="meta mt-1 leading-relaxed text-muted">{item.context}</p>
             </li>
           ))
         }

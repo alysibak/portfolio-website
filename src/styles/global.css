@@ -307,14 +307,6 @@ button.shell-kbd {
   animation-delay: 0.25s;
 }
 
-.award-medal {
-  transition: transform 0.3s ease;
-}
-
-.award:hover .award-medal {
-  transform: rotate(-8deg) scale(1.05);
-}
-
 /* Experience: commits pop in oldest first; the open term breathes. */
 .graph-dot {
   animation: pop 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.4) both;
@@ -353,9 +345,6 @@ button.shell-kbd {
   }
   .bug-chart.is-pending .bug-bar {
     transform: none;
-  }
-  .award-medal {
-    transition: none;
   }
 }
 
@@ -588,9 +577,6 @@ button.shell-kbd {
 }
 
 /* Resume page: a terminal printing `cat resume.md`. */
-.term-window {
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 12px 32px rgb(0 0 0 / 0.07);
-}
 
 .term-body {
   font-family: var(--font-mono);
@@ -804,21 +790,33 @@ button.shell-kbd {
   content: "## " / "";
 }
 
-/* Screenshots sit in a window with an address bar. */
-.shot-window {
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 12px 32px rgb(0 0 0 / 0.07);
-}
-
-.shot-dots i {
-  @apply block h-2 w-2 rounded-full bg-border;
-}
-
+/* Screenshots sit under a one-line address bar; tabs are [bracketed]. */
 .shot-tab {
-  @apply rounded border border-transparent px-1.5 py-0.5 text-subtle transition-colors hover:text-accent;
+  @apply text-subtle transition-colors hover:text-accent;
+}
+
+.shot-tab::before,
+.bracketed::before {
+  content: "[";
+  content: "[" / "";
+}
+
+.shot-tab::after,
+.bracketed::after {
+  content: "]";
+  content: "]" / "";
+}
+
+.bracketed::before {
+  margin-right: 0.5ch;
+}
+
+.bracketed::after {
+  margin-left: 0.5ch;
 }
 
 .shot-tab[aria-pressed="true"] {
-  @apply border-border text-ink;
+  @apply text-ink;
 }
 
 .shot-link img {
@@ -892,62 +890,45 @@ button.shell-kbd {
   }
 }
 
-/* Home page: project cards lift a little on hover. */
-.project-card {
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+/* Home: a block cursor after the name, and a ">" beside the menu item under
+   the pointer or keyboard focus, like a text-mode menu. */
+.name-cursor {
+  display: inline-block;
+  width: 0.42em;
+  height: 0.82em;
+  margin-left: 0.12em;
+  vertical-align: -0.04em;
+  background: rgb(var(--accent));
+  animation: blink 1.1s step-end infinite;
 }
 
-.project-card:hover {
-  @apply border-accent/40;
-  box-shadow: 0 10px 28px rgb(0 0 0 / 0.08);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .project-card:hover {
-    transform: translateY(-2px);
-  }
-
-  .project-thumb {
-    transition: transform 0.4s ease;
-  }
-
-  .project-card:hover .project-thumb {
-    transform: scale(1.03);
+@media (prefers-reduced-motion: reduce) {
+  .name-cursor {
+    animation: none;
   }
 }
 
-/* Contact buttons under the name. */
-.btn {
-  font-family: var(--font-mono);
-  @apply inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-1.5 text-[0.8125rem] text-ink transition-colors hover:border-accent hover:text-accent;
+.entry-menu a {
+  position: relative;
 }
 
-.btn-primary {
-  @apply border-accent bg-accent text-paper hover:bg-accent/90 hover:text-paper;
+.entry-menu a::before {
+  content: ">";
+  position: absolute;
+  left: -1.5ch;
+  color: rgb(var(--accent));
+  opacity: 0;
+  transition: opacity 0.15s ease;
 }
 
-.contact-dock {
-  @apply fixed bottom-3 right-3 z-40 gap-1.5;
+.entry-menu a:hover::before,
+.entry-menu a:focus-visible::before {
+  opacity: 1;
 }
 
-.contact-dock .btn {
-  @apply px-3 py-1 text-[0.75rem];
-}
-
-.contact-dock[hidden],
-.contact-dock:not([hidden]) {
-  display: none;
-}
-
-@media (max-width: 39.99rem) {
-  .contact-dock:not([hidden]) {
-    display: flex;
-  }
-}
-
-@media print {
-  .contact-dock {
-    display: none !important;
-  }
+/* Stack lists: plain words with a middle dot between, no pills. */
+.stack-list li + li::before {
+  content: "·";
+  margin: 0 0.6ch;
+  @apply text-subtle;
 }

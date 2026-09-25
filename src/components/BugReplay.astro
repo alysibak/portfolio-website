@@ -9,7 +9,7 @@ const steps = [
 ];
 ---
 
-<figure class="bug-replay mt-4 rounded-md border border-border bg-paper p-4" data-replay>
+<figure class="bug-replay mt-4 rounded-sm border border-border bg-paper p-4" data-replay>
   <figcaption class="meta text-muted">How the check narrows it down</figcaption>
   <ol class="mt-4 space-y-3">
     {
@@ -17,12 +17,12 @@ const steps = [
         <li class="replay-step flex gap-3" data-step={i + 1}>
           <span
             class:list={[
-              "grid h-6 w-6 shrink-0 place-items-center rounded-full border font-mono text-[0.6875rem]",
-              i === steps.length - 1 ? "border-bad text-bad" : "border-accent text-accent",
+              "w-[3ch] shrink-0 font-mono text-[0.8125rem] leading-[1.45]",
+              i === steps.length - 1 ? "text-bad" : "text-accent",
             ]}
             aria-hidden="true"
           >
-            {i + 1}
+            {i + 1}.
           </span>
           <div>
             <p class:list={["text-[0.9375rem]", i === steps.length - 1 ? "font-medium text-bad" : "font-medium"]}>{step.label}</p>
@@ -33,8 +33,8 @@ const steps = [
     }
   </ol>
   <div class="replay-controls meta mt-4 hidden gap-3">
-    <button type="button" class="rounded-full border border-border px-3 py-1.5 hover:border-accent" data-back>Back</button>
-    <button type="button" class="rounded-full border border-accent bg-accent px-3 py-1.5 text-paper" data-next>Next step</button>
+    <button type="button" class="bracketed text-subtle transition-colors hover:text-accent" data-back>back</button>
+    <button type="button" class="bracketed text-accent transition-colors hover:text-ink" data-next>next step</button>
   </div>
 </figure>
 
@@ -50,7 +50,7 @@ const steps = [
       const render = () => {
         steps.forEach((s, i) => s.classList.toggle("is-ahead", i + 1 > at));
         back.disabled = at === 1;
-        next.textContent = at === steps.length ? "Start over" : "Next step";
+        next.textContent = at === steps.length ? "start over" : "next step";
       };
       next.addEventListener("click", () => {
         at = at === steps.length ? 1 : at + 1;

@@ -101,10 +101,8 @@ export type TimelineEntry = {
   current?: boolean;
 };
 
-/** Service roles, rendered as badges so they don't read as paid work. */
+/** Service roles, listed apart from paid work so they don't read as jobs. */
 export type LeadershipItem = {
-  /** Two or three letters for the badge. */
-  mark: string;
   role: string;
   org: string;
   period: string;
@@ -611,10 +609,6 @@ export const highlights: Stat[] = [
   { value: 250, suffix: "+", label: "students supported as a TA" },
 ];
 
-/** The first technologies a recruiter looks for, from the skills below. The
- *  content check makes sure each one is listed there. */
-export const headlineStack = ["TypeScript", "React", "Node.js", "Python", "C#", "PostgreSQL", "Azure"];
-
 /** Newest first. The graph draws one lane per `lane`. */
 export const timeline: TimelineEntry[] = [
   {
@@ -714,7 +708,6 @@ export const teachingNote = "Office hours, review sessions, and an online suppor
 
 export const leadership: LeadershipItem[] = [
   {
-    mark: "HC",
     role: "Technical Organizer",
     org: "HackCanada",
     period: "2026",
@@ -722,7 +715,6 @@ export const leadership: LeadershipItem[] = [
     resume: "Technical Organizer, HackCanada, building the event website and judging portal",
   },
   {
-    mark: "CC",
     role: "Governor of Computing",
     org: "CCMPS Student Council",
     period: "Ongoing",
@@ -732,7 +724,6 @@ export const leadership: LeadershipItem[] = [
     current: true,
   },
   {
-    mark: "MSA",
     role: "Technical Director",
     org: "Muslim Students Association",
     period: "Ongoing",
@@ -740,7 +731,6 @@ export const leadership: LeadershipItem[] = [
     current: true,
   },
   {
-    mark: "GD",
     role: "Workshop Lead",
     org: "SOCIS and Google Developer Student Club",
     period: "Ongoing",

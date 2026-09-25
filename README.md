@@ -32,7 +32,7 @@ src/
   pages/          index, work, experience, resume  (file-based routes)
   layouts/        Base.astro — <head>, nav, footer, console mount
   components/     Nav, Footer, ShellHint, DevToolsEgg, Console.tsx, and the
-                  visuals: HomeTerminal, Stats, Flow, BugChart, AwardBadge,
+                  visuals: Flow, BugChart, AwardBadge,
                   GitGraph, DegreeBar, Screenshot, RepoStats, Prompt
   assets/shots/   project screenshots (optimized to AVIF/WebP at build)
   data/           github.json — fallback for the repo stats

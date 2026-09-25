@@ -37,10 +37,10 @@ const crumbs = parts.map((part, i) => ({ part, href: `/${parts.slice(0, i + 1).j
       }
       <button
         type="button"
-        class="hidden items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-subtle transition-colors hover:border-accent hover:text-accent sm:inline-flex"
+        class="hidden items-center gap-1.5 text-subtle transition-colors hover:text-accent sm:inline-flex"
         data-open-palette
       >
-        Search <kbd class="text-[0.6875rem]">Ctrl K</kbd>
+        search <kbd class="shell-kbd text-[0.6875rem]">^K</kbd>
       </button>
       <ThemeToggle />
     </nav>

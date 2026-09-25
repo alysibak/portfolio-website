@@ -47,7 +47,6 @@ const {
   principles,
   coursework,
   commandOutputs,
-  headlineStack,
 } = await loadContent();
 
 /** Dead or not-ours. Must never render. */
@@ -319,12 +318,6 @@ for (const [path, str] of employerStrings) {
       `${path} mentions "${hit[0].replace(/\s+/g, " ")}" in employer work. Keep company work vague; no security findings.`
     );
   }
-}
-
-// 17. The home page's headline stack only names skills the resume lists.
-const listedSkills = new Set(skills.flatMap((g) => g.items));
-for (const tech of headlineStack) {
-  if (!listedSkills.has(tech)) fail("headline-stack", `headlineStack has "${tech}", which isn't in skills.`);
 }
 
 if (errors.length > 0) {

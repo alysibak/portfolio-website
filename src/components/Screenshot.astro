@@ -25,13 +25,8 @@ const full = href ? [] : await Promise.all(shots.map((shot) => getImage({ src: s
 {
   shots.length > 0 && (
     <figure class="shot" data-shots>
-      <div class="shot-window overflow-hidden rounded-md border border-border bg-paper">
+      <div class="shot-window overflow-hidden rounded-sm border border-border bg-paper">
         <div class="shot-bar meta flex items-center gap-3 border-b border-border px-3 py-2 text-[0.6875rem]">
-          <span class="shot-dots flex shrink-0 gap-1.5" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </span>
           <span class="min-w-0 flex-1 truncate text-subtle">
             <span class="text-muted">{host}</span>
             <span data-shot-path>{shots[0].path}</span>

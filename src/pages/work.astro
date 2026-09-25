@@ -39,13 +39,8 @@ import { projectShots } from "../lib/shots";
               {projectShots[project.id] ? (
                 <Screenshot project={project} href={`/work/${project.id}`} eager={i === 0} />
               ) : (
-                <div class="shot-window overflow-hidden rounded-md border border-border bg-paper">
-                  <div class="shot-bar meta flex items-center gap-3 border-b border-border px-3 py-2 text-[0.6875rem] text-subtle">
-                    <span class="shot-dots flex gap-1.5" aria-hidden="true">
-                      <i />
-                      <i />
-                      <i />
-                    </span>
+                <div class="shot-window overflow-hidden rounded-sm border border-border bg-paper">
+                  <div class="shot-bar meta border-b border-border px-3 py-2 text-[0.6875rem] text-subtle">
                     how it fits together
                   </div>
                   <div class="px-4 pb-4 pt-0.5">

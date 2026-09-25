@@ -24,7 +24,7 @@ test("unknown pages get the 404 with a suggestion", async ({ page }) => {
 test("the shell opens and runs a command", async ({ page, isMobile }) => {
   await page.goto("/");
   // No waiting for the shell to load: an early key press or tap is queued.
-  if (isMobile) await page.locator("[data-whoami]").tap();
+  if (isMobile) await page.locator(".shell-hint .hint-open").tap();
   else await page.keyboard.press("/");
   const input = page.getByLabel("Console input");
   await expect(input).toBeVisible();
@@ -154,20 +154,12 @@ test("the footer shows my local time", async ({ page }) => {
   await expect(page.locator("[data-status-path]")).toHaveText("~/work");
 });
 
-test("the home page leads with contact and projects", async ({ page }) => {
+test("the home page is a terminal entry with the essentials", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator("[data-cta] a[href^='mailto:']")).toBeVisible();
-  await expect(page.locator("[data-cta] a[href='/resume']")).toBeVisible();
-  await expect(page.getByRole("list", { name: "Projects" }).getByRole("link")).toHaveCount(4);
-  await expect(page.locator("[data-whoami]")).toContainText("award");
-});
-
-test("phones get a contact dock once the buttons scroll away", async ({ page, isMobile }) => {
-  test.skip(!isMobile, "phone only");
-  await page.goto("/");
-  const dock = page.locator("[data-dock]");
-  await expect(dock).toBeHidden();
-  await page.getByRole("list", { name: "Projects" }).scrollIntoViewIfNeeded();
-  await expect(dock).toBeVisible();
-  await expect(dock.getByRole("link", { name: "Email me" })).toHaveAttribute("href", /^mailto:/);
+  const menu = page.getByRole("navigation", { name: "Site" });
+  await expect(menu.getByRole("link", { name: "Work" })).toBeVisible();
+  await expect(menu.getByRole("link", { name: "Resume" })).toHaveAttribute("href", "/resume");
+  await expect(menu.locator("a[href^='mailto:']")).toBeVisible();
+  await expect(page.locator("main")).toContainText("Co-op terms at");
+  await expect(page.locator("[data-last-login]")).toContainText(/first login|Last login/);
 });
