@@ -458,11 +458,17 @@ button.shell-kbd {
 }
 
 .replay-step {
-  transition: opacity 0.25s ease;
+  transition: color 0.25s ease, border-color 0.25s ease;
 }
 
-.bug-replay.is-stepping .replay-step.is-ahead {
-  opacity: 0.28;
+/* Steps not reached yet recede by colour, not opacity, so they stay readable. */
+.bug-replay.is-stepping .replay-step.is-ahead,
+.bug-replay.is-stepping .replay-step.is-ahead p {
+  @apply text-subtle;
+}
+
+.bug-replay.is-stepping .replay-step.is-ahead > span {
+  @apply border-border text-subtle;
 }
 
 /* Shiki: light by default, its dark palette when the site is dark. */
@@ -841,4 +847,16 @@ button.shell-kbd {
 .console-run,
 .console-link {
   @apply text-accent underline decoration-accent/40 decoration-dotted underline-offset-2 transition-colors hover:decoration-solid;
+}
+
+.shot-zoom {
+  cursor: zoom-in;
+}
+
+.shot-dialog {
+  @apply w-fit max-w-[min(96vw,1600px)] rounded-md border border-border bg-paper p-2 text-ink;
+}
+
+.shot-dialog::backdrop {
+  background: rgb(0 0 0 / 0.7);
 }

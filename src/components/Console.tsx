@@ -328,7 +328,7 @@ export default function Console() {
 
   const handleGlobalKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (!open && !isEditableTarget(e.target)) {
+      if (!open && !isEditableTarget(e.target) && !document.querySelector("dialog[open]")) {
         if (
           e.key === "~" ||
           e.key === "?" ||

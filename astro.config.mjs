@@ -12,7 +12,7 @@ export default defineConfig({
   ],
   output: "static",
   markdown: {
-    shikiConfig: { themes: { light: "github-light", dark: "github-dark" } },
+    shikiConfig: { themes: { light: "github-light-high-contrast", dark: "github-dark-high-contrast" } },
   },
   adapter: vercel(),
   site: "https://alysibak.vercel.app",

@@ -148,7 +148,7 @@ const person =
           return;
         }
 
-        if (document.querySelector('[aria-modal="true"]')) return;
+        if (document.querySelector('[aria-modal="true"], dialog[open]')) return;
         if (key === "g") {
           gAt = Date.now();
           return;

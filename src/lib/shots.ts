@@ -21,12 +21,15 @@ export interface Shot {
 
 export interface ProjectShots {
   shots: Shot[];
+  /** The file in src/assets/shots/ used in link previews (the first shot). */
+  preview: string;
   /** Said under the screenshots when they show someone else's work. */
   note?: string;
 }
 
 export const projectShots: Record<string, ProjectShots> = {
   carinfo: {
+    preview: "carinfo-home.webp",
     shots: [
       {
         src: carinfoHome,
@@ -43,6 +46,7 @@ export const projectShots: Record<string, ProjectShots> = {
     ],
   },
   mizan: {
+    preview: "mizan-breakdown.webp",
     shots: [
       {
         src: mizanBreakdown,
@@ -59,6 +63,7 @@ export const projectShots: Record<string, ProjectShots> = {
     ],
   },
   timevault: {
+    preview: "timevault-trends.webp",
     shots: [
       {
         src: timevaultTrends,

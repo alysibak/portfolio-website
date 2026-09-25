@@ -1,9 +1,11 @@
 import type { APIRoute, GetStaticPaths } from "astro";
 import { readFile } from "node:fs/promises";
 import satori from "satori";
+import sharp from "sharp";
 import { Resvg } from "@resvg/resvg-js";
-import { site } from "../../lib/data";
+import { getProject, liveUrl, site } from "../../lib/data";
 import { ogCards, type OgCard } from "../../lib/og";
+import { projectShots } from "../../lib/shots";
 
 // Link-preview images, drawn at build time from the same content as the pages.
 // Satori takes plain element objects, so no JSX runtime is needed here.
@@ -55,8 +57,46 @@ const chip = (text: string): Node =>
     text
   );
 
-function card(c: OgCard): Node {
-  const nodes = c.nodes
+/** The project's first screenshot as a data URI, small enough for a card. */
+async function screenshot(id: string | undefined): Promise<string | null> {
+  const file = id ? projectShots[id]?.preview : undefined;
+  if (!file) return null;
+  const jpeg = await sharp(`src/assets/shots/${file}`).resize({ width: 1200 }).jpeg({ quality: 82 }).toBuffer();
+  return `data:image/jpeg;base64,${jpeg.toString("base64")}`;
+}
+
+/** A browser window holding the screenshot, bleeding off the right edge. */
+function shotWindow(src: string, id: string): Node {
+  const project = getProject(id);
+  const host = (project && liveUrl(project)?.replace(/^https?:\/\//, "")) || id;
+  const dot = el("div", { width: 12, height: 12, borderRadius: 6, background: colors.border });
+  return el(
+    "div",
+    {
+      position: "absolute",
+      left: 640,
+      top: 104,
+      width: 640,
+      flexDirection: "column",
+      borderRadius: 14,
+      border: `2px solid ${colors.border}`,
+      background: colors.paper,
+      overflow: "hidden",
+      boxShadow: "0 18px 50px rgba(0,0,0,0.16)",
+    },
+    [
+      el(
+        "div",
+        { alignItems: "center", gap: 8, padding: "10px 16px", borderBottom: `2px solid ${colors.border}`, fontFamily: "JetBrains Mono", fontSize: 18, color: colors.subtle },
+        [dot, dot, dot, el("div", { marginLeft: 10 }, host)]
+      ),
+      { type: "img", props: { src, width: 640, height: 326, style: { objectFit: "cover", objectPosition: "top" } } },
+    ]
+  );
+}
+
+function card(c: OgCard, shot: string | null): Node {
+  const nodes = !shot && c.nodes
     ? el(
         "div",
         { flexWrap: "wrap", gap: 12, marginTop: 36, alignItems: "center" },
@@ -93,12 +133,15 @@ function card(c: OgCard): Node {
       backgroundSize: "28px 28px",
       fontFamily: "Source Sans 3",
       color: colors.ink,
+      position: "relative",
+      overflow: "hidden",
     },
     [
-      el("div", { flexDirection: "column" }, [
+      shot && c.shot ? shotWindow(shot, c.shot) : null,
+      el("div", { flexDirection: "column", ...(shot ? { maxWidth: 540 } : {}) }, [
         el("div", { fontFamily: "JetBrains Mono", fontSize: 26, color: colors.accent }, `aly@portfolio:~$ ${c.command}`),
         el("div", { fontSize: 76, fontWeight: 600, marginTop: 28, lineHeight: 1.05, letterSpacing: -1 }, c.title),
-        el("div", { fontSize: 32, color: colors.muted, marginTop: 18, lineHeight: 1.35, maxWidth: 980 }, c.subtitle),
+        el("div", { fontSize: 32, color: colors.muted, marginTop: 18, lineHeight: 1.35, maxWidth: shot ? 520 : 980 }, c.subtitle),
         c.detail
           ? el("div", { fontFamily: "JetBrains Mono", fontSize: 22, color: colors.subtle, marginTop: 10, whiteSpace: "nowrap" }, c.detail)
           : null,
@@ -159,7 +202,8 @@ export const GET: APIRoute = async ({ props }) => {
     font("source-sans-3", "source-sans-3-latin-600-normal.woff"),
     font("jetbrains-mono", "jetbrains-mono-latin-400-normal.woff"),
   ]);
-  const svg = await satori(card((props as { card: OgCard }).card) as never, {
+  const c = (props as { card: OgCard }).card;
+  const svg = await satori(card(c, await screenshot(c.shot)) as never, {
     width: 1200,
     height: 630,
     fonts: [

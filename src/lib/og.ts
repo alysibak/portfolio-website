@@ -12,6 +12,8 @@ export type OgCard = {
   nodes?: { label: string; owned: boolean; key?: boolean }[];
   chips?: string[];
   stats?: { value: string; label: string }[];
+  /** Project whose screenshot sits on the right, if it has one. */
+  shot?: string;
 };
 
 const count = (lane: string) => timeline.filter((t) => t.lane === lane).length;
@@ -61,6 +63,7 @@ export const ogCards: OgCard[] = [
     title: p.title,
     subtitle: p.tagline,
     nodes: p.diagram.flow,
+    shot: p.id,
   })),
 ];
 

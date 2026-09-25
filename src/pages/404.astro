@@ -3,7 +3,7 @@ import Base from "../layouts/Base.astro";
 import { projects } from "../lib/data";
 
 // Real routes, for "did you mean". The browser fills in the missing path.
-const routes = ["/", "/work", "/experience", ...projects.map((p) => `/work/${p.id}`)];
+const routes = ["/", "/work", "/experience", "/resume", ...projects.map((p) => `/work/${p.id}`)];
 ---
 
 <Base title="Not found, Aly Sibak" description="That page doesn't exist.">
@@ -21,8 +21,8 @@ const routes = ["/", "/work", "/experience", ...projects.map((p) => `/work/${p.i
     </div>
     <h1 class="mt-10 text-2xl font-medium">That page doesn't exist.</h1>
     <p class="meta mt-4 flex flex-wrap gap-x-5 gap-y-2">
-      <a href="/" class="link">← Home</a>
-      <a href="/work" class="link">Work</a>
+      <a href="/" class="link">cd ~<span class="sr-only"> (home)</span></a>
+      <a href="/work" class="link">cd work</a>
       <button type="button" class="hint-open" data-open-console>Open the shell</button>
     </p>
   </div>

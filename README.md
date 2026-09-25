@@ -22,7 +22,7 @@ Open [http://localhost:4321](http://localhost:4321).
 | `npm run preview` | Serve the production build locally          |
 | `npm run check`   | `astro check` — types and template diagnostics |
 | `npm run verify`  | Content check (also runs before every build) |
-| `npm test`        | Browser tests on desktop and phone (build first) |
+| `npm test`        | Browser and accessibility (axe) tests on desktop and phone, in every theme (build first) |
 | `npm run links`   | Checks every external link still works      |
 
 ## Layout
@@ -50,7 +50,8 @@ public/           favicon, robots.txt, security.txt
 Everything user-facing — bio, projects, experience, the resume, and the shell's
 command output — lives in `src/lib/data.ts`. Editing that file is usually the
 whole job; the pages just map over it. The `/resume` page reads the same records
-as the rest of the site, so update the resume there too.
+as the rest of the site, so update the resume there too. `/resume.txt` serves the
+same resume as plain text (what `cat resume` prints), for `curl`.
 
 Each project carries a case study (problem, constraints, decisions, outcome), a
 diagram, its stack, a shorter `resume` entry, and a `catOutput` string, which is

@@ -1,5 +1,5 @@
 ---
-import { Picture } from "astro:assets";
+import { Picture, getImage } from "astro:assets";
 import { liveUrl, type Project } from "../lib/data";
 import { projectShots } from "../lib/shots";
 
@@ -18,6 +18,8 @@ const entry = projectShots[project.id];
 const shots = entry ? (href ? entry.shots.slice(0, 1) : entry.shots) : [];
 const host = (liveUrl(project) ?? "").replace(/^https?:\/\//, "") || `${project.id}.local`;
 const widths = [480, 768, 1152, 1536];
+// Full size, for the enlarged view on project pages.
+const full = href ? [] : await Promise.all(shots.map((shot) => getImage({ src: shot.src, width: 1600, format: "webp" })));
 ---
 
 {
@@ -65,25 +67,57 @@ const widths = [480, 768, 1152, 1536];
         ) : (
           shots.map((shot, i) => (
             <div data-shot={i} hidden={i > 0}>
-              <Picture
-                src={shot.src}
-                alt={shot.alt}
-                widths={widths}
-                sizes={sizes}
-                formats={["avif", "webp"]}
-                loading={eager && i === 0 ? "eager" : "lazy"}
-                class="block h-auto w-full"
-              />
+              <button
+                type="button"
+                class="shot-zoom block w-full"
+                data-zoom={full[i].src}
+                data-alt={shot.alt}
+                aria-label={`Enlarge: ${shot.alt}`}
+              >
+                <Picture
+                  src={shot.src}
+                  alt=""
+                  widths={widths}
+                  sizes={sizes}
+                  formats={["avif", "webp"]}
+                  loading={eager && i === 0 ? "eager" : "lazy"}
+                  class="block h-auto w-full"
+                />
+              </button>
             </div>
           ))
         )}
       </div>
       {!href && entry?.note && <figcaption class="meta mt-2 leading-relaxed text-subtle">{entry.note}</figcaption>}
+      {!href && (
+        <dialog class="shot-dialog" aria-label={`${project.title} screenshot`} data-zoom-dialog>
+          <form method="dialog" class="flex justify-end">
+            <button class="meta px-2 py-1 text-subtle hover:text-ink" data-zoom-close>close ✕</button>
+          </form>
+          <img src="" alt="" class="mt-1 block h-auto max-h-[80vh] w-auto max-w-full rounded-sm" data-zoom-img />
+        </dialog>
+      )}
     </figure>
   )
 }
 
 <script>
+  // Clicking a screenshot opens it full size; a click outside it, Esc, or
+  // "close" shuts it.
+  document.addEventListener("click", (e) => {
+    const target = e.target instanceof Element ? e.target : null;
+    const zoom = target?.closest<HTMLButtonElement>("[data-zoom]");
+    const dialog = zoom?.closest("[data-shots]")?.querySelector<HTMLDialogElement>("[data-zoom-dialog]");
+    if (zoom && dialog) {
+      const img = dialog.querySelector<HTMLImageElement>("[data-zoom-img]")!;
+      img.src = zoom.dataset.zoom ?? "";
+      img.alt = zoom.dataset.alt ?? "";
+      dialog.showModal();
+      return;
+    }
+    if (target instanceof HTMLDialogElement && target.matches("[data-zoom-dialog]")) target.close();
+  });
+
   // Tabs in the window's title bar switch between a project's screenshots.
   document.addEventListener("click", (e) => {
     const tab = e.target instanceof Element ? e.target.closest<HTMLButtonElement>("[data-shot-tab]") : null;

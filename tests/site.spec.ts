@@ -114,3 +114,19 @@ test("g then w goes to the work page", async ({ page, isMobile }) => {
   await page.keyboard.press("w");
   await expect(page).toHaveURL(/\/work$/);
 });
+
+test("a screenshot opens full size and closes", async ({ page }) => {
+  await page.goto("/work/mizan");
+  await page.getByRole("button", { name: /^Enlarge:/ }).first().click();
+  const dialog = page.locator("[data-zoom-dialog]");
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator("img")).toHaveAttribute("src", /\.webp$/);
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+});
+
+test("/resume.txt is the plain-text resume", async ({ request }) => {
+  const res = await request.get("/resume.txt");
+  expect(res.headers()["content-type"]).toContain("text/plain");
+  expect(await res.text()).toContain("# Aly Sibak");
+});
