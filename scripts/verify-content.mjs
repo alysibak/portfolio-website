@@ -11,9 +11,10 @@
  *
  * Run directly with:  npm run verify
  */
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
+import { ALLOWED_URLS } from "./allowed-urls.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 
@@ -41,27 +42,10 @@ const {
   highlights,
   teachingStats,
   teachingNote,
+  principles,
   coursework,
   commandOutputs,
 } = await loadContent();
-
-/** The only external URLs permitted anywhere in site content. */
-const ALLOWED_URLS = [
-  "https://github.com/alysibak",
-  "https://www.linkedin.com/in/aly-sibak-721b85252",
-  "https://carinfo-client.vercel.app",
-  "https://github.com/alysibak/carinfo",
-  "https://timevault-web.onrender.com",
-  "https://github.com/alysibak/TimeVault",
-  "https://devpost.com/software/bystander",
-  "https://github.com/hackcanada2026-aaaa/bystander",
-  "https://mizan-sandy-eight.vercel.app",
-  "https://github.com/alysibak/mizan",
-  "https://github.com/alysibak/ePortfolio",
-  "https://github.com/alysibak/DiscussionBoard",
-  "https://github.com/alysibak/GraphTraversal-ShortestPath",
-  "https://github.com/alysibak/ExpressionParser-HeapSort",
-];
 
 /** Dead or not-ours. Must never render. */
 const BLOCKED_URL_SUBSTRINGS = ["hackcanada-judging", "mizan-app.fly.dev"];
@@ -110,6 +94,7 @@ const content = {
   highlights,
   teachingStats,
   teachingNote,
+  principles,
   coursework,
   commandOutputs,
 };
@@ -234,6 +219,67 @@ for (const [path, str] of allStrings) {
   if (/software engineering major/i.test(str)) {
     fail("title-inflation", `${path} says "Software Engineering major".`);
   }
+}
+
+// 12. Every principle points at a real project.
+for (const p of principles) {
+  if (!projects.some((proj) => proj.id === p.project)) {
+    fail("principles", `principle "${p.rule}" points at unknown project "${p.project}".`);
+  }
+}
+
+// 13. Availability names a term. Once that term has started, the line is
+//     stale: update site.availability and site.seeking before deploying.
+if (new Date() >= new Date(`${site.seeking.start}-01T00:00:00`)) {
+  fail(
+    "availability",
+    `site.availability ("${site.availability}") refers to a term starting ${site.seeking.start}, which has begun. Update it.`
+  );
+}
+
+// 14. security.txt must not expire (RFC 9116 says under a year out) and must
+//     name the same contact as the site.
+const securityTxt = readFileSync(new URL("../public/.well-known/security.txt", import.meta.url), "utf-8");
+const expires = new Date(securityTxt.match(/^Expires:\s*(.+)$/m)?.[1] ?? "");
+const days = (expires.getTime() - Date.now()) / 86_400_000;
+if (!(days > 30)) {
+  fail("security-txt", `public/.well-known/security.txt expires ${expires.toISOString?.() ?? "(unreadable)"}. Push Expires out (max one year).`);
+}
+if (!securityTxt.includes(`mailto:${site.email}`)) {
+  fail("security-txt", `security.txt Contact should be mailto:${site.email}.`);
+}
+
+// 15. The security headers must let the browser reach each live site, or the
+//     status dots and \`ping\` silently fail.
+const vercelConfig = JSON.parse(readFileSync(new URL("../vercel.json", import.meta.url), "utf-8"));
+const csp =
+  vercelConfig.headers?.flatMap((h) => h.headers).find((h) => h.key === "Content-Security-Policy")?.value ?? "";
+for (const p of projects) {
+  const live = p.links.find((l) => l.label === "Live")?.href;
+  if (live && !csp.includes(new URL(live).origin)) {
+    fail("csp", `vercel.json CSP connect-src is missing ${new URL(live).origin} (live site for "${p.id}").`);
+  }
+}
+
+// 16. The npx business card (cli/card.mjs) says the same things as the site.
+const cardSource = readFileSync(new URL("../cli/card.mjs", import.meta.url), "utf-8");
+for (const [label, value] of [
+  ["email", site.email],
+  ["site URL", site.url],
+  ["GitHub", site.github],
+  ["LinkedIn", site.linkedin],
+  ["availability", site.availability],
+  ["role line", site.roleLine],
+]) {
+  if (!cardSource.includes(value)) {
+    fail("npx-card", `cli/card.mjs is out of date: its ${label} should be "${value}".`);
+  }
+}
+
+// 10b. The site URL in content matches the one Astro builds canonical links from.
+const astroConfig = readFileSync(new URL("../astro.config.mjs", import.meta.url), "utf-8");
+if (!astroConfig.includes(`site: "${site.url}"`)) {
+  fail("site-url", `site.url (${site.url}) does not match \`site\` in astro.config.mjs.`);
 }
 
 // 10. The resume link must point at a file that exists.

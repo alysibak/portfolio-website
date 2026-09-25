@@ -1,14 +1,19 @@
 ---
+import ThemeToggle from "./ThemeToggle.astro";
 import { navLinks, site } from "../lib/data";
-const pathname = Astro.url.pathname;
+import { publishedPosts } from "../lib/bug-log";
+
+const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
+// bug.log joins the nav once there's something published in it.
+const links = [...navLinks, ...((await publishedPosts()).length ? [{ label: "bug.log", href: "/bug-log" }] : [])];
 ---
 
-<header class="border-b border-border px-6 py-4 md:px-8">
+<header class="site-header border-b border-border px-6 py-4 md:px-8">
   <div class="mx-auto flex max-w-xl items-center justify-between">
     <a href="/" class="inline-block text-base font-medium text-ink" transition:name="site-name">{site.name.split(" ")[0]}</a>
     <nav aria-label="Primary" class="meta flex items-center gap-4 md:gap-5">
       {
-        navLinks.map((link) => (
+        links.map((link) => (
           <a
             href={link.href}
             aria-current={pathname === link.href ? "page" : undefined}
@@ -24,6 +29,14 @@ const pathname = Astro.url.pathname;
       <a href={site.resume} target="_blank" rel="noopener noreferrer" class="link-accent">
         Resume<span class="sr-only"> (opens in a new tab)</span><span aria-hidden="true"> ↗</span>
       </a>
+      <button
+        type="button"
+        class="hidden items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-subtle transition-colors hover:border-accent hover:text-accent sm:inline-flex"
+        data-open-palette
+      >
+        Search <kbd class="text-[0.6875rem]">Ctrl K</kbd>
+      </button>
+      <ThemeToggle />
     </nav>
   </div>
 </header>

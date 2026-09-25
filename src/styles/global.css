@@ -5,6 +5,61 @@
 :root {
   --font-sans: "Source Sans 3", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Colour channels, read by Tailwind as rgb(var(--name) / alpha). */
+  --paper: 250 250 248;
+  --ink: 22 22 26;
+  --muted: 85 85 95;
+  --subtle: 112 112 121;
+  --border: 228 228 224;
+  --accent: 30 58 95;
+  --good: 47 107 58;
+  --bad: 155 44 44;
+  --teal: 39 107 98;
+  --amber: 138 82 9;
+  --plum: 122 74 140;
+  --grid-dot: 220 220 214;
+  color-scheme: light;
+}
+
+/* Dark: an explicit choice wins; otherwise follow the device. */
+:root[data-theme="dark"] {
+  --paper: 17 17 20;
+  --ink: 236 236 239;
+  --muted: 180 180 189;
+  --subtle: 143 143 154;
+  --border: 42 42 49;
+  --accent: 157 189 230;
+  --good: 125 194 140;
+  --bad: 235 149 149;
+  --teal: 111 199 185;
+  --amber: 224 169 79;
+  --plum: 195 154 214;
+  --grid-dot: 40 40 47;
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: 17 17 20;
+    --ink: 236 236 239;
+    --muted: 180 180 189;
+    --subtle: 143 143 154;
+    --border: 42 42 49;
+    --accent: 157 189 230;
+    --good: 125 194 140;
+    --bad: 235 149 149;
+    --teal: 111 199 185;
+    --amber: 224 169 79;
+    --plum: 195 154 214;
+    --grid-dot: 40 40 47;
+    color-scheme: dark;
+  }
+}
+
+::selection {
+  background: rgb(var(--accent));
+  color: rgb(var(--paper));
 }
 
 html {
@@ -20,10 +75,33 @@ html {
 body {
   @apply bg-paper text-ink antialiased;
   font-family: var(--font-sans);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* The toggle shows the theme you'd switch to. */
+.theme-sun {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-sun {
+  display: block;
+}
+
+:root[data-theme="dark"] .theme-moon {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-sun {
+    display: block;
+  }
+  :root:not([data-theme="light"]) .theme-moon {
+    display: none;
+  }
 }
 
 :where(a, button, summary):focus-visible {
-  outline: 2px solid #1e3a5f;
+  outline: 2px solid rgb(var(--accent));
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -35,7 +113,7 @@ body {
 
 .link {
   @apply text-ink no-underline;
-  background-image: linear-gradient(#1e3a5f, #1e3a5f);
+  background-image: linear-gradient(rgb(var(--accent)), rgb(var(--accent)));
   background-size: 0% 1px;
   background-repeat: no-repeat;
   background-position: 0 100%;
@@ -49,7 +127,7 @@ body {
 
 .link-accent {
   @apply text-accent no-underline;
-  background-image: linear-gradient(#1e3a5f, #1e3a5f);
+  background-image: linear-gradient(rgb(var(--accent)), rgb(var(--accent)));
   background-size: 0% 1px;
   background-repeat: no-repeat;
   background-position: 0 100%;
@@ -58,28 +136,6 @@ body {
 
 .link-accent:hover {
   background-size: 100% 1px;
-}
-
-.case-file summary {
-  list-style: none;
-}
-
-.case-file summary::-webkit-details-marker {
-  display: none;
-}
-
-.case-chevron {
-  display: inline-block;
-  transition: transform 0.15s ease;
-}
-
-.case-file[open] .case-chevron {
-  transform: rotate(90deg);
-}
-
-.case-file[open] .case-closed,
-.case-file:not([open]) .case-open {
-  display: none;
 }
 
 .shell-kbd {
@@ -124,9 +180,6 @@ button.shell-kbd {
     animation: none;
     opacity: 1;
   }
-  .case-chevron {
-    transition: none;
-  }
 }
 
 /* Home: faint graph paper behind the hero, fading out toward the edges. */
@@ -135,7 +188,7 @@ button.shell-kbd {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background-image: radial-gradient(#dcdcd6 1px, transparent 1.3px);
+  background-image: radial-gradient(rgb(var(--grid-dot)) 1px, transparent 1.3px);
   background-size: 18px 18px;
   -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 30%, transparent 75%);
   mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 30%, transparent 75%);
@@ -203,10 +256,6 @@ button.shell-kbd {
   transform: rotate(-8deg) scale(1.05);
 }
 
-.case-file[open] > dl {
-  animation: rise 0.25s ease-out;
-}
-
 /* Experience: commits pop in oldest first; the open term breathes. */
 .graph-dot {
   animation: pop 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.4) both;
@@ -214,7 +263,7 @@ button.shell-kbd {
 }
 
 .degree-want {
-  background: repeating-linear-gradient(45deg, rgba(138, 82, 9, 0.2) 0 4px, transparent 4px 8px);
+  background: repeating-linear-gradient(45deg, rgb(var(--amber) / 0.2) 0 4px, transparent 4px 8px);
   animation: breathe 2.4s ease-in-out infinite;
 }
 
@@ -240,8 +289,7 @@ button.shell-kbd {
   .graph-dot,
   .degree-want,
   .console-backdrop,
-  .console-panel,
-  .case-file[open] > dl {
+  .console-panel {
     animation: none !important;
   }
   .bug-chart.is-pending .bug-bar {
@@ -259,7 +307,7 @@ button.shell-kbd {
 
 @keyframes flow-signal {
   0%, 100% { box-shadow: 0 0 0 0 transparent; }
-  30% { box-shadow: 0 0 0 4px rgba(30, 58, 95, 0.15); }
+  30% { box-shadow: 0 0 0 4px rgb(var(--accent) / 0.15); }
 }
 
 @keyframes grow-x {
@@ -274,11 +322,6 @@ button.shell-kbd {
 
 @keyframes breathe {
   50% { opacity: 0.55; }
-}
-
-@keyframes rise {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: none; }
 }
 
 @keyframes fade-in {
@@ -313,4 +356,155 @@ button.shell-kbd {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* Project page demos */
+.switch-row {
+  font-family: var(--font-mono);
+  @apply flex cursor-pointer items-center gap-2.5 text-[0.8125rem];
+}
+
+.switch-input {
+  @apply sr-only;
+}
+
+.switch-track {
+  @apply relative inline-block h-5 w-9 rounded-full border border-border bg-border/60 transition-colors;
+}
+
+.switch-track::after {
+  content: "";
+  @apply absolute left-0.5 top-0.5 h-3.5 w-3.5 rounded-full bg-paper shadow transition-transform;
+}
+
+.switch-input:checked + .switch-track {
+  @apply border-accent bg-accent;
+}
+
+.switch-input:checked + .switch-track::after {
+  transform: translateX(16px);
+}
+
+.switch-input:focus-visible + .switch-track {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 2px;
+}
+
+.switch-input:disabled + .switch-track {
+  @apply opacity-40;
+}
+
+.bug-replay.is-stepping .replay-controls {
+  display: flex;
+}
+
+.replay-step {
+  transition: opacity 0.25s ease;
+}
+
+.bug-replay.is-stepping .replay-step.is-ahead {
+  opacity: 0.28;
+}
+
+/* Shiki: light by default, its dark palette when the site is dark. */
+.astro-code {
+  background-color: transparent !important;
+  overflow-x: auto;
+}
+
+:root[data-theme="dark"] .astro-code span {
+  color: var(--shiki-dark) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .astro-code span {
+    color: var(--shiki-dark) !important;
+  }
+}
+
+/* Code reads literally: no => or === ligatures. */
+.astro-code,
+.astro-code code {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
+/* bug.log posts */
+.prose-log {
+  @apply text-[1rem] leading-[1.7] text-muted;
+}
+
+.prose-log > * + * {
+  @apply mt-5;
+}
+
+.prose-log h2 {
+  @apply mt-10 text-[1.0625rem] font-medium text-ink;
+}
+
+.prose-log pre {
+  @apply rounded-md border border-border px-4 py-3.5 text-[0.8125rem] leading-relaxed;
+}
+
+.prose-log :not(pre) > code {
+  font-family: var(--font-mono);
+  @apply rounded bg-border/60 px-1 py-0.5 text-[0.875em] text-ink;
+}
+
+/* Print: a clean page for recruiters who print. Light colours, no chrome,
+   every step shown, and link targets written out. */
+@media print {
+  /* html:root:not() outranks both dark-mode selectors above. */
+  html:root:not([data-print]) {
+    --paper: 255 255 255;
+    --ink: 0 0 0;
+    --muted: 40 40 46;
+    --subtle: 80 80 88;
+    --border: 200 200 196;
+    --accent: 30 58 95;
+    --grid-dot: 255 255 255;
+    color-scheme: light;
+  }
+
+  .site-header,
+  .site-footer,
+  .shell-hint,
+  .theme-toggle,
+  [data-open-palette],
+  .replay-controls,
+  .dot-grid::before,
+  nav[aria-label="More projects"] {
+    display: none !important;
+  }
+
+  body {
+    font-size: 11pt;
+  }
+
+  main {
+    padding: 0 !important;
+  }
+
+  .bug-replay.is-stepping .replay-step.is-ahead {
+    opacity: 1;
+  }
+
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-family: var(--font-mono);
+    font-size: 0.8em;
+    color: rgb(var(--subtle));
+  }
+
+  section,
+  li,
+  figure {
+    break-inside: avoid;
+  }
+
+  * {
+    animation: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+  }
 }

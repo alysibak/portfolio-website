@@ -1,0 +1,55 @@
+---
+// TimeVault's 401 vs 403 decision, as two switches. Starts on the interesting case.
+---
+
+<figure class="auth-demo mt-4 rounded-md border border-border bg-paper p-4" data-auth>
+  <figcaption class="meta text-muted">Call an admin endpoint. Flip the switches.</figcaption>
+  <div class="mt-4 flex flex-wrap gap-x-6 gap-y-3">
+    <label class="switch-row">
+      <input type="checkbox" class="switch-input" data-token checked />
+      <span class="switch-track" aria-hidden="true"></span>
+      Valid token
+    </label>
+    <label class="switch-row">
+      <input type="checkbox" class="switch-input" data-role />
+      <span class="switch-track" aria-hidden="true"></span>
+      Admin role
+    </label>
+  </div>
+  <div class="mt-5" aria-live="polite">
+    <p class="flex items-baseline gap-3">
+      <span class="font-mono text-[2rem] font-medium leading-none tabular-nums text-bad" data-code>403</span>
+      <span class="font-mono text-[0.9375rem]" data-label>Forbidden</span>
+    </p>
+    <p class="mt-2 text-[0.9375rem] text-muted" data-why>We know who you are. You still can't come in.</p>
+  </div>
+</figure>
+
+<script>
+  const outcomes = {
+    none: { code: "401", label: "Unauthorized", why: "Who are you? There's no valid token, so log in first.", ok: false },
+    known: { code: "403", label: "Forbidden", why: "We know who you are. You still can't come in.", ok: false },
+    admin: { code: "200", label: "OK", why: "Known, and allowed.", ok: true },
+  };
+
+  function setUp() {
+    document.querySelectorAll<HTMLElement>("[data-auth]").forEach((demo) => {
+      const token = demo.querySelector<HTMLInputElement>("[data-token]")!;
+      const role = demo.querySelector<HTMLInputElement>("[data-role]")!;
+      const render = () => {
+        role.disabled = !token.checked;
+        const o = !token.checked ? outcomes.none : role.checked ? outcomes.admin : outcomes.known;
+        const code = demo.querySelector<HTMLElement>("[data-code]")!;
+        code.textContent = o.code;
+        code.classList.toggle("text-bad", !o.ok);
+        code.classList.toggle("text-good", o.ok);
+        demo.querySelector("[data-label]")!.textContent = o.label;
+        demo.querySelector("[data-why]")!.textContent = o.why;
+      };
+      token.addEventListener("change", render);
+      role.addEventListener("change", render);
+      render();
+    });
+  }
+  document.addEventListener("astro:page-load", setUp);
+</script>

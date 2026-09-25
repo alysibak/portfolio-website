@@ -1,0 +1,32 @@
+---
+import { Code } from "astro:components";
+import type { CodeExcerpt } from "../lib/data";
+
+interface Props {
+  excerpt: CodeExcerpt;
+}
+
+const { excerpt } = Astro.props;
+// "https://github.com/o/r/blob/main/a/b.ts" -> "a/b.ts"
+const file = decodeURIComponent(excerpt.source.split("/blob/")[1].split("/").slice(1).join("/"));
+---
+
+<figure class="code-excerpt mt-4 overflow-hidden rounded-md border border-border bg-paper">
+  <figcaption class="meta border-b border-border px-4 py-2.5 leading-relaxed text-muted">
+    {excerpt.caption}
+  </figcaption>
+  <Code
+    code={excerpt.code}
+    lang={excerpt.lang}
+    themes={{ light: "github-light", dark: "github-dark" }}
+    class="px-4 py-3.5 text-[0.8125rem] leading-relaxed"
+  />
+  <a
+    href={excerpt.source}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="meta block border-t border-border px-4 py-2 text-subtle transition-colors hover:text-accent"
+  >
+    {file}<span class="sr-only"> on GitHub (opens in a new tab)</span><span aria-hidden="true"> ↗</span>
+  </a>
+</figure>

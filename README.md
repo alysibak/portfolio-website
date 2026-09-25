@@ -20,6 +20,9 @@ Open [http://localhost:4321](http://localhost:4321).
 | `npm run build`   | Static build to `dist/` (+ `.vercel/output`) |
 | `npm run preview` | Serve the production build locally          |
 | `npm run check`   | `astro check` — types and template diagnostics |
+| `npm run verify`  | Content check (also runs before every build) |
+| `npm test`        | Browser tests on desktop and phone (build first) |
+| `npm run links`   | Checks every external link still works      |
 
 ## Layout
 

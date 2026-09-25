@@ -1,21 +1,53 @@
 ---
+import "@fontsource/source-sans-3/latin-400.css";
+import "@fontsource/source-sans-3/latin-500.css";
+import "@fontsource/source-sans-3/latin-600.css";
+import "@fontsource/jetbrains-mono/latin-400.css";
+import "@fontsource/jetbrains-mono/latin-500.css";
+import "@fontsource/jetbrains-mono/latin-700.css";
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 import Console from "../components/Console";
+import Palette from "../components/Palette";
 import DevToolsEgg from "../components/DevToolsEgg.astro";
-import { site } from "../lib/data";
+import { projects, site } from "../lib/data";
+import { ogCardFor } from "../lib/og";
 
 interface Props {
   title?: string;
+  /** One sentence for search results and link previews. */
+  description?: string;
   center?: boolean;
 }
 
-const { title = "Aly Sibak", center = false } = Astro.props;
-
-const description = site.description;
+const { title = "Aly Sibak", description = site.description, center = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
+const ogCard = ogCardFor(Astro.url.pathname);
+const ogImage = new URL(`/og/${ogCard.slug}.png`, Astro.site ?? Astro.url).href;
+
+// Tells search engines who this site is about. Home page only.
+const person =
+  Astro.url.pathname === "/"
+    ? JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Person",
+        name: site.name,
+        url: site.url,
+        email: `mailto:${site.email}`,
+        description: site.description,
+        affiliation: { "@type": "CollegeOrUniversity", name: site.education.school },
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: "Mississauga",
+          addressRegion: "ON",
+          addressCountry: "CA",
+        },
+        sameAs: [site.github, site.linkedin],
+        knowsAbout: [...new Set(projects.flatMap((p) => p.stack))],
+      })
+    : null;
 ---
 
 <!doctype html>
@@ -30,19 +62,38 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta name="twitter:card" content="summary" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${ogCard.title}: ${ogCard.subtitle}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    {person && <script type="application/ld+json" set:html={person} />}
     <!-- Vercel Web Analytics. Cookieless, so no consent banner is needed.
          Inert until Web Analytics is enabled for the project in the Vercel
          dashboard; 404s harmlessly on localhost and any non-Vercel host. -->
     <script defer src="/_vercel/insights/script.js"></script>
     <title>{title}</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>
+      // Apply a saved theme before first paint, and again after each client-side
+      // navigation (which replaces <html>'s attributes). Key matches src/lib/theme.ts.
+      (function () {
+        function apply() {
+          try {
+            var t = localStorage.getItem("theme");
+            if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+            else document.documentElement.removeAttribute("data-theme");
+          } catch (e) {}
+        }
+        apply();
+        if (!window.__themeSwap) {
+          window.__themeSwap = true;
+          document.addEventListener("astro:after-swap", apply);
+        }
+      })();
+    </script>
     <ClientRouter />
   </head>
   <body>
@@ -66,6 +117,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
     )}
 
     <Console client:idle transition:persist />
+    <Palette client:idle transition:persist />
     <DevToolsEgg />
     <script is:inline>
       // Buttons that open the console. The console hydrates on idle, so a tap
@@ -77,6 +129,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).href;
           var target = e.target instanceof Element && e.target.closest("[data-open-console]");
           if (!target) return;
           e.preventDefault();
+          window.__consoleCmd = target.getAttribute("data-cmd") || undefined;
           window.__consoleRequested = true;
           window.dispatchEvent(new Event("console:open"));
         });

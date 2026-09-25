@@ -1,0 +1,6 @@
+Contact: mailto:asibak@uoguelph.ca
+Expires: 2027-09-25T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://alysibak.vercel.app/.well-known/security.txt
+
+# Found a bug in this site? I would genuinely like to hear about it.

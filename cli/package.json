@@ -1,0 +1,17 @@
+{
+  "name": "alysibak",
+  "version": "1.0.0",
+  "description": "Aly Sibak's business card. Run: npx alysibak",
+  "type": "module",
+  "bin": {
+    "alysibak": "card.mjs"
+  },
+  "files": [
+    "card.mjs"
+  ],
+  "author": "Aly Sibak",
+  "homepage": "https://alysibak.vercel.app",
+  "engines": {
+    "node": ">=18"
+  }
+}

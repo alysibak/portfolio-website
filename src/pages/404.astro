@@ -1,0 +1,69 @@
+---
+import Base from "../layouts/Base.astro";
+import { projects } from "../lib/data";
+
+// Real routes, for "did you mean". The browser fills in the missing path.
+const routes = ["/", "/work", "/experience", ...projects.map((p) => `/work/${p.id}`)];
+---
+
+<Base title="Not found, Aly Sibak" description="That page doesn't exist.">
+  <div class="mx-auto max-w-xl">
+    <div class="overflow-hidden rounded-md border border-border bg-paper font-mono text-[0.8125rem] leading-relaxed" data-routes={JSON.stringify(routes)}>
+      <div class="border-b border-border px-4 py-2.5 text-accent">aly@portfolio shell</div>
+      <div class="px-4 py-4">
+        <p><span class="text-accent">aly@portfolio:~$</span> cd <span data-missing>that page</span></p>
+        <p class="text-bad">bash: cd: <span data-missing>that page</span>: No such file or directory</p>
+        <div class="mt-4 hidden" data-suggest>
+          <p class="text-muted">did you mean:</p>
+          <ul class="mt-1" data-suggest-list></ul>
+        </div>
+      </div>
+    </div>
+    <h1 class="mt-10 text-2xl font-medium">That page doesn't exist.</h1>
+    <p class="meta mt-4 flex flex-wrap gap-x-5 gap-y-2">
+      <a href="/" class="link">← Home</a>
+      <a href="/work" class="link">Work</a>
+      <button type="button" class="hint-open" data-open-console>Open the shell</button>
+    </p>
+  </div>
+</Base>
+
+<script>
+  // Edit distance, to suggest the closest real routes to a mistyped one.
+  function distance(a: string, b: string) {
+    const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+    for (let j = 1; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++)
+      for (let j = 1; j <= b.length; j++)
+        d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[a.length][b.length];
+  }
+
+  function suggest() {
+    const box = document.querySelector<HTMLElement>("[data-routes]");
+    if (!box) return;
+    const path = decodeURI(window.location.pathname).replace(/\/$/, "") || "/";
+    document.querySelectorAll("[data-missing]").forEach((el) => (el.textContent = path));
+    const routes: string[] = JSON.parse(box.dataset.routes ?? "[]");
+    const close = routes
+      .map((r) => ({ r, d: distance(path.toLowerCase(), r) }))
+      .filter(({ d }) => d <= Math.max(3, Math.floor(path.length / 3)))
+      .sort((a, b) => a.d - b.d)
+      .slice(0, 3);
+    if (!close.length) return;
+    const list = box.querySelector("[data-suggest-list]")!;
+    list.replaceChildren(
+      ...close.map(({ r }) => {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = r;
+        a.className = "link";
+        a.textContent = `  ${r}`;
+        li.append(a);
+        return li;
+      })
+    );
+    box.querySelector("[data-suggest]")!.classList.remove("hidden");
+  }
+  document.addEventListener("astro:page-load", suggest);
+</script>

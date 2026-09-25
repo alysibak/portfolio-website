@@ -1,0 +1,68 @@
+---
+// The CarInfo audit, one filter at a time. It mirrors the real check shown in
+// the code excerpt below it; no step claims a count the audit didn't report.
+const steps = [
+  { label: "Every record tagged electric", why: "Start from what the import claims." },
+  { label: "…with under 50 miles of EPA range", why: "A battery-only car goes further than that." },
+  { label: "…and a gas engine of 1.5 L or more", why: "A battery-only car has no gas engine." },
+  { label: "419 plug-in hybrids", why: "Mislabelled as electric and valued 60–70% too low. Fixed at the import." },
+];
+---
+
+<figure class="bug-replay mt-4 rounded-md border border-border bg-paper p-4" data-replay>
+  <figcaption class="meta text-muted">How the check narrows it down</figcaption>
+  <ol class="mt-4 space-y-3">
+    {
+      steps.map((step, i) => (
+        <li class="replay-step flex gap-3" data-step={i + 1}>
+          <span
+            class:list={[
+              "grid h-6 w-6 shrink-0 place-items-center rounded-full border font-mono text-[0.6875rem]",
+              i === steps.length - 1 ? "border-bad text-bad" : "border-accent text-accent",
+            ]}
+            aria-hidden="true"
+          >
+            {i + 1}
+          </span>
+          <div>
+            <p class:list={["text-[0.9375rem]", i === steps.length - 1 ? "font-medium text-bad" : "font-medium"]}>{step.label}</p>
+            <p class="meta mt-0.5 leading-relaxed text-muted">{step.why}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+  <div class="replay-controls meta mt-4 hidden gap-3">
+    <button type="button" class="rounded-full border border-border px-3 py-1.5 hover:border-accent" data-back>Back</button>
+    <button type="button" class="rounded-full border border-accent bg-accent px-3 py-1.5 text-paper" data-next>Next step</button>
+  </div>
+</figure>
+
+<script>
+  // Without JS every step shows. With it, the reader steps through; later steps
+  // stay visible but dimmed, so nothing is hidden.
+  function setUp() {
+    document.querySelectorAll<HTMLElement>("[data-replay]").forEach((box) => {
+      const steps = box.querySelectorAll<HTMLElement>(".replay-step");
+      const next = box.querySelector<HTMLButtonElement>("[data-next]")!;
+      const back = box.querySelector<HTMLButtonElement>("[data-back]")!;
+      let at = 1;
+      const render = () => {
+        steps.forEach((s, i) => s.classList.toggle("is-ahead", i + 1 > at));
+        back.disabled = at === 1;
+        next.textContent = at === steps.length ? "Start over" : "Next step";
+      };
+      next.addEventListener("click", () => {
+        at = at === steps.length ? 1 : at + 1;
+        render();
+      });
+      back.addEventListener("click", () => {
+        at = Math.max(1, at - 1);
+        render();
+      });
+      box.classList.add("is-stepping");
+      render();
+    });
+  }
+  document.addEventListener("astro:page-load", setUp);
+</script>

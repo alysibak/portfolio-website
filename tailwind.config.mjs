@@ -3,19 +3,13 @@ export default {
   content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
   theme: {
     extend: {
-      colors: {
-        paper: "#fafaf8",
-        ink: "#16161a",
-        muted: "#55555f",
-        subtle: "#707079",
-        border: "#e4e4e0",
-        accent: "#1e3a5f",
-        good: "#2f6b3a",
-        bad: "#9b2c2c",
-        teal: "#276b62",
-        amber: "#8a5209",
-        plum: "#7a4a8c",
-      },
+      // Channels live in CSS variables (src/styles/global.css) so dark mode can
+      // swap them; <alpha-value> keeps modifiers like bg-ink/30 working.
+      colors: Object.fromEntries(
+        ["paper", "ink", "muted", "subtle", "border", "accent", "good", "bad", "teal", "amber", "plum"].map(
+          (name) => [name, `rgb(var(--${name}) / <alpha-value>)`]
+        )
+      ),
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],

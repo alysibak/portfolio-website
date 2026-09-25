@@ -39,6 +39,15 @@ export type FindingChart = {
   after: number;
 };
 
+/** A short excerpt from the project's public repo, shown on its page. */
+export type CodeExcerpt = {
+  caption: string;
+  lang: "ts" | "js" | "python";
+  /** Link to the file on GitHub. Must be in the content check's allowlist. */
+  source: string;
+  code: string;
+};
+
 export type Project = {
   id: string;
   title: string;
@@ -55,6 +64,12 @@ export type Project = {
   finding?: string;
   findingChart?: FindingChart;
   diagram: Diagram;
+  /**
+   * What Aly used. On team projects, only the parts in the ownership line,
+   * so `grep` in the shell never implies he built a teammate's piece.
+   */
+  stack: string[];
+  code?: CodeExcerpt;
   caseStudy: CaseStudy;
   catOutput: string;
 };
@@ -94,6 +109,8 @@ export type Stat = {
 
 export const site = {
   name: "Aly Sibak",
+  /** Keep in step with `site` in astro.config.mjs; the content check compares them. */
+  url: "https://alysibak.vercel.app",
   roleLine: "I build and debug production systems",
   school: "Fourth-year Computer Science co-op, University of Guelph",
   location: "Mississauga, Ontario",
@@ -144,6 +161,22 @@ export const projects: Project[] = [
         { label: "Research UI", owned: true },
       ],
       beside: [{ label: "Ontario cost config", owned: true }],
+    },
+    stack: ["React", "TypeScript", "Vite", "Express", "PostgreSQL", "Vitest", "Playwright"],
+    code: {
+      caption: "The audit check that caught it: an electric car can't have a gas engine.",
+      lang: "js",
+      source:
+        "https://github.com/alysibak/carinfo/blob/main/server/scripts/audit-valuation-integrity.mjs",
+      code: `// PHEV misclassification
+const electric = cars.filter((c) => c.engine?.fuelType === 'electric');
+const shortRange = electric.filter((c) => {
+  const r = c.epa?.rangeMiles ?? 0;
+  return r > 0 && r < 50;
+});
+const withDisp = shortRange.filter(
+  (c) => c.engine?.displacement && c.engine.displacement >= 1.5
+);`,
     },
     caseStudy: {
       problem:
@@ -232,6 +265,7 @@ with nhtsa safety enrichment. solo. live and open source.
         { label: "SMS alerts", owned: false },
       ],
     },
+    stack: ["React", "Node.js", "Express", "Gemini API"],
     caseStudy: {
       problem:
         "A bystander at an emergency does not know what they are looking at or what to do first.",
@@ -310,6 +344,20 @@ emergency response assistant built in 36 hours. team of 4.
         { label: "QA + integration tests", owned: true },
       ],
     },
+    stack: ["Python", "Flask", "PyJWT", "PostgreSQL", "pytest"],
+    code: {
+      caption: "No valid token is a 401. A known user without the role is a 403.",
+      lang: "python",
+      source: "https://github.com/alysibak/timevault/blob/main/src/backend/signin/signin.py",
+      code: `# route.py: every protected endpoint starts here
+payload = _get_user_from_token()
+if not payload:
+    return jsonify({'error': 'Unauthorized'}), 401
+
+# signin.py: the admin door checks the role, not just the password
+if user[3] != 'admin':
+    return jsonify({'error': 'This account does not have admin privileges.'}), 403`,
+    },
     caseStudy: {
       decisions: [
         {
@@ -372,6 +420,20 @@ records platform over 57,000+ ww1 military records.
         { label: "Vitest suite", owned: true },
         { label: "Hashed sessions", owned: true },
       ],
+    },
+    stack: ["Next.js", "React", "TypeScript", "Drizzle ORM", "SQLite (libSQL)", "Zod", "bcrypt", "Vitest"],
+    code: {
+      caption: "Authorization in the query: the row must match the ID and the owner, or nothing changes.",
+      lang: "ts",
+      source:
+        "https://github.com/alysibak/mizan/blob/master/src/app/api/assets/%5Bid%5D/route.ts",
+      code: `// The where clause scopes the update to rows this user owns.
+const [row] = await db
+  .update(assets)
+  .set(parsed.data)
+  .where(and(eq(assets.id, id), eq(assets.userId, user.id)))
+  .returning();
+if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });`,
     },
     caseStudy: {
       problem:
@@ -463,6 +525,25 @@ export const coursework = {
     { label: "Discussion board (Java)", href: "https://github.com/alysibak/DiscussionBoard" },
   ],
 };
+
+/** How Aly works, each backed by a project that shows it. */
+export const principles = [
+  {
+    rule: "Check the output, not the import.",
+    proof: "419 misclassified hybrids, caught by checking results against what they should be.",
+    project: "carinfo",
+  },
+  {
+    rule: "Put authorization in the query.",
+    proof: "Every update matches the record and its owner, so a guessed ID reaches nothing.",
+    project: "mizan",
+  },
+  {
+    rule: "Say what I didn't build.",
+    proof: "Team projects name the parts teammates built, right next to mine.",
+    project: "bystander",
+  },
+];
 
 /** Numbers from personal projects only. Employer work stays vague. */
 export const highlights: Stat[] = [
@@ -585,18 +666,47 @@ export const navLinks = [
   { label: "Experience", href: "/experience" },
 ] as const;
 
+/** The technologies used most across projects, most-used first. */
+const topStack = Object.entries(
+  projects
+    .flatMap((p) => p.stack)
+    .reduce<Record<string, number>>((n, t) => ((n[t] = (n[t] ?? 0) + 1), n), {})
+)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 5)
+  .map(([tech]) => tech.toLowerCase());
+
+// Kept under ~40 columns so it fits a phone without wrapping.
+const neofetchLogo = ["    /\\    ", "   /  \\   ", "  / /\\ \\  ", " / ____ \\ ", "/_/    \\_\\"];
+const neofetchInfo = [
+  "aly@portfolio",
+  "-------------",
+  `school   ${site.education.school.replace("University of ", "").toLowerCase()}, year 4`,
+  "degree   cs co-op",
+  `stack    ${topStack.slice(0, 2).join(", ")}`,
+  `projects ${projects.length}, try 'ls projects'`,
+  `status   seeking ${site.seeking.label.toLowerCase()}`,
+  "shell    'help' for commands",
+];
+
 export const commandOutputs = {
   help: `available commands
 
-  whoami        who I am
-  ls            list sections
-  cat <name>    read a project case study
-  git log       career history
-  open <name>   open a project link
-  clear         clear the console
-  exit          close the console
+  whoami         who I am
+  ls             list sections
+  cat <name>     read a project case study
+  grep <tech>    projects that use a technology
+  ping <name>    check a live project answers
+  git log        career history
+  open <name>    open a project link
+  neofetch       the one-screen summary
+  man aly        the manual
+  history        what you've run
+  theme <mode>   dark, light, or system
+  clear          clear the console
+  exit           close the console
 
-tip: tab completes. most things you'd guess will work.`,
+tip: tab completes. try 'sudo hire aly'.`,
 
   whoami: `aly sibak
 fourth-year computer science co-op, university of guelph
@@ -664,6 +774,34 @@ Date:   2023
 
     init: started b.comp computer science (co-op) at guelph`,
 
+  neofetch: neofetchInfo.map((info, i) => (neofetchLogo[i] ?? "").padEnd(12) + info).join("\n"),
+
+  manAly: `ALY(1)                  User Commands                  ALY(1)
+
+NAME
+       aly - builds and debugs production systems
+
+SYNOPSIS
+       aly [--co-op winter-2027] [--from mississauga]
+
+DESCRIPTION
+       Fourth-year computer science co-op at the University
+       of Guelph. Two co-op terms on production systems.
+       Checks the output instead of trusting the import.
+
+OPTIONS
+       --hire    see 'sudo hire aly'
+
+SEE ALSO
+       cat(1): ${projects.map((p) => p.id).join(", ")}
+       git-log(1), grep(1)`,
+
+  sudoHire: `[sudo] password for recruiter: ********
+permission granted.
+
+opening your mail client. if it doesn't open:
+  ${site.email}`,
+
   sudoRmRf: "nice try.",
 } as const;
 
@@ -671,4 +809,9 @@ export const projectIds = projects.map((p) => p.id);
 
 export function getProject(id: string): Project | undefined {
   return projects.find((p) => p.id === id);
+}
+
+/** The project's running deployment, if it has one. Bystander was a demo. */
+export function liveUrl(project: Project): string | undefined {
+  return project.links.find((l) => l.label === "Live")?.href;
 }

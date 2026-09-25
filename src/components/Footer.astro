@@ -1,4 +1,5 @@
 ---
+import ThemeToggle from "./ThemeToggle.astro";
 import { site } from "../lib/data";
 
 interface Props {
@@ -9,17 +10,56 @@ interface Props {
 const { showAvailability = true } = Astro.props;
 ---
 
-<footer class="border-t border-border px-6 py-8 md:px-8">
+<footer class="site-footer border-t border-border px-6 py-8 md:px-8">
   <div class="mx-auto max-w-xl">
     <div class="meta flex flex-wrap gap-x-5 gap-y-2 text-subtle">
-      <a href={`mailto:${site.email}`} class="link-accent">{site.email}</a>
+      <span class="inline-flex items-center gap-2">
+        <a href={`mailto:${site.email}`} class="link-accent" data-email>{site.email}</a>
+        <button
+          type="button"
+          class="rounded border border-border px-1.5 py-0.5 text-[0.6875rem] text-subtle transition-colors hover:border-accent hover:text-accent"
+          data-copy={site.email}
+        >
+          copy
+        </button>
+      </span>
       <a href={site.github} target="_blank" rel="noopener noreferrer" class="link">GitHub<span class="sr-only"> (opens in a new tab)</span></a>
       <a href={site.linkedin} target="_blank" rel="noopener noreferrer" class="link">LinkedIn<span class="sr-only"> (opens in a new tab)</span></a>
       <a href={site.resume} target="_blank" rel="noopener noreferrer" class="link">Resume<span class="sr-only"> (opens in a new tab)</span></a>
+      <span class="-my-1.5"><ThemeToggle /></span>
     </div>
-    {showAvailability && <p class="meta mt-3 text-subtle">{site.availability}</p>}
-    <p class="meta mt-4 text-[0.6875rem] text-subtle/50" aria-hidden="true">
+    {showAvailability && <p class="meta mt-3 text-subtle" data-expires={site.seeking.start}>{site.availability}</p>}
+    <p class="meta mt-4 text-[0.6875rem] text-subtle" aria-hidden="true">
       [portfolio] render:static status:ok layer:surface shell:idle
     </p>
   </div>
 </footer>
+
+<script>
+  // Copy buttons: email links often do nothing on phones or without a mail app.
+  document.addEventListener("click", async (e) => {
+    const btn = e.target instanceof Element ? e.target.closest<HTMLButtonElement>("[data-copy]") : null;
+    if (!btn) return;
+    const label = btn.textContent;
+    try {
+      await navigator.clipboard.writeText(btn.dataset.copy ?? "");
+      btn.textContent = "copied";
+    } catch {
+      // No clipboard access: select the address so a long-press or Ctrl+C works.
+      const target = btn.parentElement?.querySelector("[data-email]");
+      if (target) window.getSelection()?.selectAllChildren(target);
+      btn.textContent = "selected";
+    }
+    setTimeout(() => (btn.textContent = label), 1600);
+  });
+
+  // "Seeking Winter 2027" goes stale once that term starts. Hide it rather
+  // than show an out-of-date claim; the content check also flags it at build.
+  function expire() {
+    const now = new Date();
+    document.querySelectorAll<HTMLElement>("[data-expires]").forEach((el) => {
+      if (now >= new Date(`${el.dataset.expires}-01T00:00:00`)) el.classList.add("hidden");
+    });
+  }
+  document.addEventListener("astro:page-load", expire);
+</script>

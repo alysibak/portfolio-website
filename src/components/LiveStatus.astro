@@ -1,0 +1,45 @@
+---
+import { liveUrl, type Project } from "../lib/data";
+
+interface Props {
+  project: Project;
+}
+
+const url = liveUrl(Astro.props.project);
+---
+
+{
+  url && (
+    <span class="live-status meta hidden items-center gap-1.5 text-subtle" data-status={url} aria-live="polite">
+      <span class="live-dot h-2 w-2 rounded-full bg-subtle/50" aria-hidden="true" />
+      <span data-status-text>checking</span>
+    </span>
+  )
+}
+
+<script>
+  import { probe } from "../lib/status";
+
+  // Each visitor's browser checks the live sites itself, so the dot is current.
+  // Hidden until an answer arrives, so there's never a stale or fake status.
+  function check() {
+    document.querySelectorAll<HTMLElement>("[data-status]").forEach(async (el) => {
+      const dot = el.querySelector<HTMLElement>(".live-dot")!;
+      const text = el.querySelector<HTMLElement>("[data-status-text]")!;
+      const { ok, ms } = await probe(el.dataset.status!, 10000);
+      // No answer could be the visitor's network (a company firewall, say),
+      // not the site. Show nothing rather than a false alarm.
+      if (!ok) return;
+      el.classList.replace("hidden", "inline-flex");
+      dot.classList.remove("bg-subtle/50");
+      if (ms <= 3000) {
+        dot.classList.add("bg-good");
+        text.textContent = `live · ${ms} ms`;
+      } else {
+        dot.classList.add("bg-amber");
+        text.textContent = `live · woke up in ${(ms / 1000).toFixed(1)} s`;
+      }
+    });
+  }
+  document.addEventListener("astro:page-load", check);
+</script>

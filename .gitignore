@@ -32,3 +32,7 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# test output
+/test-results/
+/playwright-report/

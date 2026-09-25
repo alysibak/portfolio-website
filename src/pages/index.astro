@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import HomeTerminal from "../components/HomeTerminal.astro";
 import Stats from "../components/Stats.astro";
+import Principles from "../components/Principles.astro";
 import { highlights, navLinks, site } from "../lib/data";
 
 const [first, ...rest] = site.name.split(" ");
@@ -10,6 +11,8 @@ const [first, ...rest] = site.name.split(" ");
 <Base title="Aly Sibak" center>
   <div class="dot-grid relative isolate flex min-h-[calc(100vh-5rem)] flex-col justify-center px-6 py-16 md:px-8">
     <div class="mx-auto w-full max-w-xl">
+      {/* Filled in by the script below for /for/<company> links. */}
+      <p class="meta mb-4 hidden text-accent" data-for-greeting></p>
       <h1 class="text-[2.25rem] font-medium leading-tight tracking-tight md:text-[2.5rem]">
         <span class="inline-block" transition:name="site-name">{first}</span>
         {rest.join(" ")}
@@ -17,13 +20,17 @@ const [first, ...rest] = site.name.split(" ");
 
       <HomeTerminal />
 
-      <p class="meta mt-5 flex items-center gap-2.5 text-accent">
+      <p class="meta mt-5 flex items-center gap-2.5 text-accent" data-expires={site.seeking.start}>
         <span class="pulse-dot" aria-hidden="true"></span>
         {site.availability}
       </p>
 
       <div class="mt-8">
         <Stats stats={highlights} />
+      </div>
+
+      <div class="mt-10">
+        <Principles />
       </div>
 
       <nav aria-label="Site" class="meta mt-10 flex flex-wrap gap-x-6 gap-y-2.5 text-muted">
@@ -37,3 +44,32 @@ const [first, ...rest] = site.name.split(" ");
     </div>
   </div>
 </Base>
+
+<script>
+  // Personal links for applications: /for/shopify (a Vercel rewrite serves this
+  // page) or /?for=shopify. The name is shown as text only, never as HTML.
+  function greet() {
+    const el = document.querySelector<HTMLElement>("[data-for-greeting]");
+    if (!el) return;
+    const fromPath = window.location.pathname.match(/^\/for\/([^/]+)/)?.[1];
+    let raw = fromPath ?? new URLSearchParams(window.location.search).get("for") ?? "";
+    try {
+      raw = decodeURIComponent(raw);
+    } catch {
+      // A malformed link: use it as typed.
+    }
+    let name = raw.replace(/[-_+]+/g, " ").replace(/[^\p{L}\p{N} &.']/gu, "").trim().slice(0, 40);
+    try {
+      if (name) sessionStorage.setItem("for", name);
+      else name = sessionStorage.getItem("for") ?? "";
+    } catch {
+      // Storage can be blocked; the greeting just won't carry over.
+    }
+    if (!name) return;
+    // "shopify" -> "Shopify"; anything with capitals is kept as typed ("RBC").
+    if (name === name.toLowerCase()) name = name.replace(/\b\p{L}/gu, (c) => c.toUpperCase());
+    el.textContent = `Hi, ${name} team. Thanks for taking a look.`;
+    el.classList.remove("hidden");
+  }
+  document.addEventListener("astro:page-load", greet);
+</script>

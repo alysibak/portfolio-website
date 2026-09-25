@@ -1,16 +1,27 @@
 import {
   commandOutputs,
   getProject,
+  liveUrl,
   projectIds,
+  projects,
+  site,
 } from "./data";
+import type { ThemeChoice } from "./theme";
 
 export const COMMANDS = [
   "help",
   "whoami",
   "ls",
   "cat",
+  "grep",
+  "ping",
   "git",
   "open",
+  "neofetch",
+  "man",
+  "history",
+  "theme",
+  "sudo",
   "clear",
   "exit",
 ] as const;
@@ -29,6 +40,11 @@ export type ExecuteResult = {
   lines: ShellLine[];
   state: ShellState;
   openUrl?: string;
+  /** A mailto: link to follow. Separate from openUrl, which opens a tab. */
+  mailto?: string;
+  theme?: ThemeChoice;
+  /** A live site to time; the console prints the answer when it arrives. */
+  ping?: { id: string; url: string };
 };
 
 function normalizeProjectArg(arg: string): string {
@@ -50,7 +66,7 @@ export function getCompletion(input: string): string | null {
   const cmd = parts[0].toLowerCase();
   const last = parts[parts.length - 1]?.toLowerCase() ?? "";
 
-  if ((cmd === "cat" || cmd === "open") && parts.length >= 2 && !endsWithSpace) {
+  if ((cmd === "cat" || cmd === "open" || cmd === "ping") && parts.length >= 2 && !endsWithSpace) {
     const matches = projectIds.filter((id) => id.startsWith(last));
     if (matches.length === 1) {
       return parts.slice(0, -1).join(" ") + " " + matches[0];
@@ -209,6 +225,95 @@ export function executeCommand(
       };
     }
 
+    case "theme": {
+      const choice = parts[1]?.toLowerCase();
+      if (choice === "dark" || choice === "light" || choice === "system") {
+        lines.push({ type: "output", text: `theme: ${choice}`, variant: "dim" });
+        return { lines, state: { history: newHistory }, theme: choice };
+      }
+      lines.push({
+        type: "output",
+        text: "usage: theme dark | light | system",
+        variant: "error",
+      });
+      break;
+    }
+
+    case "grep": {
+      const term = arg.toLowerCase().replace(/^["']|["']$/g, "").trim();
+      if (!term) {
+        lines.push({ type: "output", text: "usage: grep <tech>   e.g. grep react", variant: "error" });
+        break;
+      }
+      const hits = projects.filter((p) =>
+        [p.title, p.tagline, ...p.stack].some((field) => field.toLowerCase().includes(term))
+      );
+      if (hits.length === 0) {
+        lines.push({ type: "output", text: `grep: no project mentions "${term}"`, variant: "dim" });
+        break;
+      }
+      const width = Math.max(...hits.map((p) => p.id.length)) + 2;
+      lines.push({
+        type: "output",
+        text: [
+          `${hits.length} project${hits.length === 1 ? "" : "s"} mention "${term}":`,
+          "",
+          ...hits.map((p) => `  ${p.id.padEnd(width)}${p.stack.join(", ").toLowerCase()}`),
+          "",
+          hits.some((p) => p.role === "team")
+            ? "team projects list only the parts i built. try 'cat <name>'."
+            : "try 'cat <name>'.",
+        ].join("\n"),
+      });
+      break;
+    }
+
+    case "ping": {
+      if (!arg) {
+        lines.push({ type: "output", text: "usage: ping <name>   e.g. ping carinfo", variant: "error" });
+        break;
+      }
+      const project = getProject(normalizeProjectArg(arg));
+      if (!project) {
+        lines.push({ type: "output", text: `ping: ${arg}: unknown project. try 'ls projects'.`, variant: "error" });
+        break;
+      }
+      const url = liveUrl(project);
+      if (!url) {
+        lines.push({
+          type: "output",
+          text: `ping: ${project.id} was a hackathon demo. there's no live server to ping.`,
+          variant: "dim",
+        });
+        break;
+      }
+      lines.push({ type: "output", text: `PING ${new URL(url).host}`, variant: "dim" });
+      return { lines, state: { history: newHistory }, ping: { id: project.id, url } };
+    }
+
+    case "neofetch":
+      lines.push({ type: "output", text: commandOutputs.neofetch });
+      break;
+
+    case "man":
+      if (parts[1]?.toLowerCase() === "aly") {
+        lines.push({ type: "output", text: commandOutputs.manAly });
+      } else {
+        lines.push({
+          type: "output",
+          text: parts[1] ? `No manual entry for ${parts[1]}. try 'man aly'.` : "What manual page do you want? try 'man aly'.",
+          variant: "error",
+        });
+      }
+      break;
+
+    case "history":
+      lines.push({
+        type: "output",
+        text: newHistory.map((h, i) => `${String(i + 1).padStart(4)}  ${h}`).join("\n"),
+      });
+      break;
+
     case "clear":
       return {
         lines: [{ type: "system", text: "__CLEAR__" }],
@@ -222,6 +327,13 @@ export function executeCommand(
     case "sudo":
       if (trimmed.toLowerCase().includes("rm -rf")) {
         lines.push({ type: "output", text: commandOutputs.sudoRmRf });
+      } else if (/^sudo\s+hire(\s+aly)?$/i.test(trimmed)) {
+        lines.push({ type: "output", text: commandOutputs.sudoHire });
+        return {
+          lines,
+          state: { history: newHistory },
+          mailto: `mailto:${site.email}?subject=${encodeURIComponent("Winter 2027 co-op")}`,
+        };
       } else {
         lines.push({
           type: "output",

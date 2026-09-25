@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
+import { applyTheme } from "../lib/theme";
+import { probe } from "../lib/status";
 import {
   executeCommand,
   getCompletion,
@@ -33,6 +35,20 @@ function hangingIndent(row: string): number {
   return lead;
 }
 
+/** Tappable commands, for phones and for anyone who'd rather not type. */
+const QUICK_COMMANDS = [
+  "help",
+  "whoami",
+  "cat carinfo",
+  "grep react",
+  "ping carinfo",
+  "git log",
+  "neofetch",
+  "man aly",
+];
+
+type Queued = { cmd: string; fromLink: boolean };
+
 function bootLines(): ShellLine[] {
   const result = executeCommand({ history: [] }, "help");
   return [
@@ -51,6 +67,9 @@ export default function Console() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const draftRef = useRef("");
   const returnFocusRef = useRef<HTMLElement | null>(null);
+  /** A command to run as soon as the console is open (from a link or button). */
+  const queuedRef = useRef<Queued | null>(null);
+  const runRef = useRef<(cmd: string, fromLink?: boolean) => void>(() => {});
 
   const openWithHelp = useCallback(() => {
     returnFocusRef.current =
@@ -79,18 +98,43 @@ export default function Console() {
 
   // Opened from a button rather than the keyboard. Rendering synchronously and
   // focusing inside the tap is what lets mobile browsers raise the keyboard.
+  // A button can carry a command (data-cmd) to run once the console is open.
   useEffect(() => {
+    const takeCommand = () => {
+      const cmd = window.__consoleCmd;
+      window.__consoleCmd = undefined;
+      if (cmd) queuedRef.current = { cmd, fromLink: false };
+    };
     const onRequest = () => {
       window.__consoleRequested = false;
+      takeCommand();
       flushSync(openWithHelp);
       inputRef.current?.focus();
     };
     if (window.__consoleRequested) {
       window.__consoleRequested = false;
+      takeCommand();
       openWithHelp();
     }
     window.addEventListener("console:open", onRequest);
     return () => window.removeEventListener("console:open", onRequest);
+  }, [openWithHelp]);
+
+  // Links like /?cmd=cat+carinfo open the shell and run the command. Commands
+  // that would open a tab or a mail client only print when run from a link.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cmd = params.get("cmd");
+    if (!cmd) return;
+    params.delete("cmd");
+    const query = params.toString();
+    window.history.replaceState(
+      window.history.state,
+      "",
+      window.location.pathname + (query ? `?${query}` : "") + window.location.hash
+    );
+    queuedRef.current = { cmd: cmd.slice(0, 200), fromLink: true };
+    openWithHelp();
   }, [openWithHelp]);
 
   const scrollBottom = useCallback(() => {
@@ -98,16 +142,20 @@ export default function Console() {
     if (el) el.scrollTop = el.scrollHeight;
   }, []);
 
+  // Focus once on open, not on every new line: tapping a quick command on a
+  // phone shouldn't pull the keyboard up over the output.
   useEffect(() => {
-    if (open) {
-      inputRef.current?.focus();
-      scrollBottom();
-    }
+    if (open) inputRef.current?.focus();
+  }, [open]);
+
+  useEffect(() => {
+    if (open) scrollBottom();
   }, [open, lines, scrollBottom]);
 
   const runCommand = useCallback(
-    (cmd: string) => {
-      const { lines: newLines, state, openUrl } = executeCommand(shell, cmd);
+    (cmd: string, fromLink = false) => {
+      const { lines: newLines, state, openUrl, mailto, theme, ping } = executeCommand(shell, cmd);
+      if (theme) applyTheme(theme);
 
       for (const line of newLines) {
         if (line.type === "system" && line.text === "__CLOSE__") {
@@ -123,8 +171,37 @@ export default function Console() {
         }
       }
 
-      if (openUrl) {
+      if (openUrl && !fromLink) {
         window.open(openUrl, "_blank", "noopener,noreferrer");
+      }
+      if (mailto && !fromLink) {
+        window.location.href = mailto;
+      }
+      if (ping) {
+        const host = new URL(ping.url).host;
+        probe(ping.url).then(({ ok, ms }) => {
+          const reply: ShellLine = ok
+            ? {
+                type: "output",
+                text:
+                  `reply from ${host}: time=${ms} ms` +
+                  (ms > 3000 ? "\n(slow start: free-tier hosts sleep when idle)" : ""),
+              }
+            : {
+                type: "output",
+                text:
+                  ms < 1500
+                    ? `ping: couldn't reach ${host}. check your connection.`
+                    : `no reply from ${host} after ${Math.round(ms / 1000)} s. free-tier hosts sleep; try again.`,
+                variant: "error",
+              };
+          // Keep the prompt last.
+          setLines((prev) =>
+            prev[prev.length - 1]?.type === "prompt"
+              ? [...prev.slice(0, -1), reply, prev[prev.length - 1]]
+              : [...prev, reply]
+          );
+        });
       }
 
       setLines((prev) => [...prev, ...newLines, { type: "prompt" }]);
@@ -135,6 +212,17 @@ export default function Console() {
     },
     [shell, close]
   );
+
+  useEffect(() => {
+    runRef.current = runCommand;
+  }, [runCommand]);
+
+  useEffect(() => {
+    if (!open || !queuedRef.current) return;
+    const { cmd, fromLink } = queuedRef.current;
+    queuedRef.current = null;
+    runRef.current(cmd, fromLink);
+  }, [open]);
 
   const handleGlobalKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -218,7 +306,7 @@ export default function Console() {
     >
       <button
         type="button"
-        className="console-backdrop absolute inset-0 bg-ink/30"
+        className="console-backdrop absolute inset-0 bg-black/40"
         aria-label="Close console"
         onClick={close}
       />
@@ -263,9 +351,11 @@ export default function Console() {
                 </div>
               );
             }
+            // System lines are control signals (clear, close), never printed.
+            if (line.type === "system") return null;
             const color =
               line.variant === "error"
-                ? "text-red-700"
+                ? "text-bad"
                 : line.variant === "dim"
                   ? "text-subtle"
                   : "text-muted";
@@ -288,6 +378,19 @@ export default function Console() {
           })}
         </div>
 
+        <div className="flex gap-1.5 overflow-x-auto border-t border-border px-4 py-2 [scrollbar-width:none]">
+          {QUICK_COMMANDS.map((cmd) => (
+            <button
+              key={cmd}
+              type="button"
+              onClick={() => runCommand(cmd)}
+              className="shrink-0 rounded-full border border-border px-2.5 py-1 font-mono text-[0.75rem] text-muted transition-colors hover:border-accent hover:text-accent"
+            >
+              {cmd}
+            </button>
+          ))}
+        </div>
+
         <form
           className="flex items-center gap-2 border-t border-border px-4 py-3"
           onSubmit={(e) => {
@@ -300,6 +403,7 @@ export default function Console() {
           </span>
           <input
             ref={inputRef}
+            autoFocus
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
