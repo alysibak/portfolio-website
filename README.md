@@ -3,7 +3,8 @@
 Personal portfolio for Aly Sibak. Built with [Astro](https://astro.build), styled with
 Tailwind, deployed as a static site on Vercel.
 
-The site is small on purpose: three pages, one content file, and an interactive shell.
+Home, Work (with a page per project), Experience, and Resume, all rendered from one
+content file, plus an interactive shell.
 
 ## Getting started
 
@@ -37,27 +38,33 @@ src/
     data.ts       all site content lives here
     shell.ts      command parsing for the console
   styles/         global.css — Tailwind entry + component classes
-public/           resume PDF, favicon, images
+public/           favicon, robots.txt, security.txt
 ```
 
 ## Editing content
 
-Everything user-facing — bio, projects, experience, and the shell's command
-output — lives in `src/lib/data.ts`. Editing that file is usually the whole job;
-the pages just map over it.
+Everything user-facing — bio, projects, experience, the resume, and the shell's
+command output — lives in `src/lib/data.ts`. Editing that file is usually the
+whole job; the pages just map over it. The `/resume` page reads the same records
+as the rest of the site, so update the resume there too.
 
-Each project carries a `bug` / `trace` / `fix` / `impact` case file plus a
-`catOutput` string, which is what the console prints for `cat <project>`. When
-you add or edit a project, update both — the page and the console read the same
-record but render it differently.
+Each project carries a case study (problem, constraints, decisions, outcome), a
+diagram, its stack, a shorter `resume` entry, and a `catOutput` string, which is
+what the console prints for `cat <project>`. When you edit a project, update each
+of these: the pages, the resume, and the console read the same record but render
+it differently.
 
 ## The console
 
 Press <kbd>/</kbd> or <kbd>~</kbd> anywhere to open an interactive shell.
 Supported commands are defined in `src/lib/shell.ts`: `help`, `whoami`, `ls`,
-`cat <project>`, `git log`, `open <project>`, `clear`, `exit`. Tab completes.
+`cat <project>`, `grep <tech>`, `ping <project>`, `git log`, `open <project>`,
+`neofetch`, `man aly`, `history`, `theme <mode>`, `sudo hire aly`, `clear`,
+`exit`. Tab completes. Links like `/?cmd=cat+carinfo` open the shell and run a
+command. <kbd>Ctrl</kbd>+<kbd>K</kbd> opens site search.
 
 ## Deployment
 
 Vercel builds from `main` using `@astrojs/vercel/static`. Redirects for retired
-routes (`/projects`, `/skills`, `/contact`) live in `vercel.json`.
+routes (`/projects`, `/skills`, `/contact`, and the old resume PDF) live in
+`vercel.json`, along with the security headers.

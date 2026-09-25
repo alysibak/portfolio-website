@@ -59,6 +59,14 @@ export default function Palette() {
         keywords: "co-op teaching leadership education timeline",
         run: () => navigate("/experience"),
       },
+      {
+        id: "resume",
+        label: "Resume",
+        hint: "/resume",
+        group: "Pages",
+        keywords: "cv skills education",
+        run: () => navigate("/resume"),
+      },
       ...projects.map<Item>((p) => ({
         id: `project-${p.id}`,
         label: p.title,
@@ -92,7 +100,6 @@ export default function Palette() {
           }
         },
       },
-      { id: "resume", label: "Resume (PDF)", hint: "opens in a new tab", group: "Actions", keywords: "cv", run: () => openTab(site.resume) },
       {
         id: "theme",
         label: "Toggle dark mode",
@@ -134,6 +141,11 @@ export default function Palette() {
     const onClick = (e: MouseEvent) => {
       if (e.target instanceof Element && e.target.closest("[data-open-palette]")) show();
     };
+    window.__paletteReady = true;
+    if (window.__paletteRequested) {
+      window.__paletteRequested = false;
+      show();
+    }
     window.addEventListener("keydown", onKey);
     document.addEventListener("click", onClick);
     return () => {

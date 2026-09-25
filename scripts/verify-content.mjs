@@ -42,6 +42,8 @@ const {
   highlights,
   teachingStats,
   teachingNote,
+  teaching,
+  skills,
   principles,
   coursework,
   commandOutputs,
@@ -94,6 +96,8 @@ const content = {
   highlights,
   teachingStats,
   teachingNote,
+  teaching,
+  skills,
   principles,
   coursework,
   commandOutputs,
@@ -221,6 +225,13 @@ for (const [path, str] of allStrings) {
   }
 }
 
+// 17. No phone number anywhere on the site.
+for (const [path, str] of allStrings) {
+  if (/(\+?1[\s.-]?)?\(?\b\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}\b/.test(str)) {
+    fail("phone", `${path} looks like it contains a phone number. Don't publish one.`);
+  }
+}
+
 // 12. Every principle points at a real project.
 for (const p of principles) {
   if (!projects.some((proj) => proj.id === p.project)) {
@@ -282,20 +293,15 @@ if (!astroConfig.includes(`site: "${site.url}"`)) {
   fail("site-url", `site.url (${site.url}) does not match \`site\` in astro.config.mjs.`);
 }
 
-// 10. The resume link must point at a file that exists.
-const resumePath = fileURLToPath(
-  new URL(`../public${site.resume}`, import.meta.url)
-);
-if (!existsSync(resumePath)) {
-  fail(
-    "resume",
-    `site.resume points at ${site.resume}, which is not in public/.`
-  );
+// 10. The resume is a page on the site, not a download.
+if (site.resume !== "/resume" || !existsSync(fileURLToPath(new URL("../src/pages/resume.astro", import.meta.url)))) {
+  fail("resume", `site.resume should be "/resume", served by src/pages/resume.astro.`);
 }
 
-// 11. Employer work stays vague. Anything tied to an employer names the
-//     domain, never security findings inside it: that is the employer's
-//     information to disclose, not ours. Personal projects are exempt.
+// 11. Employer work stays vague, matching the resume. Anything tied to an
+//     employer describes the kind of work, never security findings or client
+//     counts: that is the employer's information to disclose, not ours.
+//     Personal projects are exempt.
 const employerStrings = [
   ...collectStrings(experienceItems, "experienceItems"),
   ["commandOutputs.gitLog", commandOutputs.gitLog],
@@ -303,7 +309,7 @@ const employerStrings = [
   ["site.description", site.description],
 ];
 const CONFIDENTIAL_RE =
-  /vulnerab|security\s+(defect|flaw|hole|issue|bug)|exploit|breach|misconfigur/i;
+  /vulnerab|security\s+(defect|flaw|hole|issue|bug)|exploit|breach|misconfigur|\b\d[\d,]*\+?\s+(enterprise\s+)?(clients?|customers?|facilities|sites|tenants)\b/i;
 for (const [path, str] of employerStrings) {
   const hit = str.match(CONFIDENTIAL_RE);
   if (hit) {

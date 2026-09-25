@@ -133,6 +133,20 @@ const person =
           window.__consoleRequested = true;
           window.dispatchEvent(new Event("console:open"));
         });
+
+        // Shortcuts pressed before the shell or search has loaded are queued
+        // the same way. Once each loads, it handles its own keys.
+        document.addEventListener("keydown", function (e) {
+          var t = e.target;
+          if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+          if (!window.__paletteReady && (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+            e.preventDefault();
+            window.__paletteRequested = true;
+          } else if (!window.__consoleReady && !e.metaKey && !e.ctrlKey && (e.key === "/" || e.key === "~")) {
+            e.preventDefault();
+            window.__consoleRequested = true;
+          }
+        });
       }
     </script>
   </body>

@@ -1,12 +1,14 @@
 ---
 interface Props {
   stack: string[];
+  /** What the list is, for screen readers. */
+  label?: string;
 }
 
-const { stack } = Astro.props;
+const { stack, label = "Stack" } = Astro.props;
 ---
 
-<ul class="flex flex-wrap gap-1.5" aria-label="Stack">
+<ul class="flex flex-wrap gap-1.5" aria-label={label}>
   {
     stack.map((tech) => (
       <li class="meta rounded-full border border-border px-2.5 py-1 text-[0.75rem] text-muted">{tech}</li>

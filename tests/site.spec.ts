@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const pages = ["/", "/work", "/experience", "/work/carinfo", "/work/bystander", "/work/timevault", "/work/mizan"];
+const pages = ["/", "/work", "/experience", "/resume", "/work/carinfo", "/work/bystander", "/work/timevault", "/work/mizan"];
 
 for (const path of pages) {
   test(`${path} renders cleanly`, async ({ page }) => {
@@ -23,11 +23,9 @@ test("unknown pages get the 404 with a suggestion", async ({ page }) => {
 
 test("the shell opens and runs a command", async ({ page, isMobile }) => {
   await page.goto("/");
+  // No waiting for the shell to load: an early key press or tap is queued.
   if (isMobile) await page.locator("[data-whoami]").tap();
-  else {
-    await page.waitForFunction(() => document.querySelector("astro-island:not([ssr])"));
-    await page.keyboard.press("/");
-  }
+  else await page.keyboard.press("/");
   const input = page.getByLabel("Console input");
   await expect(input).toBeVisible();
   await input.fill("cat carinfo");
@@ -55,7 +53,6 @@ test("the theme choice survives navigation", async ({ page }) => {
 test("Ctrl+K finds a project by technology", async ({ page, isMobile }) => {
   test.skip(isMobile, "keyboard shortcut");
   await page.goto("/");
-  await page.waitForFunction(() => document.querySelectorAll("astro-island:not([ssr])").length >= 2);
   await page.keyboard.press("Control+k");
   await expect(page.getByRole("combobox")).toBeFocused();
   await page.keyboard.type("flask");

@@ -48,6 +48,13 @@ export type CodeExcerpt = {
   code: string;
 };
 
+/** How a project reads on the resume page: shorter and more general than its case study. */
+export type ProjectResume = {
+  label: string;
+  stack: string[];
+  bullets: string[];
+};
+
 export type Project = {
   id: string;
   title: string;
@@ -70,6 +77,7 @@ export type Project = {
    */
   stack: string[];
   code?: CodeExcerpt;
+  resume: ProjectResume;
   caseStudy: CaseStudy;
   catOutput: string;
 };
@@ -87,6 +95,9 @@ export type TimelineEntry = {
   role: string;
   org: string;
   note?: string;
+  /** Resume detail for paid roles: stack and bullets, as general as the resume. */
+  stack?: string[];
+  bullets?: string[];
   current?: boolean;
 };
 
@@ -98,7 +109,14 @@ export type LeadershipItem = {
   org: string;
   period: string;
   context: string;
+  /** The line for this role on the resume page. Omit to leave it off the resume. */
+  resume?: string;
   current?: boolean;
+};
+
+export type SkillGroup = {
+  label: string;
+  items: string[];
 };
 
 export type Stat = {
@@ -122,11 +140,13 @@ export const site = {
   email: "asibak@uoguelph.ca",
   github: "https://github.com/alysibak",
   linkedin: "https://www.linkedin.com/in/aly-sibak-721b85252",
-  resume: "/Aly_Sibak_Base_Resume_1Page.pdf",
+  resume: "/resume",
   education: {
-    degree: "Bachelor of Computing (Honours), Computer Science, Co-op",
+    degree: "Bachelor of Computing (Honours), Computer Science (Co-op)",
     school: "University of Guelph",
-    detail: "Expected April 2028",
+    period: "2023 – Present",
+    detail: "Graduating April 2028",
+    highlights: ["Major Average 85%", "Dean's Honours List x3"],
     start: "2023-09",
     end: "2028-04",
   },
@@ -163,6 +183,14 @@ export const projects: Project[] = [
       beside: [{ label: "Ontario cost config", owned: true }],
     },
     stack: ["React", "TypeScript", "Vite", "Express", "PostgreSQL", "Vitest", "Playwright"],
+    resume: {
+      label: "car discovery and comparison platform",
+      stack: ["React", "TypeScript", "Express", "PostgreSQL"],
+      bullets: [
+        "Built a full-stack comparison platform over a large public vehicle dataset",
+        "Found and fixed a data import issue that was skewing cost estimates",
+      ],
+    },
     code: {
       caption: "The audit check that caught it: an electric car can't have a gas engine.",
       lang: "js",
@@ -266,6 +294,14 @@ with nhtsa safety enrichment. solo. live and open source.
       ],
     },
     stack: ["React", "Node.js", "Express", "Gemini API"],
+    resume: {
+      label: "emergency response tool",
+      stack: ["React", "Node.js", "Express", "Google Gemini"],
+      bullets: [
+        "Won Best Use of Presage Technologies at HackCanada 2026",
+        "Built the frontend, backend and AI integration with a four-person team in 36 hours",
+      ],
+    },
     caseStudy: {
       problem:
         "A bystander at an emergency does not know what they are looking at or what to do first.",
@@ -321,11 +357,11 @@ emergency response assistant built in 36 hours. team of 4.
     id: "timevault",
     title: "TimeVault",
     tagline: "Records platform over 57,000+ WWI military records.",
-    year: "2026",
+    year: "2025",
     role: "team",
     teamSize: 8,
     ownership:
-      "I owned the Flask REST API layer serving three ML models and carried QA and integration testing. I did not build the ML models.",
+      "I built the Flask API layer, access control, and audit logging, trained the machine learning models, and carried integration testing for the team. The web client was built by teammates.",
     context: "Course project, 8-person agile team.",
     links: [
       { label: "Live", href: "https://timevault-web.onrender.com" },
@@ -337,14 +373,22 @@ emergency response assistant built in 36 hours. team of 4.
         { label: "Web client", owned: false },
         { label: "JWT roles", owned: true },
         { label: "Flask REST API", owned: true, key: true },
-        { label: "3 ML models", owned: false },
+        { label: "3 ML models", owned: true },
       ],
       beside: [
         { label: "Request log", owned: true },
         { label: "QA + integration tests", owned: true },
       ],
     },
-    stack: ["Python", "Flask", "PyJWT", "PostgreSQL", "pytest"],
+    stack: ["Python", "Flask", "PyJWT", "PostgreSQL", "scikit-learn", "pytest"],
+    resume: {
+      label: "historical records platform",
+      stack: ["Python", "Flask", "PostgreSQL"],
+      bullets: [
+        "Built the API layer, access control and audit logging with an eight-person Agile team",
+        "Trained machine learning models and carried integration testing for the team",
+      ],
+    },
     code: {
       caption: "No valid token is a 401. A known user without the role is a 403.",
       lang: "python",
@@ -379,13 +423,14 @@ if user[3] != 'admin':
         },
       ],
     },
-    catOutput: `timevault, 2026
+    catOutput: `timevault, 2025
 records platform over 57,000+ ww1 military records.
 8-person agile course team.
 
-  ownership i owned the flask rest api layer serving three ml
-            models and carried qa and integration testing. i
-            did not build the ml models.
+  ownership i built the flask api layer, access control,
+            and audit logging, trained the machine learning
+            models, and carried integration testing for the
+            team. the web client was built by teammates.
 
   decisions three roles enforced through jwt. admin endpoints
             return 401 without a token and 403 without the
@@ -403,6 +448,7 @@ records platform over 57,000+ ww1 military records.
     id: "mizan",
     title: "Mizan",
     tagline: "Personal wealth and asset tracker with a rules-based calculation engine.",
+    year: "2026",
     role: "solo",
     context: "Personal project. Live and open source.",
     links: [
@@ -421,7 +467,15 @@ records platform over 57,000+ ww1 military records.
         { label: "Hashed sessions", owned: true },
       ],
     },
-    stack: ["Next.js", "React", "TypeScript", "Drizzle ORM", "SQLite (libSQL)", "Zod", "bcrypt", "Vitest"],
+    stack: ["Next.js", "React", "TypeScript", "Drizzle ORM", "SQLite (libSQL)", "Zod", "bcrypt", "Vitest", "Docker"],
+    resume: {
+      label: "personal finance tracker",
+      stack: ["Next.js", "React", "TypeScript", "Docker"],
+      bullets: [
+        "Built a full-stack finance tracker with secure, server-verified sessions",
+        "Kept the calculation logic isolated and covered by automated tests",
+      ],
+    },
     code: {
       caption: "Authorization in the query: the row must match the ID and the owner, or nothing changes.",
       lang: "ts",
@@ -480,7 +534,7 @@ if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });`,
       outcome:
         "Live and open source. The engine is testable without a database, and the authorization model has no reachable cross-account path.",
     },
-    catOutput: `mizan
+    catOutput: `mizan, 2026
 personal wealth and asset tracker with a rules-based
 calculation engine. solo. live and open source.
 
@@ -569,9 +623,19 @@ export const timeline: TimelineEntry[] = [
     start: "2026-05",
     end: "2026-09",
     period: "May–Sep 2026",
-    role: "Source Protection Software Developer (Co-op)",
+    role: "Software Developer (Co-op)",
     org: "Township of Centre Wellington",
-    note: "LSWIMS, a multi-tenant Clean Water Act compliance platform used by municipalities and conservation authorities across Ontario.",
+    note: "Full-stack development on municipal government software.",
+    stack: ["C#", "ASP.NET Core", "TypeScript", "SQL Server", "Azure"],
+    bullets: [
+      "Developed full-stack features from user interface through to database",
+      "Built features for a multi-tenant platform shared by several municipalities, keeping each organization's data separate",
+      "Built mobile-friendly field tools and real-time collaboration features",
+      "Designed data models built for auditing and long-term record keeping",
+      "Wrote automated end-to-end tests that run before every release",
+      "Diagnosed and fixed critical bugs by systematically ruling out causes against the source",
+      "Contributed to security reviews and raised design questions with leadership",
+    ],
   },
   {
     lane: "teaching",
@@ -589,7 +653,17 @@ export const timeline: TimelineEntry[] = [
     period: "May–Dec 2025",
     role: "Software Developer (Co-op)",
     org: "P&P Optica",
-    note: "PPO Insights, a foreign-object detection platform for food processing serving 20+ enterprise facilities.",
+    note: "Full-stack development on a cloud-based inspection platform.",
+    stack: ["Python", "React", "TypeScript", "PostgreSQL", "AWS"],
+    bullets: [
+      "Built and maintained features across the backend, frontend and cloud infrastructure",
+      "Improved data pipeline and database performance, cutting processing time from days to minutes",
+      "Investigated and resolved production issues spanning multiple services",
+      "Strengthened access control in backend services",
+      "Automated deployment work, later adopted across all client deployments",
+      "Built internal dashboards and bulk-data tools that cut manual work for staff",
+      "Took a leading role in release work, from feature tickets to end-to-end testing",
+    ],
   },
   {
     lane: "teaching",
@@ -598,7 +672,7 @@ export const timeline: TimelineEntry[] = [
     period: "Sep–Dec 2024",
     role: "Teaching Assistant",
     org: "Discrete Structures (CIS*1910)",
-    note: "Supported 250+ students and ran the shared support inbox for an online cohort.",
+    note: "Ran the shared support inbox for an online cohort.",
   },
   {
     lane: "school",
@@ -609,23 +683,35 @@ export const timeline: TimelineEntry[] = [
   },
 ];
 
-/** Three full 1.0 (140-hour) paid appointments across three courses. */
+/** The TA role as one entry, the way the resume lists it. */
+export const teaching = {
+  role: "Teaching Assistant",
+  org: "University of Guelph",
+  period: "Sep 2024 – Present",
+  summary: "Object-Oriented Programming in Java, Discrete Structures, Web Design and Development.",
+  bullets: [
+    "Teach object-oriented programming, discrete structures and web development across three courses",
+    "Selected by three different professors for full-term appointments",
+    "Support 250+ students through office hours, review sessions and an online support inbox",
+  ],
+};
+
 export const teachingStats: Stat[] = [
-  { value: 3, label: "paid TA appointments" },
-  { value: 420, label: "paid hours" },
-  { value: 250, suffix: "+", label: "students in one course" },
+  { value: 3, label: "courses taught" },
+  { value: 3, label: "professors who selected me" },
+  { value: 250, suffix: "+", label: "students supported" },
 ];
 
-export const teachingNote =
-  "Graded assignments and exams with detailed written feedback, and ran exam review sessions.";
+export const teachingNote = "Office hours, review sessions, and an online support inbox.";
 
 export const leadership: LeadershipItem[] = [
   {
     mark: "HC",
-    role: "Tech Organizer",
+    role: "Technical Organizer",
     org: "HackCanada",
     period: "2026",
     context: "Built the event website and the judge-facing judging portal.",
+    resume: "Technical Organizer, HackCanada, building the event website and judging portal",
   },
   {
     mark: "CC",
@@ -634,6 +720,7 @@ export const leadership: LeadershipItem[] = [
     period: "Ongoing",
     context:
       "Elected, representing 2,300 Computing students at the University of Guelph.",
+    resume: "Elected Governor of Computing, CCMPS Student Council, representing Computing students",
     current: true,
   },
   {
@@ -651,19 +738,43 @@ export const leadership: LeadershipItem[] = [
     period: "Ongoing",
     context:
       "Design and lead hands-on full-stack and AI workshops for 50+ students.",
+    resume: "Workshop Lead, SOCIS and Google Developer Student Club, running full-stack and AI workshops",
     current: true,
+  },
+];
+
+export const skills: SkillGroup[] = [
+  { label: "Languages", items: ["Java", "Python", "C#", "TypeScript", "JavaScript", "SQL", "C", "HTML", "CSS"] },
+  {
+    label: "Web and Backend",
+    items: ["React", "Next.js", "Node.js", "Express", "ASP.NET Core", ".NET", "Flask", "REST APIs"],
+  },
+  { label: "Data and Cloud", items: ["PostgreSQL", "SQL Server", "AWS", "Azure", "Docker", "Linux"] },
+  {
+    label: "Tools",
+    items: ["Git", "GitHub", "Bitbucket", "Jira", "Playwright", "Vitest", "JUnit", "Metabase", "gdb"],
+  },
+  {
+    label: "Practices",
+    items: ["automated testing", "debugging", "code review", "secure coding", "CI/CD", "Agile"],
   },
 ];
 
 /** Flat view of every role, for the content checker. */
 export const experienceItems = [
-  ...timeline.map((t) => ({ role: t.role, company: t.org, context: t.note ?? "" })),
+  ...timeline.map((t) => ({
+    role: t.role,
+    company: t.org,
+    context: [t.note, ...(t.bullets ?? [])].filter(Boolean).join(" "),
+  })),
+  { role: teaching.role, company: teaching.org, context: [teaching.summary, ...teaching.bullets].join(" ") },
   ...leadership.map((l) => ({ role: l.role, company: l.org, context: l.context })),
 ];
 
 export const navLinks = [
   { label: "Work", href: "/work" },
   { label: "Experience", href: "/experience" },
+  { label: "Resume", href: "/resume" },
 ] as const;
 
 /** The technologies used most across projects, most-used first. */
@@ -712,9 +823,9 @@ tip: tab completes. try 'sudo hire aly'.`,
 fourth-year computer science co-op, university of guelph
 mississauga, ontario
 
-two co-op terms on production systems: a multi-tenant
-compliance platform for ontario municipalities, and a
-foreign-object detection platform for food processing.
+two co-op terms of full-stack development: municipal
+government software, and a cloud-based inspection
+platform.
 
 seeking: winter 2027 co-op (january-april), 4 or 8 months
 
@@ -723,7 +834,7 @@ proves it.`,
 
   ls: `projects/     ${projects.map((p) => p.id).join("  ")}
 experience/   co-op/  teaching/  leadership/
-contact/      email  github  linkedin  resume.pdf`,
+contact/      email  github  linkedin  resume`,
 
   lsExperience: `co-op/        centre-wellington  pp-optica
 teaching/     university-of-guelph
@@ -750,24 +861,23 @@ Date:   Sep 2026
 commit 7f3a9c2
 Date:   May 2026
 
-    feat: source protection software at centre wellington
-    lswims, a multi-tenant clean water act compliance
-    platform for ontario municipalities and conservation
-    authorities.
+    feat: software developer co-op at centre wellington
+    full-stack development on municipal government
+    software.
 
 commit c41b8e0
 Date:   May 2025
 
     feat: software developer co-op at p&p optica
-    ppo insights, foreign-object detection for food
-    processing across 20+ enterprise facilities.
+    full-stack development on a cloud-based inspection
+    platform.
 
 commit a90f12d
 Date:   Sep 2024
 
     feat: teaching assistant at guelph
-    three 1.0 appointments across three courses. 250+
-    students in discrete structures.
+    three courses, selected by three professors. 250+
+    students supported.
 
 commit 1e7d4b5
 Date:   2023

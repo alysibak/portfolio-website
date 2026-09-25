@@ -46,6 +46,14 @@ export const ogCards: OgCard[] = [
       `${leadership.length} leadership roles`,
     ],
   },
+  {
+    slug: "resume",
+    path: "/resume",
+    command: "cat resume.md",
+    title: "Resume",
+    subtitle: `${site.school}.`,
+    chips: [`${count("co-op")} co-op terms`, "3 courses taught", `${projects.length} projects`],
+  },
   ...projects.map((p) => ({
     slug: `work-${p.id}`,
     path: `/work/${p.id}`,

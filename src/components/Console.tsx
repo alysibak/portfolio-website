@@ -111,6 +111,7 @@ export default function Console() {
       flushSync(openWithHelp);
       inputRef.current?.focus();
     };
+    window.__consoleReady = true;
     if (window.__consoleRequested) {
       window.__consoleRequested = false;
       takeCommand();

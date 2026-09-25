@@ -17,6 +17,11 @@
       "source": "/contact",
       "destination": "/",
       "permanent": true
+    },
+    {
+      "source": "/Aly_Sibak_Base_Resume_1Page.pdf",
+      "destination": "/resume",
+      "permanent": true
     }
   ],
   "rewrites": [

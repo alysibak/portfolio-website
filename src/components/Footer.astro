@@ -25,7 +25,7 @@ const { showAvailability = true } = Astro.props;
       </span>
       <a href={site.github} target="_blank" rel="noopener noreferrer" class="link">GitHub<span class="sr-only"> (opens in a new tab)</span></a>
       <a href={site.linkedin} target="_blank" rel="noopener noreferrer" class="link">LinkedIn<span class="sr-only"> (opens in a new tab)</span></a>
-      <a href={site.resume} target="_blank" rel="noopener noreferrer" class="link">Resume<span class="sr-only"> (opens in a new tab)</span></a>
+      <a href={site.resume} class="link">Resume</a>
       <span class="-my-1.5"><ThemeToggle /></span>
     </div>
     {showAvailability && <p class="meta mt-3 text-subtle" data-expires={site.seeking.start}>{site.availability}</p>}

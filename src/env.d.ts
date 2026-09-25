@@ -9,4 +9,9 @@ interface Window {
   __consoleClicks?: boolean;
   __devtoolsHello?: boolean;
   __themeSwap?: boolean;
+  /** Set once each island has mounted and handles its own shortcuts. */
+  __consoleReady?: boolean;
+  __paletteReady?: boolean;
+  /** Ctrl+K pressed before the search loaded. */
+  __paletteRequested?: boolean;
 }

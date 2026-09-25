@@ -26,9 +26,6 @@ const links = [...navLinks, ...((await publishedPosts()).length ? [{ label: "bug
           </a>
         ))
       }
-      <a href={site.resume} target="_blank" rel="noopener noreferrer" class="link-accent">
-        Resume<span class="sr-only"> (opens in a new tab)</span><span aria-hidden="true"> ↗</span>
-      </a>
       <button
         type="button"
         class="hidden items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-subtle transition-colors hover:border-accent hover:text-accent sm:inline-flex"

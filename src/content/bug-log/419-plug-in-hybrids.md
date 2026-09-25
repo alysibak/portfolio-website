@@ -8,7 +8,7 @@ draft: true
 
 <!--
   DRAFT for Aly to review. Written only from what's already public: the CarInfo
-  case study, the audit script in the repo, and the resume. Check every
+  case study and the audit script in the repo. Check every
   sentence, add what only you know (how you noticed, how long it took), then
   set draft: false to publish.
 -->

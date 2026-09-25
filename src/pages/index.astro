@@ -37,9 +37,6 @@ const [first, ...rest] = site.name.split(" ");
         {navLinks.map((link) => (
           <a href={link.href} class="link w-fit">{link.label} <span aria-hidden="true">→</span></a>
         ))}
-        <a href={site.resume} target="_blank" rel="noopener noreferrer" class="link-accent w-fit">
-          Resume (PDF)<span class="sr-only"> (opens in a new tab)</span><span aria-hidden="true"> ↗</span>
-        </a>
       </nav>
     </div>
   </div>
