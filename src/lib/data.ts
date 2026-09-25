@@ -771,6 +771,62 @@ export const experienceItems = [
   ...leadership.map((l) => ({ role: l.role, company: l.org, context: l.context })),
 ];
 
+/** The resume's work section: co-op terms, then teaching as one entry. */
+export const resumeWork = [
+  ...timeline
+    .filter((t) => t.lane === "co-op")
+    .map((t) => ({
+      role: t.role,
+      org: t.org,
+      period: t.period,
+      summary: t.note ?? "",
+      stack: t.stack ?? [],
+      bullets: t.bullets ?? [],
+    })),
+  { ...teaching, stack: [] as string[] },
+];
+
+/** Leadership lines that appear on the resume (not every role does). */
+export const resumeCommunity = leadership.flatMap((l) => (l.resume ? [l.resume] : []));
+
+/** The resume as plain text, for `cat resume` in the shell. */
+function resumeText() {
+  const bare = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "");
+  const keyWidth = Math.max(...skills.map((g) => g.label.length)) + 3;
+  const bullets = (items: string[]) => items.map((b) => `  - ${b}`);
+  return [
+    `# ${site.name}`,
+    `${site.email} · ${site.location} · ${bare(site.github)}`,
+    "",
+    "## Education",
+    site.education.degree,
+    `${site.education.school} · ${site.education.period}`,
+    [...site.education.highlights, site.education.detail].join(" · "),
+    "",
+    "## Skills",
+    ...skills.map((g) => `  ${g.label.toLowerCase().replace(/ /g, "-").padEnd(keyWidth)}${g.items.join(", ")}`),
+    "",
+    "## Work experience",
+    ...resumeWork.flatMap((job) => [
+      `${job.role} @ ${job.org}`,
+      [job.period, job.stack.join(", ")].filter(Boolean).join(" · "),
+      ...bullets(job.bullets),
+      "",
+    ]),
+    "## Projects",
+    ...projects.flatMap((p) => [
+      `${p.title} · ${p.resume.label}${p.year ? ` · ${p.year.replace(/–$/, "–present")}` : ""}`,
+      `  ${p.resume.stack.join(", ")}`,
+      ...bullets(p.resume.bullets),
+      "",
+    ]),
+    "## Leadership and community",
+    ...bullets(resumeCommunity),
+    "",
+    `-> ${bare(site.url)}/resume`,
+  ].join("\n");
+}
+
 export const navLinks = [
   { label: "Work", href: "/work" },
   { label: "Experience", href: "/experience" },
@@ -805,7 +861,7 @@ export const commandOutputs = {
 
   whoami         who I am
   ls             list sections
-  cat <name>     read a project case study
+  cat <name>     read a case study, or 'cat resume'
   grep <tech>    projects that use a technology
   ping <name>    check a live project answers
   git log        career history
@@ -911,6 +967,8 @@ permission granted.
 
 opening your mail client. if it doesn't open:
   ${site.email}`,
+
+  resume: resumeText(),
 
   sudoRmRf: "nice try.",
 } as const;

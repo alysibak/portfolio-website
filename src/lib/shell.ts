@@ -67,7 +67,8 @@ export function getCompletion(input: string): string | null {
   const last = parts[parts.length - 1]?.toLowerCase() ?? "";
 
   if ((cmd === "cat" || cmd === "open" || cmd === "ping") && parts.length >= 2 && !endsWithSpace) {
-    const matches = projectIds.filter((id) => id.startsWith(last));
+    const names = cmd === "cat" ? [...projectIds, "resume"] : projectIds;
+    const matches = names.filter((id) => id.startsWith(last));
     if (matches.length === 1) {
       return parts.slice(0, -1).join(" ") + " " + matches[0];
     }
@@ -161,6 +162,10 @@ export function executeCommand(
         break;
       }
       const id = normalizeProjectArg(arg);
+      if (id === "resume" || id === "resume.md") {
+        lines.push({ type: "output", text: commandOutputs.resume });
+        break;
+      }
       const project = getProject(id);
       if (project) {
         lines.push({ type: "output", text: project.catOutput });

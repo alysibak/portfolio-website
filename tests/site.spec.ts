@@ -39,6 +39,13 @@ test("a ?cmd= link opens the shell and runs it", async ({ page }) => {
   await expect(page).toHaveURL(/\/$/);
 });
 
+test("the resume page and `cat resume` agree", async ({ page }) => {
+  await page.goto("/resume");
+  await expect(page.locator(".term-body h1")).toContainText("Aly Sibak");
+  await page.goto("/?cmd=cat%20resume");
+  await expect(page.locator("[data-console-open] pre").last()).toContainText("## Work experience");
+});
+
 test("the theme choice survives navigation", async ({ page }) => {
   await page.goto("/work");
   const before = await page.evaluate(() => document.documentElement.getAttribute("data-theme"));

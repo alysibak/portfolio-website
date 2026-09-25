@@ -1,152 +1,152 @@
 ---
 import Base from "../layouts/Base.astro";
-import StackChips from "../components/StackChips.astro";
-import { leadership, projects, site, skills, teaching, timeline } from "../lib/data";
+import { projects, resumeCommunity, resumeWork, site, skills } from "../lib/data";
 
-// Everything here comes from src/lib/data.ts, the same records the rest of
-// the site uses. Edit the resume there.
-const work = [
-  ...timeline
-    .filter((t) => t.lane === "co-op")
-    .map((t) => ({ role: t.role, org: t.org, period: t.period, summary: t.note, stack: t.stack ?? [], bullets: t.bullets ?? [] })),
-  { role: teaching.role, org: teaching.org, period: teaching.period, summary: teaching.summary, stack: [], bullets: teaching.bullets },
-];
-const community = leadership.flatMap((l) => (l.resume ? [l.resume] : []));
+// Rendered as a terminal printing `cat resume.md`. Everything comes from
+// src/lib/data.ts, the same records the rest of the site uses; edit it there.
 const { education } = site;
 const bare = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "");
+const linkLabel = (label: string) => (label === "Source" ? "code" : label.toLowerCase());
+let line = 0; // Order in which sections print in.
 ---
 
 <Base
   title="Resume, Aly Sibak"
   description="Computer Science co-op at the University of Guelph. Two co-op terms of full-stack development, three TA appointments, and four projects."
 >
-  <article class="resume mx-auto max-w-xl">
-    <header>
-      <div class="flex items-baseline justify-between gap-4">
-        <h1 class="text-2xl font-medium">{site.name}</h1>
-        <button type="button" class="resume-print meta link shrink-0 text-subtle" data-print>Save as PDF</button>
+  <article class="term-resume mx-auto max-w-2xl">
+    <div class="term-window overflow-hidden rounded-md border border-border bg-paper">
+      <div class="term-bar meta flex items-center justify-between gap-4 border-b border-border px-4 py-2.5">
+        <span class="text-accent">aly@portfolio: ~/resume</span>
+        <button type="button" class="text-subtle transition-colors hover:text-accent" data-print>save as pdf</button>
       </div>
-      <p class="meta mt-3 flex flex-wrap gap-x-4 gap-y-1.5 leading-relaxed text-muted">
-        <a href={`mailto:${site.email}`} class="link-accent">{site.email}</a>
-        <span>{site.location}</span>
-        <a href="/" class="link">{bare(site.url)}</a>
-        <a href={site.github} target="_blank" rel="noopener noreferrer" class="link no-print-url">
-          {bare(site.github)}<span class="sr-only"> (opens in a new tab)</span>
-        </a>
-        <a href={site.linkedin} target="_blank" rel="noopener noreferrer" class="link no-print-url">
-          LinkedIn<span class="sr-only"> (opens in a new tab)</span>
-        </a>
-      </p>
-    </header>
 
-    <section class="mt-10">
-      <h2 class="meta text-subtle">Education</h2>
-      <div class="mt-4">
-        <div class="flex flex-col gap-x-4 sm:flex-row sm:items-baseline sm:justify-between">
-          <p class="text-[0.9375rem]">
-            <span class="font-medium">{education.degree}</span><span class="text-muted">, {education.school}</span>
+      <div class="term-body">
+        <p class="t-prompt"><span class="text-accent">aly@portfolio:~$</span> cat resume.md</p>
+
+        <header class="t-block" style={`--i:${line++}`}>
+          <h1 class="t-h1"><span class="t-mark">#</span> {site.name}</h1>
+          <p class="t-contact">
+            <a href={`mailto:${site.email}`} class="link-accent">{site.email}</a>
+            <span>{site.location}</span>
+            <a href="/" class="link">{bare(site.url)}</a>
+            <a href={site.github} target="_blank" rel="noopener noreferrer" class="link no-print-url">
+              {bare(site.github)}<span class="sr-only"> (opens in a new tab)</span>
+            </a>
+            <a href={site.linkedin} target="_blank" rel="noopener noreferrer" class="link no-print-url">
+              linkedin<span class="sr-only"> (opens in a new tab)</span>
+            </a>
           </p>
-          <p class="meta shrink-0 tabular-nums text-subtle">{education.period}</p>
-        </div>
-        <p class="meta mt-1 text-subtle">{[...education.highlights, education.detail].join(" · ")}</p>
+        </header>
+
+        <section class="t-block" style={`--i:${line++}`}>
+          <h2 class="t-h2"><span class="t-mark">##</span> Education</h2>
+          <div class="t-row">
+            <p><span class="t-strong">{education.degree}</span>, {education.school}</p>
+            <span class="t-date">{education.period}</span>
+          </div>
+          <p class="t-dim">{[...education.highlights, education.detail].join(" · ")}</p>
+        </section>
+
+        <section class="t-block" style={`--i:${line++}`}>
+          <h2 class="t-h2"><span class="t-mark">##</span> Skills</h2>
+          <dl class="t-kv">
+            {
+              skills.map((group) => (
+                <div>
+                  <dt>{group.label.toLowerCase()}</dt>
+                  <dd>{group.items.join(", ")}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </section>
+
+        <section class="t-block" style={`--i:${line++}`}>
+          <h2 class="t-h2"><span class="t-mark">##</span> Work experience</h2>
+          {
+            resumeWork.map((job) => (
+              <div class="t-entry">
+                <div class="t-row">
+                  <p>
+                    <span class="t-strong">{job.role}</span> <span class="t-dim">@</span> {job.org}
+                  </p>
+                  <span class="t-date">{job.period}</span>
+                </div>
+                <p class="t-dim">
+                  {job.summary}
+                  {job.stack.length > 0 && (
+                    <>
+                      {" "}
+                      <span class="t-key">stack:</span> {job.stack.join(", ")}
+                    </>
+                  )}
+                </p>
+                <ul class="t-list">
+                  {job.bullets.map((b) => (
+                    <li>{b}</li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </section>
+
+        <section class="t-block" style={`--i:${line++}`}>
+          <h2 class="t-h2"><span class="t-mark">##</span> Projects</h2>
+          {
+            projects.map((project) => (
+              <div class="t-entry">
+                <div class="t-row">
+                  <p>
+                    <a href={`/work/${project.id}`} class="link t-strong">{project.title}</a>
+                    <span class="t-dim"> · {project.resume.label}</span>
+                  </p>
+                  {project.year && <span class="t-date">{project.year.replace(/–$/, "–present")}</span>}
+                </div>
+                <p class="t-dim">
+                  <span class="t-key">stack:</span> {project.resume.stack.join(", ")}
+                  {project.links.map((link) => (
+                    <>
+                      {" "}
+                      <a href={link.href} target="_blank" rel="noopener noreferrer" class="link-accent whitespace-nowrap">
+                        [{linkLabel(link.label)} ↗]<span class="sr-only"> (opens in a new tab)</span>
+                      </a>
+                    </>
+                  ))}
+                </p>
+                <ul class="t-list">
+                  {project.resume.bullets.map((b) => (
+                    <li>{b}</li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          }
+        </section>
+
+        <section class="t-block" style={`--i:${line++}`}>
+          <h2 class="t-h2"><span class="t-mark">##</span> Leadership and community</h2>
+          <ul class="t-list">
+            {resumeCommunity.map((l) => <li>{l}</li>)}
+          </ul>
+        </section>
+
+        <p class="t-prompt t-block mt-6" style={`--i:${line++}`}>
+          <span class="text-accent">aly@portfolio:~$</span>
+          <span class="console-cursor ml-1 align-middle" aria-hidden="true"></span>
+        </p>
       </div>
-    </section>
+    </div>
 
-    <section class="mt-10 border-t border-border pt-8">
-      <h2 class="meta text-subtle">Skills</h2>
-      <dl class="mt-4 space-y-3">
-        {
-          skills.map((group) => (
-            <div class="sm:grid sm:grid-cols-[8.5rem_1fr] sm:gap-4">
-              <dt class="meta pt-1 text-subtle">{group.label}</dt>
-              <dd class="mt-1.5 sm:mt-0">
-                <StackChips stack={group.items} label={group.label} />
-              </dd>
-            </div>
-          ))
-        }
-      </dl>
-    </section>
-
-    <section class="mt-10 border-t border-border pt-8">
-      <h2 class="meta text-subtle">Work experience</h2>
-      <ul class="mt-5 space-y-8">
-        {
-          work.map((job) => (
-            <li>
-              <div class="flex flex-col gap-x-4 sm:flex-row sm:items-baseline sm:justify-between">
-                <p class="text-[0.9375rem]">
-                  <span class="font-medium">{job.role}</span><span class="text-muted">, {job.org}</span>
-                </p>
-                <p class="meta shrink-0 tabular-nums text-subtle">{job.period}</p>
-              </div>
-              <p class="meta mt-1 leading-relaxed text-subtle">
-                {job.summary}
-                {job.stack.length > 0 && ` ${job.stack.join(", ")}.`}
-              </p>
-              <ul class="resume-bullets mt-2.5">
-                {job.bullets.map((b) => (
-                  <li>{b}</li>
-                ))}
-              </ul>
-            </li>
-          ))
-        }
-      </ul>
-    </section>
-
-    <section class="mt-10 border-t border-border pt-8">
-      <h2 class="meta text-subtle">Projects</h2>
-      <ul class="mt-5 space-y-8">
-        {
-          projects.map((project) => (
-            <li>
-              <div class="flex flex-col gap-x-4 sm:flex-row sm:items-baseline sm:justify-between">
-                <p class="text-[0.9375rem]">
-                  <a href={`/work/${project.id}`} class="link font-medium">{project.title}</a><span class="text-muted">: {project.resume.label}</span>
-                </p>
-                {project.year && (
-                  <p class="meta shrink-0 tabular-nums text-subtle">{project.year.replace(/–$/, "–present")}</p>
-                )}
-              </div>
-              <p class="meta mt-1 flex flex-wrap gap-x-4 gap-y-1">
-                <span class="text-subtle">{project.resume.stack.join(", ")}</span>
-                {project.links.map((link) => (
-                  <a
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class:list={[link.label === "Source" ? "link" : "link-accent"]}
-                  >
-                    {link.label === "Source" ? "Code" : link.label}
-                    <span class="sr-only"> (opens in a new tab)</span>
-                    <span aria-hidden="true"> ↗</span>
-                  </a>
-                ))}
-              </p>
-              <ul class="resume-bullets mt-2.5">
-                {project.resume.bullets.map((b) => (
-                  <li>{b}</li>
-                ))}
-              </ul>
-            </li>
-          ))
-        }
-      </ul>
-    </section>
-
-    <section class="mt-10 border-t border-border pt-8">
-      <h2 class="meta text-subtle">Leadership and community</h2>
-      <ul class="resume-bullets mt-4">
-        {community.map((line) => <li>{line}</li>)}
-      </ul>
-    </section>
+    <p class="shell-hint mt-5">
+      Also in the shell: <button type="button" class="hint-open" data-open-console data-cmd="cat resume">cat resume</button>
+    </p>
   </article>
 </Base>
 
 <script>
-  // Print styles turn this page into a clean one-pager, so "Save as PDF" is
-  // the browser's print dialog rather than a separate file to keep in sync.
+  // "save as pdf" opens the print dialog; print styles make it a one-pager.
   document.addEventListener("click", (e) => {
     if (e.target instanceof Element && e.target.closest("[data-print]")) window.print();
   });

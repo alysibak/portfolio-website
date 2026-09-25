@@ -509,9 +509,114 @@ button.shell-kbd {
   }
 }
 
-/* Resume page */
-.resume-bullets {
-  @apply list-disc space-y-1.5 pl-5 text-[0.9375rem] leading-relaxed text-muted marker:text-subtle;
+/* Resume page: a terminal printing `cat resume.md`. */
+.term-window {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 12px 32px rgb(0 0 0 / 0.07);
+}
+
+.term-body {
+  font-family: var(--font-mono);
+  @apply px-4 py-5 text-[0.75rem] leading-relaxed text-muted sm:px-6 sm:text-[0.8125rem];
+}
+
+.term-body .t-prompt {
+  @apply text-ink;
+}
+
+.term-body .t-block + .t-block {
+  @apply mt-6;
+}
+
+.term-body .t-block:first-of-type {
+  @apply mt-5;
+}
+
+.term-body .t-h1 {
+  @apply text-[1.125rem] font-medium text-ink sm:text-[1.25rem];
+}
+
+.term-body .t-h2 {
+  @apply mb-2.5 font-medium text-accent;
+}
+
+.term-body .t-mark {
+  @apply text-subtle;
+}
+
+.term-body .t-contact {
+  @apply mt-1.5 flex flex-wrap gap-x-4 gap-y-1;
+}
+
+.term-body .t-strong {
+  @apply font-medium text-ink;
+}
+
+.term-body .t-dim {
+  @apply text-subtle;
+}
+
+.term-body .t-key {
+  @apply text-accent;
+}
+
+.term-body .t-row {
+  @apply flex flex-col gap-x-4 sm:flex-row sm:items-baseline sm:justify-between;
+}
+
+.term-body .t-date {
+  @apply shrink-0 tabular-nums text-subtle;
+}
+
+.term-body .t-entry + .t-entry {
+  @apply mt-4;
+}
+
+/* "- " bullets whose wrapped lines stay aligned under the text. */
+.term-body .t-list {
+  @apply mt-1.5 space-y-0.5;
+}
+
+.term-body .t-list li {
+  padding-left: 2ch;
+  text-indent: -2ch;
+}
+
+.term-body .t-list li::before {
+  content: "- ";
+  @apply text-accent;
+}
+
+.term-body .t-kv > div {
+  @apply sm:grid sm:grid-cols-[17ch_1fr] sm:gap-x-2;
+}
+
+.term-body .t-kv dt {
+  @apply text-accent;
+}
+
+.term-body .t-kv dt::after {
+  content: ":";
+  @apply text-subtle;
+}
+
+.term-body .t-kv dd {
+  @apply mb-1.5 pl-[2ch] sm:mb-0.5 sm:pl-0;
+}
+
+/* Sections print in one after another, like terminal output. They start
+   visible for anyone with reduced motion, and the whole run takes ~0.5s. */
+@media (prefers-reduced-motion: no-preference) {
+  .term-body .t-block {
+    /* backwards, not both: hold "hidden" only until the block's turn. */
+    animation: t-print 0.01s step-end backwards;
+    animation-delay: calc(80ms + var(--i, 0) * 70ms);
+  }
+}
+
+@keyframes t-print {
+  from {
+    visibility: hidden;
+  }
 }
 
 @media print {
@@ -519,97 +624,72 @@ button.shell-kbd {
     margin: 0.4in 0.5in;
   }
 
-  .resume-print {
-    display: none;
-  }
-
   /* The contact line already shows these addresses. */
-  .no-print-url::after {
+  .no-print-url::after,
+  .term-resume a[href^="http"]::after {
     content: none !important;
   }
 
-  /* Compact, resume-like print: smaller type, tight spacing, skills as text. */
-  .resume {
+  .term-resume {
     max-width: none;
-    font-size: 9.5pt;
   }
 
-  .resume h1 {
-    font-size: 16pt;
+  .term-window {
+    border: 0 !important;
+    border-radius: 0 !important;
   }
 
-  .resume section {
-    margin-top: 0.35rem !important;
-    padding-top: 0.3rem !important;
+  .term-bar,
+  .term-body .t-prompt,
+  .term-resume > .shell-hint {
+    display: none !important;
   }
 
-  .resume dt {
-    padding-top: 0 !important;
+  .term-body {
+    padding: 0 !important;
+    font-size: 8.1pt !important;
+    line-height: 1.3 !important;
   }
 
-  .resume section > * + * {
-    margin-top: 0.25rem !important;
+  .term-body .t-h1 {
+    font-size: 13pt !important;
   }
 
-  .resume section > ul,
-  .resume section > dl,
-  .resume section > div {
-    margin-top: 0.4rem !important;
+  .term-body .t-block + .t-block {
+    margin-top: 0.45rem !important;
   }
 
-  .resume section > ul > li + li {
-    margin-top: 0.3rem !important;
-  }
-
-  .resume header p {
-    margin-top: 0.25rem !important;
-  }
-
-  .resume p,
-  .resume dt,
-  .resume .meta,
-  .resume .resume-bullets {
-    font-size: 8.25pt !important;
-    line-height: 1.24 !important;
-  }
-
-  /* JetBrains Mono runs large next to Source Sans; set it a step smaller. */
-  .resume .meta,
-  .resume dt,
-  .resume dl li {
-    font-size: 7.5pt !important;
-  }
-
-  .resume .resume-bullets {
-    margin-top: 0.2rem !important;
-  }
-
-  .resume .resume-bullets > li + li {
-    margin-top: 0.05rem !important;
-  }
-
-  .resume dl > div {
-    display: grid;
-    grid-template-columns: 7.5rem 1fr;
+  .term-body .t-block:first-of-type {
     margin-top: 0 !important;
   }
 
-  .resume dl ul {
-    display: inline;
+  .term-body .t-h2 {
+    margin-bottom: 0.15rem !important;
   }
 
-  .resume dl li {
-    display: inline;
-    border: 0;
-    padding: 0;
-    font-size: 9pt;
+  .term-body .t-entry + .t-entry {
+    margin-top: 0.3rem !important;
   }
 
-  .resume dl li + li::before {
-    content: ", ";
+  .term-body .t-list {
+    margin-top: 0.1rem !important;
   }
 
-  .resume a[href^="http"]::after {
-    content: none;
+  .term-body .t-list > li + li {
+    margin-top: 0 !important;
+  }
+
+  .term-body .t-kv > div {
+    display: grid;
+    grid-template-columns: 17ch 1fr;
+  }
+
+  .term-body .t-kv dd {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .term-body .t-contact {
+    margin-top: 0.1rem !important;
   }
 }
