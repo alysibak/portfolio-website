@@ -1,0 +1,16 @@
+---
+interface Props {
+  /** What was "typed" at the prompt. */
+  cmd: string;
+  /** Working directory shown before the $. */
+  path?: string;
+  class?: string;
+}
+
+const { cmd, path = "~", class: className } = Astro.props;
+---
+
+<p class:list={["prompt-line meta", className]} aria-hidden="true">
+  <span class="text-accent">aly@portfolio</span><span class="text-subtle">:{path}$</span>
+  <span class="text-ink">{cmd}</span>
+</p>

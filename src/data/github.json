@@ -1,0 +1,36 @@
+{
+  "note": "Fallback for src/lib/github.ts when the GitHub API can't be reached at build time.",
+  "repos": {
+    "carinfo": {
+      "repo": "alysibak/carinfo",
+      "pushedAt": "2026-09-16T00:03:28.000Z",
+      "languages": {
+        "TypeScript": 940705,
+        "JavaScript": 64535,
+        "CSS": 8443,
+        "HTML": 1621
+      }
+    },
+    "timevault": {
+      "repo": "alysibak/TimeVault",
+      "pushedAt": "2026-08-02T16:16:32.000Z",
+      "languages": {
+        "TypeScript": 495154,
+        "Python": 188014,
+        "CSS": 3088,
+        "HTML": 1210,
+        "JavaScript": 846
+      }
+    },
+    "mizan": {
+      "repo": "alysibak/mizan",
+      "pushedAt": "2026-09-06T13:56:35.000Z",
+      "languages": {
+        "TypeScript": 397966,
+        "CSS": 3631,
+        "JavaScript": 2652,
+        "Shell": 307
+      }
+    }
+  }
+}

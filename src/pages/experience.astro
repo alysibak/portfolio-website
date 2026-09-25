@@ -4,6 +4,7 @@ import ShellHint from "../components/ShellHint.astro";
 import GitGraph from "../components/GitGraph.astro";
 import Stats from "../components/Stats.astro";
 import DegreeBar from "../components/DegreeBar.astro";
+import Prompt from "../components/Prompt.astro";
 import { leadership, teachingNote, teachingStats } from "../lib/data";
 
 /** Badge colours, one per leadership role in order. Full class names so Tailwind keeps them. */
@@ -15,18 +16,19 @@ const markColors = ["bg-plum", "bg-accent", "bg-teal", "bg-amber"];
   description="Two co-op terms, three paid TA appointments at the University of Guelph, and student leadership."
 >
   <div class="mx-auto max-w-xl">
-    <h1 class="text-2xl font-medium">Experience</h1>
+    <Prompt cmd="git log --graph --all" />
+    <h1 class="md-h1 mt-3">Experience</h1>
     <ShellHint variant="page" />
 
     <section class="mt-12">
-      <h2 class="meta text-subtle">Timeline</h2>
+      <h2 class="md-h2">Timeline</h2>
       <div class="mt-4">
         <GitGraph />
       </div>
     </section>
 
     <section class="mt-12 border-t border-border pt-8">
-      <h2 class="meta text-subtle">Teaching at Guelph</h2>
+      <h2 class="md-h2">Teaching at Guelph</h2>
       <div class="mt-4">
         <Stats stats={teachingStats} columns={3} />
       </div>
@@ -34,7 +36,7 @@ const markColors = ["bg-plum", "bg-accent", "bg-teal", "bg-amber"];
     </section>
 
     <section class="mt-12 border-t border-border pt-8">
-      <h2 class="meta text-subtle">Leadership and activities</h2>
+      <h2 class="md-h2">Leadership and activities</h2>
       <ul class="mt-4 grid gap-2 sm:grid-cols-2">
         {
           leadership.map((item, i) => (
@@ -62,12 +64,12 @@ const markColors = ["bg-plum", "bg-accent", "bg-teal", "bg-amber"];
     </section>
 
     <section class="mt-12 border-t border-border pt-8">
-      <h2 class="meta text-subtle">Education</h2>
+      <h2 class="md-h2">Education</h2>
       <div class="mt-4">
         <DegreeBar />
       </div>
     </section>
 
-    <a href="/" class="meta mt-16 inline-block text-subtle link">← Home</a>
+    <a href="/" class="meta link mt-16 inline-block text-subtle">cd ~<span class="sr-only"> (home)</span></a>
   </div>
 </Base>

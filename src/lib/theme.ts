@@ -1,13 +1,17 @@
-export type ThemeChoice = "dark" | "light" | "system";
+export type ThemeChoice = "dark" | "light" | "system" | "green" | "amber";
 
 /** Must match the key read by the inline script in Base.astro's <head>. */
 const KEY = "theme";
 
-/** Sets the theme, remembers it, and tells anything listening. */
+/** Sets the theme, remembers it, and tells anything listening. Green and
+ *  amber are dark themes with phosphor colours (data-crt) on top. */
 export function applyTheme(choice: ThemeChoice) {
   const root = document.documentElement;
+  const crt = choice === "green" || choice === "amber";
   if (choice === "system") root.removeAttribute("data-theme");
-  else root.setAttribute("data-theme", choice);
+  else root.setAttribute("data-theme", crt ? "dark" : choice);
+  if (crt) root.setAttribute("data-crt", choice);
+  else root.removeAttribute("data-crt");
   try {
     if (choice === "system") localStorage.removeItem(KEY);
     else localStorage.setItem(KEY, choice);

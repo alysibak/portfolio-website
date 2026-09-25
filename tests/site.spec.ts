@@ -74,3 +74,43 @@ test("the TimeVault demo tells 401 from 403", async ({ page }) => {
   await page.locator(".switch-row", { hasText: "Valid token" }).click();
   await expect(code).toHaveText("401");
 });
+
+test("cd in the shell goes to a page and the prompt follows", async ({ page }) => {
+  await page.goto("/?cmd=cd%20work");
+  await expect(page).toHaveURL(/\/work$/);
+  await page.goto("/work/carinfo?cmd=pwd");
+  await expect(page.locator("[data-console-open] pre").last()).toHaveText("/home/aly/work/carinfo");
+  await expect(page.getByLabel("Console input").locator("xpath=../..")).toContainText("~/work/carinfo$");
+});
+
+test("shell output links run commands", async ({ page }) => {
+  await page.goto("/?cmd=ls%20projects");
+  await page.locator("[data-console-open] pre").last().getByRole("button", { name: "mizan" }).click();
+  await expect(page.locator("[data-console-open] pre").last()).toContainText("mizan");
+});
+
+test("theme green sticks across pages", async ({ page }) => {
+  await page.goto("/?cmd=theme%20green");
+  await expect(page.locator("html")).toHaveAttribute("data-crt", "green");
+  await page.goto("/work");
+  await expect(page.locator("html")).toHaveAttribute("data-crt", "green");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+});
+
+test("screenshot tabs switch the picture", async ({ page }) => {
+  await page.goto("/work/carinfo");
+  const shots = page.locator("[data-shots]");
+  await expect(shots.locator("[data-shot='0']")).toBeVisible();
+  await shots.getByRole("button", { name: "car page" }).click();
+  await expect(shots.locator("[data-shot='1']")).toBeVisible();
+  await expect(shots.locator("[data-shot='0']")).toBeHidden();
+  await expect(shots.locator("[data-shot-path]")).toContainText("/car/");
+});
+
+test("g then w goes to the work page", async ({ page, isMobile }) => {
+  test.skip(isMobile, "keyboard shortcut");
+  await page.goto("/experience");
+  await page.keyboard.press("g");
+  await page.keyboard.press("w");
+  await expect(page).toHaveURL(/\/work$/);
+});

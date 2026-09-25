@@ -2,9 +2,12 @@ import {
   commandOutputs,
   getProject,
   liveUrl,
+  principles,
   projectIds,
   projects,
   site,
+  teachingStats,
+  timeline,
 } from "./data";
 import type { ThemeChoice } from "./theme";
 
@@ -12,6 +15,8 @@ export const COMMANDS = [
   "help",
   "whoami",
   "ls",
+  "cd",
+  "pwd",
   "cat",
   "grep",
   "ping",
@@ -21,14 +26,45 @@ export const COMMANDS = [
   "man",
   "history",
   "theme",
+  "mail",
+  "tree",
+  "uptime",
+  "fortune",
+  "cowsay",
+  "date",
+  "echo",
   "sudo",
   "clear",
   "exit",
 ] as const;
 
+/** Full commands offered as you type, after your own history. */
+export const SUGGESTIONS = [
+  "help",
+  "whoami",
+  "cat resume",
+  ...projectIds.map((id) => `cat ${id}`),
+  "cd work",
+  "cd experience",
+  "cd resume",
+  "git log",
+  "grep react",
+  "ping carinfo",
+  "neofetch",
+  "man aly",
+  "sudo hire aly",
+  "theme green",
+  "theme amber",
+  "tree",
+  "uptime",
+  "fortune",
+  "cowsay hire aly",
+];
+
 export type ShellLine =
   | { type: "prompt" }
-  | { type: "input"; text: string }
+  /** cwd: where the command was typed, for its prompt. */
+  | { type: "input"; text: string; cwd?: string }
   | { type: "output"; text: string; variant?: "error" | "dim" }
   | { type: "system"; text: string };
 
@@ -45,7 +81,80 @@ export type ExecuteResult = {
   theme?: ThemeChoice;
   /** A live site to time; the console prints the answer when it arrives. */
   ping?: { id: string; url: string };
+  /** A page on this site to go to (from cd). */
+  navigate?: string;
 };
+
+/** "/work/carinfo" -> "~/work/carinfo", as a prompt shows it. */
+export function promptPath(pathname: string): string {
+  const clean = pathname.replace(/\/+$/, "");
+  return clean ? `~${clean}` : "~";
+}
+
+/** Where `cd <arg>` goes from `cwd`, or null if there's no such page. */
+export function resolveCd(cwd: string, arg: string): string | null {
+  const here = cwd.replace(/\/+$/, "") || "/";
+  let target = arg.trim().toLowerCase();
+  if (!target || target === "~" || target === "/" || target === "~/") return "/";
+  if (target === "..") return here.split("/").slice(0, -1).join("/") || "/";
+  if (target === ".") return here;
+  target = target.replace(/^~?\//, "").replace(/\/+$/, "").replace(/\.md$/, "");
+  // From inside a project, ../mizan is a sibling.
+  if (target.startsWith("../") && here.startsWith("/work/")) target = `work/${target.slice(3)}`;
+  target = target.replace(/^projects(\/|$)/, "work$1");
+  if (target === "work" || target === "experience" || target === "resume") return `/${target}`;
+  const id = target.replace(/^work\//, "");
+  if (getProject(id)) return `/work/${id}`;
+  return null;
+}
+
+const CD_TARGETS = ["work/", "experience/", "resume", "..", "~", ...projectIds];
+
+function tree(): string {
+  const rows = projects.map((p, i) => `│   ${i === projects.length - 1 ? "└──" : "├──"} ${p.id}`);
+  return ["~", "├── work/", ...rows, "├── experience/", "└── resume.md", "", `2 directories, ${projects.length + 1} files`].join("\n");
+}
+
+function uptime(now: Date): string {
+  const [y, m] = site.education.start.split("-").map(Number);
+  const days = Math.floor((now.getTime() - new Date(y, m - 1, 1).getTime()) / 86_400_000);
+  const years = Math.floor(days / 365);
+  const weeks = Math.floor((days % 365) / 7);
+  const coops = timeline.filter((t) => t.lane === "co-op").length;
+  const clock = now.toTimeString().slice(0, 8);
+  return [
+    `${clock} up ${years} years, ${weeks} weeks (since ${new Date(y, m - 1).toLocaleString("en", { month: "short" }).toLowerCase()} ${y} at guelph)`,
+    `load average: ${projects.length} projects, ${coops} co-ops, ${teachingStats[0].value} courses taught`,
+  ].join("\n");
+}
+
+function cowsay(text: string): string {
+  const words = text.split(/\s+/).filter(Boolean);
+  const rows: string[] = [];
+  for (const word of words) {
+    const last = rows[rows.length - 1];
+    if (last !== undefined && (last + " " + word).length <= 30) rows[rows.length - 1] = `${last} ${word}`;
+    else rows.push(word.slice(0, 30));
+  }
+  const width = Math.max(...rows.map((r) => r.length));
+  const body =
+    rows.length === 1
+      ? [`< ${rows[0]} >`]
+      : rows.map((r, i) => {
+          const [l, rr] = i === 0 ? ["/", "\\"] : i === rows.length - 1 ? ["\\", "/"] : ["|", "|"];
+          return `${l} ${r.padEnd(width)} ${rr}`;
+        });
+  return [
+    ` ${"_".repeat(width + 2)}`,
+    ...body,
+    ` ${"-".repeat(width + 2)}`,
+    "        \\   ^__^",
+    "         \\  (oo)\\_______",
+    "            (__)\\       )\\/\\",
+    "                ||----w |",
+    "                ||     ||",
+  ].join("\n");
+}
 
 function normalizeProjectArg(arg: string): string {
   return arg.toLowerCase().replace(/\.case$/, "").trim();
@@ -74,6 +183,11 @@ export function getCompletion(input: string): string | null {
     }
   }
 
+  if (cmd === "cd" && parts.length >= 2 && !endsWithSpace) {
+    const matches = CD_TARGETS.filter((t) => t.startsWith(last) && t !== last);
+    if (matches.length === 1) return `cd ${matches[0]}`;
+  }
+
   if (cmd === "ls" && parts.length >= 2 && !endsWithSpace) {
     const path = parts.slice(1).join(" ").toLowerCase();
     if (!path) return null;
@@ -96,15 +210,24 @@ export function getCompletion(input: string): string | null {
   return null;
 }
 
+/** Shell-style suggestion for what's typed so far: your history first. */
+export function getSuggestion(input: string, history: string[]): string {
+  if (!input.trim()) return "";
+  const pool = [...history].reverse().concat(SUGGESTIONS);
+  const hit = pool.find((c) => c.startsWith(input) && c !== input);
+  return hit ? hit.slice(input.length) : "";
+}
+
 export function executeCommand(
   state: ShellState,
-  input: string
+  input: string,
+  cwd = "/"
 ): ExecuteResult {
   const trimmed = input.trim();
   if (!trimmed) return { lines: [], state };
 
   const newHistory = [...state.history, trimmed];
-  const lines: ShellLine[] = [{ type: "input", text: trimmed }];
+  const lines: ShellLine[] = [{ type: "input", text: trimmed, cwd }];
   const parts = trimmed.split(/\s+/);
   const cmd = parts[0].toLowerCase();
   const arg = parts.slice(1).join(" ");
@@ -119,7 +242,10 @@ export function executeCommand(
       break;
 
     case "ls": {
-      const path = arg.toLowerCase().replace(/\/$/, "");
+      const named = parts.slice(1).filter((p) => !p.startsWith("-")).join(" ");
+      let path = named.toLowerCase().replace(/^~?\//, "").replace(/\/$/, "");
+      if (!path && cwd.startsWith("/work")) path = "projects";
+      if (path === "work") path = "projects";
       if (!path) {
         lines.push({ type: "output", text: commandOutputs.ls });
       } else if (path === "projects") {
@@ -236,9 +362,17 @@ export function executeCommand(
         lines.push({ type: "output", text: `theme: ${choice}`, variant: "dim" });
         return { lines, state: { history: newHistory }, theme: choice };
       }
+      if (choice === "green" || choice === "amber") {
+        lines.push({
+          type: "output",
+          text: `theme: ${choice} phosphor. 'theme system' to go back.`,
+          variant: "dim",
+        });
+        return { lines, state: { history: newHistory }, theme: choice };
+      }
       lines.push({
         type: "output",
-        text: "usage: theme dark | light | system",
+        text: "usage: theme dark | light | system | green | amber",
         variant: "error",
       });
       break;
@@ -295,6 +429,65 @@ export function executeCommand(
       lines.push({ type: "output", text: `PING ${new URL(url).host}`, variant: "dim" });
       return { lines, state: { history: newHistory }, ping: { id: project.id, url } };
     }
+
+    case "cd": {
+      const target = resolveCd(cwd, arg);
+      if (!target) {
+        lines.push({ type: "output", text: `cd: no such file or directory: ${arg}. try 'tree'.`, variant: "error" });
+        break;
+      }
+      if (target === (cwd.replace(/\/+$/, "") || "/")) break;
+      return { lines, state: { history: newHistory }, navigate: target };
+    }
+
+    case "pwd":
+      lines.push({ type: "output", text: `/home/aly${cwd === "/" ? "" : cwd.replace(/\/+$/, "")}` });
+      break;
+
+    case "tree":
+      lines.push({ type: "output", text: tree() });
+      break;
+
+    case "uptime":
+      lines.push({ type: "output", text: uptime(new Date()) });
+      break;
+
+    case "date":
+      lines.push({ type: "output", text: new Date().toString().replace(/ \(.*\)$/, "") });
+      break;
+
+    case "echo":
+      lines.push({ type: "output", text: arg.replace(/^["']|["']$/g, "") || "\u00a0" });
+      break;
+
+    case "fortune": {
+      const pick = principles[Math.floor(Math.random() * principles.length)];
+      lines.push({ type: "output", text: `${pick.rule}\n  -- ${pick.proof}\n\n(see 'cat ${pick.project}')` });
+      break;
+    }
+
+    case "cowsay":
+      lines.push({ type: "output", text: cowsay(arg.replace(/^["']|["']$/g, "") || "hire aly") });
+      break;
+
+    case "mail":
+      lines.push({ type: "output", text: `to: ${site.email}\nopening your mail client.`, variant: "dim" });
+      return { lines, state: { history: newHistory }, mailto: `mailto:${site.email}` };
+
+    case "vim":
+    case "vi":
+    case "nano":
+    case "emacs":
+      lines.push({
+        type: "output",
+        text: `${cmd}: this shell is read-only. (and you'd never get out of ${cmd === "vim" || cmd === "vi" ? "vim" : "it"}.)\ntry 'cat resume' instead.`,
+        variant: "dim",
+      });
+      break;
+
+    case "rm":
+      lines.push({ type: "output", text: trimmed.includes("-rf") ? commandOutputs.sudoRmRf : "rm: permission denied. it's a portfolio.", variant: "dim" });
+      break;
 
     case "neofetch":
       lines.push({ type: "output", text: commandOutputs.neofetch });

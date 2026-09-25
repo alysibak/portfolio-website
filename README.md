@@ -29,13 +29,17 @@ Open [http://localhost:4321](http://localhost:4321).
 
 ```
 src/
-  pages/          index, work, experience  (file-based routes)
+  pages/          index, work, experience, resume  (file-based routes)
   layouts/        Base.astro — <head>, nav, footer, console mount
   components/     Nav, Footer, ShellHint, DevToolsEgg, Console.tsx, and the
                   visuals: HomeTerminal, Stats, Flow, BugChart, AwardBadge,
-                  GitGraph, DegreeBar
+                  GitGraph, DegreeBar, Screenshot, RepoStats, Prompt
+  assets/shots/   project screenshots (optimized to AVIF/WebP at build)
+  data/           github.json — fallback for the repo stats
   lib/
     data.ts       all site content lives here
+    shots.ts      which screenshots each project shows, with alt text
+    github.ts     repo languages and last push, fetched once per build
     shell.ts      command parsing for the console
   styles/         global.css — Tailwind entry + component classes
 public/           favicon, robots.txt, security.txt
@@ -54,14 +58,32 @@ what the console prints for `cat <project>`. When you edit a project, update eac
 of these: the pages, the resume, and the console read the same record but render
 it differently.
 
+## Screenshots and repo stats
+
+Screenshots are taken from each app running locally on its seeded or public
+data, saved as WebP in `src/assets/shots/`, and listed in `src/lib/shots.ts`.
+Astro resizes them at build. A project without any (Bystander) shows its
+diagram instead.
+
+Project pages show the repository's languages and when it was last pushed to.
+`src/lib/github.ts` asks the GitHub API once per build (set `GITHUB_TOKEN` to
+avoid the anonymous rate limit); if that fails, it uses `src/data/github.json`.
+
 ## The console
 
 Press <kbd>/</kbd> or <kbd>~</kbd> anywhere to open an interactive shell.
 Supported commands are defined in `src/lib/shell.ts`: `help`, `whoami`, `ls`,
-`cat <project>`, `grep <tech>`, `ping <project>`, `git log`, `open <project>`,
-`neofetch`, `man aly`, `history`, `theme <mode>`, `sudo hire aly`, `clear`,
-`exit`. Tab completes. Links like `/?cmd=cat+carinfo` open the shell and run a
-command. <kbd>Ctrl</kbd>+<kbd>K</kbd> opens site search.
+`cd <page>`, `pwd`, `cat <project>`, `grep <tech>`, `ping <project>`,
+`git log`, `open <project>`, `mail`, `neofetch`, `man aly`, `history`,
+`theme <mode>` (including `green` and `amber`), `tree`, `uptime`, `fortune`,
+`cowsay`, `date`, `echo`, `sudo hire aly`, `clear`, `exit`. Tab completes,
+<kbd>→</kbd> takes the greyed-out suggestion, and history is kept between
+visits. Commands and links in the output are clickable. Links like
+`/?cmd=cat+carinfo` open the shell and run a command.
+
+Keys: <kbd>Ctrl</kbd>+<kbd>K</kbd> opens site search; <kbd>g</kbd> then
+<kbd>w</kbd>, <kbd>e</kbd>, <kbd>r</kbd>, or <kbd>h</kbd> goes to Work,
+Experience, Resume, or home. There's also a Konami code.
 
 ## Deployment
 

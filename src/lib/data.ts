@@ -861,19 +861,27 @@ export const commandOutputs = {
 
   whoami         who I am
   ls             list sections
+  cd <dir>       go to a page: cd work, cd carinfo, cd ~
   cat <name>     read a case study, or 'cat resume'
   grep <tech>    projects that use a technology
   ping <name>    check a live project answers
   git log        career history
   open <name>    open a project link
+  mail           write to me
   neofetch       the one-screen summary
   man aly        the manual
-  history        what you've run
-  theme <mode>   dark, light, or system
+  theme <mode>   dark, light, system, green, or amber
   clear          clear the console
   exit           close the console
 
-tip: tab completes. try 'sudo hire aly'.`,
+also: pwd tree uptime fortune cowsay history date echo
+
+keys: g w  work        g e  experience
+      g r  resume      g h  home
+      ctrl k  search   / or ~  this shell
+
+tip: tab completes, → takes a suggestion.
+try 'sudo hire aly'.`,
 
   whoami: `aly sibak
 fourth-year computer science co-op, university of guelph

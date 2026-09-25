@@ -1,0 +1,98 @@
+---
+import { Picture } from "astro:assets";
+import { liveUrl, type Project } from "../lib/data";
+import { projectShots } from "../lib/shots";
+
+interface Props {
+  project: Project;
+  /** Wrap the first screenshot in a link here instead of showing tabs. */
+  href?: string;
+  /** Above the fold: load right away. */
+  eager?: boolean;
+  /** Rendered width, for picking an image size. */
+  sizes?: string;
+}
+
+const { project, href, eager = false, sizes = "(min-width: 40rem) 36rem, calc(100vw - 3rem)" } = Astro.props;
+const entry = projectShots[project.id];
+const shots = entry ? (href ? entry.shots.slice(0, 1) : entry.shots) : [];
+const host = (liveUrl(project) ?? "").replace(/^https?:\/\//, "") || `${project.id}.local`;
+const widths = [480, 768, 1152, 1536];
+---
+
+{
+  shots.length > 0 && (
+    <figure class="shot" data-shots>
+      <div class="shot-window overflow-hidden rounded-md border border-border bg-paper">
+        <div class="shot-bar meta flex items-center gap-3 border-b border-border px-3 py-2 text-[0.6875rem]">
+          <span class="shot-dots flex shrink-0 gap-1.5" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+          <span class="min-w-0 flex-1 truncate text-subtle">
+            <span class="text-muted">{host}</span>
+            <span data-shot-path>{shots[0].path}</span>
+          </span>
+          {shots.length > 1 && (
+            <span class="flex shrink-0 gap-1" role="group" aria-label={`${project.title} screenshots`}>
+              {shots.map((shot, i) => (
+                <button
+                  type="button"
+                  class="shot-tab"
+                  aria-pressed={i === 0 ? "true" : "false"}
+                  data-shot-tab={i}
+                  data-path={shot.path}
+                >
+                  {shot.label}
+                </button>
+              ))}
+            </span>
+          )}
+        </div>
+        {href ? (
+          <a href={href} class="shot-link block" aria-label={`${project.title} case study`}>
+            <Picture
+              src={shots[0].src}
+              alt={shots[0].alt}
+              widths={widths}
+              sizes={sizes}
+              formats={["avif", "webp"]}
+              loading={eager ? "eager" : "lazy"}
+              class="block h-auto w-full"
+            />
+          </a>
+        ) : (
+          shots.map((shot, i) => (
+            <div data-shot={i} hidden={i > 0}>
+              <Picture
+                src={shot.src}
+                alt={shot.alt}
+                widths={widths}
+                sizes={sizes}
+                formats={["avif", "webp"]}
+                loading={eager && i === 0 ? "eager" : "lazy"}
+                class="block h-auto w-full"
+              />
+            </div>
+          ))
+        )}
+      </div>
+      {!href && entry?.note && <figcaption class="meta mt-2 leading-relaxed text-subtle">{entry.note}</figcaption>}
+    </figure>
+  )
+}
+
+<script>
+  // Tabs in the window's title bar switch between a project's screenshots.
+  document.addEventListener("click", (e) => {
+    const tab = e.target instanceof Element ? e.target.closest<HTMLButtonElement>("[data-shot-tab]") : null;
+    const figure = tab?.closest("[data-shots]");
+    if (!tab || !figure) return;
+    const index = tab.dataset.shotTab;
+    figure.querySelectorAll<HTMLElement>("[data-shot]").forEach((el) => (el.hidden = el.dataset.shot !== index));
+    figure.querySelectorAll("[data-shot-tab]").forEach((b) => b.setAttribute("aria-pressed", String(b === tab)));
+    const path = figure.querySelector("[data-shot-path]");
+    if (path) path.textContent = tab.dataset.path ?? "";
+  });
+</script>

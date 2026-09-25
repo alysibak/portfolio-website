@@ -83,8 +83,12 @@ const person =
         function apply() {
           try {
             var t = localStorage.getItem("theme");
-            if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
-            else document.documentElement.removeAttribute("data-theme");
+            var root = document.documentElement;
+            var crt = t === "green" || t === "amber";
+            if (t === "dark" || t === "light" || crt) root.setAttribute("data-theme", crt ? "dark" : t);
+            else root.removeAttribute("data-theme");
+            if (crt) root.setAttribute("data-crt", t);
+            else root.removeAttribute("data-crt");
           } catch (e) {}
         }
         apply();
@@ -119,6 +123,45 @@ const person =
     <Console client:idle transition:persist />
     <Palette client:idle transition:persist />
     <DevToolsEgg />
+    <script>
+      import { navigate } from "astro:transitions/client";
+
+      // Keyboard shortcuts: g then w/e/r/h goes to a page, like a mail client.
+      // The Konami code turns the site into a green phosphor terminal.
+      const GO: Record<string, string> = { h: "/", w: "/work", e: "/experience", r: "/resume" };
+      const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+      let gAt = 0;
+      let konami = 0;
+
+      document.addEventListener("keydown", (e) => {
+        const t = e.target;
+        if (t instanceof HTMLElement && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+
+        konami = key === KONAMI[konami] ? konami + 1 : key === KONAMI[0] ? 1 : 0;
+        if (konami === KONAMI.length) {
+          konami = 0;
+          window.__consoleCmd = "theme green";
+          window.__consoleRequested = true;
+          window.dispatchEvent(new Event("console:open"));
+          return;
+        }
+
+        if (document.querySelector('[aria-modal="true"]')) return;
+        if (key === "g") {
+          gAt = Date.now();
+          return;
+        }
+        const to = GO[key];
+        if (to && Date.now() - gAt < 1200) {
+          e.preventDefault();
+          gAt = 0;
+          if (window.location.pathname.replace(/\/$/, "") !== to.replace(/\/$/, "")) navigate(to);
+        }
+        gAt = 0;
+      });
+    </script>
     <script is:inline>
       // Buttons that open the console. The console hydrates on idle, so a tap
       // before then is queued on window and picked up when it mounts. Inline

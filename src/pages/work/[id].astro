@@ -8,7 +8,11 @@ import StackChips from "../../components/StackChips.astro";
 import CodeExcerpt from "../../components/CodeExcerpt.astro";
 import AuthDemo from "../../components/AuthDemo.astro";
 import LiveStatus from "../../components/LiveStatus.astro";
+import Prompt from "../../components/Prompt.astro";
+import Screenshot from "../../components/Screenshot.astro";
+import RepoStats from "../../components/RepoStats.astro";
 import { projects, type Project } from "../../lib/data";
+import { projectShots } from "../../lib/shots";
 
 export function getStaticPaths() {
   return projects.map((project, i) => ({
@@ -33,11 +37,12 @@ const { caseStudy } = project;
 
 <Base title={`${project.title}, Aly Sibak`} description={project.tagline}>
   <article class="mx-auto max-w-xl">
-    <a href="/work" class="meta link text-subtle">← All work</a>
+    <a href="/work" class="meta link text-subtle">cd ..<span class="sr-only"> (all work)</span></a>
 
-    <header class="mt-8">
+    <Prompt path="~/work" cmd={`cat ${project.id}.md`} class="mt-8" />
+    <header class="mt-3">
       <div class="flex items-baseline justify-between gap-4">
-        <h1 class="text-2xl font-medium" transition:name={`project-${project.id}`}>{project.title}</h1>
+        <h1 class="md-h1"><span class="inline-block" transition:name={`project-${project.id}`}>{project.title}</span></h1>
         {project.year && <span class="meta shrink-0 tabular-nums text-subtle">{project.year}</span>}
       </div>
       <p class="mt-2 text-[1.0625rem] leading-relaxed text-muted">{project.tagline}</p>
@@ -51,7 +56,7 @@ const { caseStudy } = project;
               rel="noopener noreferrer"
               class:list={[link.label === "Live" || link.label === "Devpost" ? "link-accent" : "link"]}
             >
-              {link.label}
+              {link.label.toLowerCase()}
               <span class="sr-only"> (opens in a new tab)</span>
               <span aria-hidden="true"> ↗</span>
             </a>
@@ -62,10 +67,19 @@ const { caseStudy } = project;
       <div class="mt-5">
         <StackChips stack={project.stack} />
       </div>
+      <RepoStats id={project.id} />
     </header>
 
-    <section class="mt-10">
-      <h2 class="meta text-subtle">How it fits together</h2>
+    {
+      projectShots[project.id] && (
+        <div class="wide mt-10">
+          <Screenshot project={project} eager sizes="(min-width: 51rem) 48rem, calc(100vw - 3rem)" />
+        </div>
+      )
+    }
+
+    <section class="mt-12">
+      <h2 class="md-h2">How it fits together</h2>
       <Flow project={project} />
       {
         project.ownership && (
@@ -81,7 +95,7 @@ const { caseStudy } = project;
     {
       project.finding && (
         <section class="mt-10 border-t border-border pt-8">
-          <h2 class="meta text-subtle">The bug</h2>
+          <h2 class="md-h2">The bug</h2>
           <p class="mt-3 text-[0.9375rem] leading-relaxed text-muted">{project.finding}</p>
           {project.findingChart && <BugChart chart={project.findingChart} />}
           {project.id === "carinfo" && <BugReplay />}
@@ -92,7 +106,7 @@ const { caseStudy } = project;
     {
       project.id === "timevault" && (
         <section class="mt-10 border-t border-border pt-8">
-          <h2 class="meta text-subtle">Try it</h2>
+          <h2 class="md-h2">Try it</h2>
           <AuthDemo />
         </section>
       )
@@ -101,14 +115,14 @@ const { caseStudy } = project;
     {
       project.code && (
         <section class="mt-10 border-t border-border pt-8">
-          <h2 class="meta text-subtle">The code</h2>
+          <h2 class="md-h2">The code</h2>
           <CodeExcerpt excerpt={project.code} />
         </section>
       )
     }
 
     <section class="mt-10 border-t border-border pt-8">
-      <h2 class="meta text-subtle">Case study</h2>
+      <h2 class="md-h2">Case study</h2>
       <dl class="mt-5 space-y-6">
         {
           caseStudy.problem && (
@@ -162,8 +176,8 @@ const { caseStudy } = project;
     </p>
 
     <nav aria-label="More projects" class="meta mt-12 flex justify-between gap-4 border-t border-border pt-6">
-      <a href={`/work/${prev.id}`} class="link text-muted">← {prev.title}</a>
-      <a href={`/work/${next.id}`} class="link text-muted">{next.title} →</a>
+      <a href={`/work/${prev.id}`} class="link text-muted"><span aria-hidden="true">← </span>cd ../{prev.id}<span class="sr-only"> (previous project)</span></a>
+      <a href={`/work/${next.id}`} class="link text-muted">cd ../{next.id}<span class="sr-only"> (next project)</span><span aria-hidden="true"> →</span></a>
     </nav>
   </article>
 </Base>

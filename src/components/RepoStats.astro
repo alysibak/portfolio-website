@@ -1,0 +1,66 @@
+---
+import { languageShares, repoStats } from "../lib/github";
+
+interface Props {
+  id: string;
+  /** Just "updated 3 days ago", for lists. */
+  compact?: boolean;
+}
+
+const { id, compact = false } = Astro.props;
+const stats = (await repoStats())[id];
+const shares = stats ? languageShares(stats.languages) : [];
+const pushed = stats ? new Date(stats.pushedAt) : null;
+const date = pushed?.toLocaleDateString("en-CA", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" });
+const pct = (n: number) => (n >= 10 ? Math.round(n) : n.toFixed(1));
+---
+
+{
+  stats && pushed && compact && (
+    <span class="meta text-subtle">
+      updated <time datetime={stats.pushedAt} data-ago title={date}>{date}</time>
+    </span>
+  )
+}
+{
+  stats && pushed && !compact && (
+    <div class="mt-5">
+      <div class="flex h-1.5 gap-px overflow-hidden rounded-full" aria-hidden="true">
+        {shares.map((l) => (
+          <span class="lang-seg" style={`width:${l.pct}%;background:${l.color}`} />
+        ))}
+      </div>
+      <ul class="meta mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[0.75rem] text-subtle" aria-label="Languages in the repository">
+        <li class="text-muted">repo</li>
+        {shares.map((l) => (
+          <li class="inline-flex items-center gap-1.5">
+            <span class="h-2 w-2 rounded-full" style={`background:${l.color}`} aria-hidden="true" />
+            {l.name} <span class="tabular-nums">{pct(l.pct)}%</span>
+          </li>
+        ))}
+        <li>
+          updated <time datetime={stats.pushedAt} data-ago title={date}>{date}</time>
+        </li>
+      </ul>
+    </div>
+  )
+}
+
+<script>
+  // The build knows the date; the visitor's clock knows how long ago that was.
+  function ago(then: Date): string {
+    const days = Math.floor((Date.now() - then.getTime()) / 86_400_000);
+    if (days < 1) return "today";
+    if (days === 1) return "yesterday";
+    if (days < 14) return `${days} days ago`;
+    if (days < 60) return `${Math.floor(days / 7)} weeks ago`;
+    if (days < 730) return `${Math.floor(days / 30)} months ago`;
+    return `${Math.floor(days / 365)} years ago`;
+  }
+  document.addEventListener("astro:page-load", () => {
+    document.querySelectorAll<HTMLTimeElement>("time[data-ago]").forEach((el) => {
+      const then = new Date(el.dateTime);
+      if (!Number.isNaN(then.getTime())) el.textContent = ago(then);
+    });
+  });
+</script>

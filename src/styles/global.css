@@ -57,6 +57,65 @@
   }
 }
 
+/* `theme green` and `theme amber` in the shell: phosphor terminals. */
+:root[data-theme="dark"][data-crt="green"] {
+  --paper: 6 12 8;
+  --ink: 176 255 188;
+  --muted: 120 214 140;
+  --subtle: 84 168 104;
+  --border: 26 56 33;
+  --accent: 64 255 118;
+  --good: 64 255 118;
+  --bad: 255 146 116;
+  --teal: 110 232 170;
+  --amber: 206 255 128;
+  --plum: 150 226 206;
+  --grid-dot: 20 40 25;
+}
+
+:root[data-theme="dark"][data-crt="amber"] {
+  --paper: 14 9 3;
+  --ink: 255 204 112;
+  --muted: 232 168 78;
+  --subtle: 178 124 52;
+  --border: 62 42 16;
+  --accent: 255 180 30;
+  --good: 255 214 120;
+  --bad: 255 120 90;
+  --teal: 242 196 110;
+  --amber: 255 180 30;
+  --plum: 234 176 118;
+  --grid-dot: 42 29 11;
+}
+
+:root[data-crt] body {
+  text-shadow: 0 0 5px rgb(var(--accent) / 0.28);
+}
+
+/* Scanlines over everything, never in the way of a click. */
+:root[data-crt] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.22) 0 1px, transparent 1px 3px);
+}
+
+:root[data-crt] img {
+  filter: grayscale(1) sepia(1) hue-rotate(var(--crt-hue, 70deg)) saturate(2.2) brightness(0.9);
+}
+
+:root[data-crt="amber"] img {
+  --crt-hue: 0deg;
+}
+
+@media print {
+  :root[data-crt] body::after {
+    display: none;
+  }
+}
+
 ::selection {
   background: rgb(var(--accent));
   color: rgb(var(--paper));
@@ -454,8 +513,8 @@ button.shell-kbd {
 /* Print: a clean page for recruiters who print. Light colours, no chrome,
    every step shown, and link targets written out. */
 @media print {
-  /* html:root:not() outranks both dark-mode selectors above. */
-  html:root:not([data-print]) {
+  /* html:root:not():not() outranks the dark and phosphor selectors above. */
+  html:root:not([data-print]):not([data-print-crt]) {
     --paper: 255 255 255;
     --ink: 0 0 0;
     --muted: 40 40 46;
@@ -463,7 +522,20 @@ button.shell-kbd {
     --border: 200 200 196;
     --accent: 30 58 95;
     --grid-dot: 255 255 255;
+    --good: 47 107 58;
+    --bad: 155 44 44;
+    --teal: 39 107 98;
+    --amber: 138 82 9;
+    --plum: 122 74 140;
     color-scheme: light;
+  }
+
+  :root[data-crt] body {
+    text-shadow: none;
+  }
+
+  :root[data-crt] img {
+    filter: none;
   }
 
   .site-header,
@@ -692,4 +764,81 @@ button.shell-kbd {
   .term-body .t-contact {
     margin-top: 0.1rem !important;
   }
+}
+
+/* Terminal pieces used across the site: a prompt line before each section,
+   and markdown-style headings. */
+.prompt-line {
+  @apply text-[0.75rem] text-muted;
+}
+
+.md-h1 {
+  @apply text-2xl font-medium;
+}
+
+.md-h1::before,
+.md-h2::before {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  @apply text-subtle;
+}
+
+.md-h1::before {
+  content: "# ";
+  content: "# " / "";
+}
+
+.md-h2 {
+  font-family: var(--font-mono);
+  @apply text-[0.875rem] font-medium text-accent;
+}
+
+.md-h2::before {
+  content: "## ";
+  content: "## " / "";
+}
+
+/* Screenshots sit in a window with an address bar. */
+.shot-window {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 12px 32px rgb(0 0 0 / 0.07);
+}
+
+.shot-dots i {
+  @apply block h-2 w-2 rounded-full bg-border;
+}
+
+.shot-tab {
+  @apply rounded border border-transparent px-1.5 py-0.5 text-subtle transition-colors hover:text-accent;
+}
+
+.shot-tab[aria-pressed="true"] {
+  @apply border-border text-ink;
+}
+
+.shot-link img {
+  transition: transform 0.4s ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .shot-link:hover img {
+    transform: scale(1.015);
+  }
+}
+
+.shot-link:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Wider than the text column on large screens, never wider than the page. */
+.wide {
+  position: relative;
+  left: 50%;
+  width: min(48rem, calc(100vw - 3rem));
+  transform: translateX(-50%);
+}
+
+/* Commands and links inside console output. */
+.console-run,
+.console-link {
+  @apply text-accent underline decoration-accent/40 decoration-dotted underline-offset-2 transition-colors hover:decoration-solid;
 }
