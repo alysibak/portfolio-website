@@ -1,9 +1,23 @@
 ---
-import { site } from "../lib/data";
+import { headlineStack, projects, site, timeline } from "../lib/data";
 
 const output = [site.name, site.school, site.roleLine, site.location].map((line) =>
   line.toLowerCase()
 );
+
+// What a recruiter scans for first: where I've worked, what I've won, what I use.
+const coops = timeline
+  .filter((t) => t.lane === "co-op")
+  .map((t) => `${t.org} (${t.start.slice(0, 4)})`)
+  .join(", ");
+const award = projects.find((p) => p.award)?.award;
+const now = timeline.find((t) => t.current);
+const facts = [
+  now && { key: "now", value: `${now.role}, ${now.org.replace(/\s*\(.*\)$/, "")}` },
+  { key: "co-op", value: coops },
+  award && { key: "award", value: award },
+  { key: "stack", value: headlineStack.join(", ") },
+].filter((f): f is { key: string; value: string } => Boolean(f));
 
 // The whole card opens the shell on click; the header button is the keyboard route in.
 ---
@@ -28,6 +42,16 @@ const output = [site.name, site.school, site.roleLine, site.location].map((line)
         </p>
       ))
     }
+    <dl class="mt-2 space-y-0.5" data-out>
+      {
+        facts.map((f) => (
+          <div class="grid grid-cols-[6ch_1fr] gap-x-2">
+            <dt class="text-accent">{f.key}</dt>
+            <dd class="text-ink">{f.value.toLowerCase()}</dd>
+          </div>
+        ))
+      }
+    </dl>
   </div>
 </div>
 

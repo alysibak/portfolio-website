@@ -135,6 +135,8 @@ export const site = {
   /** For showing visitors what time it is for me. */
   timeZone: "America/Toronto",
   availability: "Seeking Winter 2027 co-op, January–April",
+  /** How long a term I can do; shown beside the availability on the home page. */
+  termLength: "4 or 8 months",
   /** The term availability refers to, as YYYY-MM. Drawn on the degree bar. */
   seeking: { label: "Winter 2027", start: "2027-01", end: "2027-04" },
   description:
@@ -601,13 +603,17 @@ export const principles = [
   },
 ];
 
-/** Numbers from personal projects only. Employer work stays vague. */
+/** Numbers from projects and teaching only. Employer work stays vague. */
 export const highlights: Stat[] = [
   { value: 28000, label: "vehicles in CarInfo" },
   { value: 419, label: "misclassified hybrids caught" },
-  { value: 36, suffix: " h", label: "to build Bystander" },
   { value: 57000, suffix: "+", label: "WWI records in TimeVault" },
+  { value: 250, suffix: "+", label: "students supported as a TA" },
 ];
+
+/** The first technologies a recruiter looks for, from the skills below. The
+ *  content check makes sure each one is listed there. */
+export const headlineStack = ["TypeScript", "React", "Node.js", "Python", "C#", "PostgreSQL", "Azure"];
 
 /** Newest first. The graph draws one lane per `lane`. */
 export const timeline: TimelineEntry[] = [

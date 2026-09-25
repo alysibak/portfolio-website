@@ -120,6 +120,12 @@ const person =
       </>
     )}
 
+    {/* Phones: email and resume stay in reach once the page scrolls. */}
+    <nav class="contact-dock" aria-label="Contact" data-dock hidden>
+      <a href={`mailto:${site.email}`} class="btn btn-primary shadow-lg">Email me</a>
+      {Astro.url.pathname.replace(/\/$/, "") !== site.resume && <a href={site.resume} class="btn bg-paper shadow-lg">Resume</a>}
+    </nav>
+
     <Console client:idle transition:persist />
     <Palette client:idle transition:persist />
     <DevToolsEgg />
@@ -132,6 +138,38 @@ const person =
       const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
       let gAt = 0;
       let konami = 0;
+
+      // The phone contact dock: shown once the page's own contact buttons (or,
+      // without them, the first screen) have scrolled away, and hidden again
+      // at the footer, which has the same links.
+      let dockWatch: IntersectionObserver | undefined;
+      let dockScroll: (() => void) | undefined;
+      function dock() {
+        dockWatch?.disconnect();
+        if (dockScroll) window.removeEventListener("scroll", dockScroll);
+        dockScroll = undefined;
+        const bar = document.querySelector<HTMLElement>("[data-dock]");
+        const footer = document.querySelector(".site-footer");
+        if (!bar || !footer) return;
+        const cta = document.querySelector("[data-cta]");
+        const seen = new Map<Element, boolean>([[footer, false]]);
+        if (cta) seen.set(cta, true);
+        const update = () => {
+          const top = cta ? seen.get(cta) : window.scrollY < 400;
+          bar.hidden = Boolean(top || seen.get(footer));
+        };
+        dockWatch = new IntersectionObserver((entries) => {
+          for (const e of entries) seen.set(e.target, e.isIntersecting);
+          update();
+        });
+        seen.forEach((_, el) => dockWatch!.observe(el));
+        if (!cta) {
+          dockScroll = update;
+          window.addEventListener("scroll", update, { passive: true });
+        }
+        update();
+      }
+      document.addEventListener("astro:page-load", dock);
 
       document.addEventListener("keydown", (e) => {
         const t = e.target;

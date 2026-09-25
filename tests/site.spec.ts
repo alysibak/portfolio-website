@@ -153,3 +153,21 @@ test("the footer shows my local time", async ({ page }) => {
   await expect(page.locator("[data-local-time]")).toContainText(/\d:\d\d/);
   await expect(page.locator("[data-status-path]")).toHaveText("~/work");
 });
+
+test("the home page leads with contact and projects", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("[data-cta] a[href^='mailto:']")).toBeVisible();
+  await expect(page.locator("[data-cta] a[href='/resume']")).toBeVisible();
+  await expect(page.getByRole("list", { name: "Projects" }).getByRole("link")).toHaveCount(4);
+  await expect(page.locator("[data-whoami]")).toContainText("award");
+});
+
+test("phones get a contact dock once the buttons scroll away", async ({ page, isMobile }) => {
+  test.skip(!isMobile, "phone only");
+  await page.goto("/");
+  const dock = page.locator("[data-dock]");
+  await expect(dock).toBeHidden();
+  await page.getByRole("list", { name: "Projects" }).scrollIntoViewIfNeeded();
+  await expect(dock).toBeVisible();
+  await expect(dock.getByRole("link", { name: "Email me" })).toHaveAttribute("href", /^mailto:/);
+});
