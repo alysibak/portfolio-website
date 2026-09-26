@@ -698,6 +698,10 @@ export const teaching = {
   ],
 };
 
+/** The skills a recruiter searches for first, shown on the home page. The
+ *  content check makes sure each one is also in `skills` below. */
+export const headlineStack = ["Java", "Python", "C#", "TypeScript", "React", ".NET", "SQL", "Azure"];
+
 export const teachingStats: Stat[] = [
   { value: 3, label: "courses taught" },
   { value: 3, label: "professors who selected me" },

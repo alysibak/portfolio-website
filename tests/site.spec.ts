@@ -160,6 +160,9 @@ test("the home page is a terminal entry with the essentials", async ({ page }) =
   await expect(menu.getByRole("link", { name: "Work" })).toBeVisible();
   await expect(menu.getByRole("link", { name: "Resume" })).toHaveAttribute("href", "/resume");
   await expect(menu.locator("a[href^='mailto:']")).toBeVisible();
-  await expect(page.locator("main")).toContainText("Co-op terms at");
+  const facts = page.locator(".whoami-facts");
+  for (const key of ["available", "experience", "education", "grades", "skills"]) {
+    await expect(facts.getByText(key, { exact: true })).toBeVisible();
+  }
   await expect(page.locator("[data-last-login]")).toContainText(/first login|Last login/);
 });

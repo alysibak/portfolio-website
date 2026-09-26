@@ -932,3 +932,22 @@ button.shell-kbd {
   margin: 0 0.6ch;
   @apply text-subtle;
 }
+
+/* Home: the key facts as `neofetch`-style lines, label then value. */
+.whoami-facts > div {
+  @apply grid grid-cols-[11ch_1fr] gap-x-2 py-0.5;
+}
+
+.whoami-facts dt {
+  @apply text-subtle;
+}
+
+@media (max-width: 26rem) {
+  .whoami-facts > div {
+    @apply grid-cols-1;
+  }
+
+  .whoami-facts > div + div {
+    @apply mt-2;
+  }
+}

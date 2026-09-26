@@ -1,11 +1,35 @@
 ---
 import Base from "../layouts/Base.astro";
 import ShellHint from "../components/ShellHint.astro";
-import { projects, site, timeline } from "../lib/data";
+import { headlineStack, projects, site, teaching, timeline } from "../lib/data";
 
 const [first, ...rest] = site.name.split(" ");
-const coops = timeline.filter((t) => t.lane === "co-op").map((t) => t.org);
-const award = projects.find((p) => p.award);
+const { education } = site;
+const coops = timeline.filter((t) => t.lane === "co-op");
+const award = projects.find((p) => p.award)?.award;
+
+// What a recruiter looks for, in the order they look, as `neofetch`-style
+// lines. Everything comes from data.ts, the same records as the resume.
+const year = (period: string) => period.match(/\d{4}/)?.[0] ?? "";
+const facts: { key: string; lines: string[]; rows?: { when: string; what: string }[]; accent?: boolean }[] = [
+  { key: "available", lines: [`${site.seeking.label}, January–April · ${site.termLength}`], accent: true },
+  {
+    key: "experience",
+    lines: [],
+    rows: [
+      ...coops.map((c) => ({ when: year(c.period), what: `${c.role}, ${c.org}` })),
+      { when: `${year(teaching.period)}–`, what: `${teaching.role}, ${teaching.org}` },
+    ],
+  },
+  {
+    key: "education",
+    lines: [`Computer Science co-op, ${education.school}`, education.detail],
+  },
+  { key: "grades", lines: [education.highlights.join(" · ")] },
+  ...(award ? [{ key: "award", lines: [award] }] : []),
+  { key: "skills", lines: [headlineStack.join(" · ")] },
+  { key: "location", lines: [site.location] },
+];
 ---
 
 <Base title={`${site.name} · Software developer co-op, ${site.seeking.label}`} center>
@@ -21,24 +45,40 @@ const award = projects.find((p) => p.award);
         {rest.join(" ")}<span class="name-cursor" aria-hidden="true"></span>
       </h1>
 
-      <p class="mt-5 text-[0.9375rem] text-muted">{site.roleLine}</p>
-      <p class="mt-3 text-[0.9375rem] leading-relaxed text-muted">
-        Co-op terms at {coops.join(" and ")}.
-        {award && <> {award.title} won {award.award}.</>}
-      </p>
-      <p class="meta mt-2 text-subtle">{site.school} · {site.location}</p>
-      <p class="meta mt-1 text-accent" data-expires={site.seeking.start}>
-        {site.availability} ({site.termLength})
-      </p>
+      <p class="mt-5 text-[0.9375rem] text-muted">{site.roleLine}.</p>
 
-      <ShellHint variant="home" />
+      <dl class="whoami-facts meta mt-8">
+        {
+          facts.map((f) => (
+            <div data-expires={f.key === "available" ? site.seeking.start : undefined}>
+              <dt>{f.key}</dt>
+              <dd class:list={[f.accent ? "text-accent" : "text-ink"]}>
+                {f.lines.map((line) => (
+                  <span class="block">{line}</span>
+                ))}
+                {f.rows?.map((r) => (
+                  <span class="grid grid-cols-[6ch_1fr]">
+                    <span class="tabular-nums text-subtle">{r.when}</span>
+                    <span>{r.what}</span>
+                  </span>
+                ))}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
 
       <nav aria-label="Site" class="entry-menu meta mt-10 flex flex-col gap-2.5 text-muted">
+        <a href={site.resume} class="link-accent w-fit">Resume</a>
         <a href="/work" class="link w-fit">Work</a>
         <a href="/experience" class="link w-fit">Experience</a>
-        <a href={site.resume} class="link-accent w-fit">Resume</a>
+        <a href={site.linkedin} target="_blank" rel="noopener noreferrer" class="link w-fit">
+          LinkedIn<span class="sr-only"> (opens in a new tab)</span><span aria-hidden="true"> ↗</span>
+        </a>
         <a href={`mailto:${site.email}`} class="link w-fit">{site.email}</a>
       </nav>
+
+      <ShellHint variant="home" />
     </div>
   </div>
 </Base>
