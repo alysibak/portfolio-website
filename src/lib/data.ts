@@ -128,13 +128,13 @@ export const site = {
   /** Keep in step with `site` in astro.config.mjs; the content check compares them. */
   url: "https://alysibak.vercel.app",
   roleLine: "I build and debug production systems",
+  /** The home page's second line. Kept as general as the resume. */
+  now: "Most recently, full-stack development on municipal government software and on a cloud-based inspection platform.",
   school: "Fourth-year Computer Science co-op, University of Guelph",
   location: "Mississauga, Ontario",
   /** For showing visitors what time it is for me. */
   timeZone: "America/Toronto",
   availability: "Seeking Winter 2027 co-op, January–April",
-  /** How long a term I can do; shown beside the availability on the home page. */
-  termLength: "4 or 8 months",
   /** The term availability refers to, as YYYY-MM. Drawn on the degree bar. */
   seeking: { label: "Winter 2027", start: "2027-01", end: "2027-04" },
   description:
@@ -697,10 +697,6 @@ export const teaching = {
     "Support 250+ students through office hours, review sessions and an online support inbox",
   ],
 };
-
-/** The skills a recruiter searches for first, shown on the home page. The
- *  content check makes sure each one is also in `skills` below. */
-export const headlineStack = ["Java", "Python", "C#", "TypeScript", "React", ".NET", "SQL", "Azure"];
 
 export const teachingStats: Stat[] = [
   { value: 3, label: "courses taught" },

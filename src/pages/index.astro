@@ -1,84 +1,33 @@
 ---
 import Base from "../layouts/Base.astro";
 import ShellHint from "../components/ShellHint.astro";
-import { headlineStack, projects, site, teaching, timeline } from "../lib/data";
+import { navLinks, site } from "../lib/data";
 
 const [first, ...rest] = site.name.split(" ");
-const { education } = site;
-const coops = timeline.filter((t) => t.lane === "co-op");
-const award = projects.find((p) => p.award)?.award;
-
-// What a recruiter looks for, in the order they look, as `neofetch`-style
-// lines. Everything comes from data.ts, the same records as the resume.
-const year = (period: string) => period.match(/\d{4}/)?.[0] ?? "";
-const facts: { key: string; lines: string[]; rows?: { when: string; what: string }[]; accent?: boolean }[] = [
-  { key: "available", lines: [`${site.seeking.label}, January–April · ${site.termLength}`], accent: true },
-  {
-    key: "experience",
-    lines: [],
-    rows: [
-      ...coops.map((c) => ({ when: year(c.period), what: `${c.role}, ${c.org}` })),
-      { when: `${year(teaching.period)}–`, what: `${teaching.role}, ${teaching.org}` },
-    ],
-  },
-  {
-    key: "education",
-    lines: [`Computer Science co-op, ${education.school}`, education.detail],
-  },
-  { key: "grades", lines: [education.highlights.join(" · ")] },
-  ...(award ? [{ key: "award", lines: [award] }] : []),
-  { key: "skills", lines: [headlineStack.join(" · ")] },
-  { key: "location", lines: [site.location] },
-];
 ---
 
 <Base title={`${site.name} · Software developer co-op, ${site.seeking.label}`} center>
-  <div class="flex min-h-[calc(100vh-5rem)] flex-col justify-center px-6 py-16 md:px-8">
+  <div class="flex min-h-[calc(100vh-5rem)] flex-col justify-center px-6 md:px-8">
     <div class="mx-auto w-full max-w-xl">
-      {/* Like a shell's login banner: when this browser was last here. */}
-      <p class="meta mb-8 text-[0.75rem] text-subtle" data-last-login aria-hidden="true">&nbsp;</p>
       {/* Filled in by the script below for /for/<company> links. */}
       <p class="meta mb-4 hidden text-accent" data-for-greeting></p>
-
       <h1 class="text-[2.25rem] font-medium leading-tight tracking-tight md:text-[2.5rem]">
         <span class="inline-block" transition:name="site-name">{first}</span>
-        {rest.join(" ")}<span class="name-cursor" aria-hidden="true"></span>
+        {rest.join(" ")}<span class="cursor-blink" aria-hidden="true"></span>
       </h1>
 
-      <p class="mt-5 text-[0.9375rem] text-muted">{site.roleLine}.</p>
-
-      <dl class="whoami-facts meta mt-8">
-        {
-          facts.map((f) => (
-            <div data-expires={f.key === "available" ? site.seeking.start : undefined}>
-              <dt>{f.key}</dt>
-              <dd class:list={[f.accent ? "text-accent" : "text-ink"]}>
-                {f.lines.map((line) => (
-                  <span class="block">{line}</span>
-                ))}
-                {f.rows?.map((r) => (
-                  <span class="grid grid-cols-[6ch_1fr]">
-                    <span class="tabular-nums text-subtle">{r.when}</span>
-                    <span>{r.what}</span>
-                  </span>
-                ))}
-              </dd>
-            </div>
-          ))
-        }
-      </dl>
-
-      <nav aria-label="Site" class="entry-menu meta mt-10 flex flex-col gap-2.5 text-muted">
-        <a href={site.resume} class="link-accent w-fit">Resume</a>
-        <a href="/work" class="link w-fit">Work</a>
-        <a href="/experience" class="link w-fit">Experience</a>
-        <a href={site.linkedin} target="_blank" rel="noopener noreferrer" class="link w-fit">
-          LinkedIn<span class="sr-only"> (opens in a new tab)</span><span aria-hidden="true"> ↗</span>
-        </a>
-        <a href={`mailto:${site.email}`} class="link w-fit">{site.email}</a>
-      </nav>
+      <p class="mt-5 text-[0.9375rem] text-muted">{site.roleLine}</p>
+      <p class="mt-3 text-[0.9375rem] leading-relaxed text-muted">{site.now}</p>
+      <p class="meta mt-2 text-subtle">{site.school} · {site.location}</p>
+      <p class="meta mt-1 text-accent" data-expires={site.seeking.start}>{site.availability}</p>
 
       <ShellHint variant="home" />
+
+      <nav aria-label="Site" class="meta mt-10 flex flex-col gap-2.5 text-muted">
+        {navLinks.map((link) => (
+          <a href={link.href} class:list={["w-fit", link.href === site.resume ? "link-accent" : "link"]}>{link.label}</a>
+        ))}
+      </nav>
     </div>
   </div>
 </Base>
@@ -110,27 +59,4 @@ const facts: { key: string; lines: string[]; rows?: { when: string; what: string
     el.classList.remove("hidden");
   }
   document.addEventListener("astro:page-load", greet);
-
-  // "Last login: Tue Sep 23 10:12 from your browser", from this browser's
-  // previous visit, the way a terminal greets you. First visits get a welcome.
-  function lastLogin() {
-    const el = document.querySelector<HTMLElement>("[data-last-login]");
-    if (!el) return;
-    let previous: string | null = null;
-    try {
-      previous = localStorage.getItem("last-visit");
-      localStorage.setItem("last-visit", new Date().toISOString());
-    } catch {
-      // No storage: say nothing rather than something wrong.
-    }
-    const then = previous ? new Date(previous) : null;
-    if (then && !Number.isNaN(then.getTime())) {
-      const day = then.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }).replace(",", "");
-      const time = then.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-      el.textContent = `Last login: ${day} ${time} from your browser`;
-    } else {
-      el.textContent = "Welcome. This is your first login.";
-    }
-  }
-  document.addEventListener("astro:page-load", lastLogin);
 </script>

@@ -154,15 +154,11 @@ test("the footer shows my local time", async ({ page }) => {
   await expect(page.locator("[data-status-path]")).toHaveText("~/work");
 });
 
-test("the home page is a terminal entry with the essentials", async ({ page }) => {
+test("the home page is the plain terminal entry", async ({ page }) => {
   await page.goto("/");
   const menu = page.getByRole("navigation", { name: "Site" });
-  await expect(menu.getByRole("link", { name: "Work" })).toBeVisible();
-  await expect(menu.getByRole("link", { name: "Resume" })).toHaveAttribute("href", "/resume");
-  await expect(menu.locator("a[href^='mailto:']")).toBeVisible();
-  const facts = page.locator(".whoami-facts");
-  for (const key of ["available", "experience", "education", "grades", "skills"]) {
-    await expect(facts.getByText(key, { exact: true })).toBeVisible();
+  for (const name of ["Work", "Experience", "Resume"]) {
+    await expect(menu.getByRole("link", { name, exact: true })).toBeVisible();
   }
-  await expect(page.locator("[data-last-login]")).toContainText(/first login|Last login/);
+  await expect(page.locator("main")).toContainText("Seeking Winter 2027 co-op");
 });

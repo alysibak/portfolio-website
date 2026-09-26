@@ -890,42 +890,6 @@ button.shell-kbd {
   }
 }
 
-/* Home: a block cursor after the name, and a ">" beside the menu item under
-   the pointer or keyboard focus, like a text-mode menu. */
-.name-cursor {
-  display: inline-block;
-  width: 0.42em;
-  height: 0.82em;
-  margin-left: 0.12em;
-  vertical-align: -0.04em;
-  background: rgb(var(--accent));
-  animation: blink 1.1s step-end infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .name-cursor {
-    animation: none;
-  }
-}
-
-.entry-menu a {
-  position: relative;
-}
-
-.entry-menu a::before {
-  content: ">";
-  position: absolute;
-  left: -1.5ch;
-  color: rgb(var(--accent));
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-
-.entry-menu a:hover::before,
-.entry-menu a:focus-visible::before {
-  opacity: 1;
-}
-
 /* Stack lists: plain words with a middle dot between, no pills. */
 .stack-list li + li::before {
   content: "·";
@@ -933,21 +897,15 @@ button.shell-kbd {
   @apply text-subtle;
 }
 
-/* Home: the key facts as `neofetch`-style lines, label then value. */
-.whoami-facts > div {
-  @apply grid grid-cols-[11ch_1fr] gap-x-2 py-0.5;
+/* Home: the thin blinking cursor after the name, as on the original page. */
+.cursor-blink {
+  @apply ml-0.5 inline-block h-[0.85em] w-[2px] bg-subtle align-middle;
+  animation: blink 1.1s step-end infinite;
 }
 
-.whoami-facts dt {
-  @apply text-subtle;
-}
-
-@media (max-width: 26rem) {
-  .whoami-facts > div {
-    @apply grid-cols-1;
-  }
-
-  .whoami-facts > div + div {
-    @apply mt-2;
+@media (prefers-reduced-motion: reduce) {
+  .cursor-blink {
+    animation: none;
+    opacity: 0;
   }
 }
