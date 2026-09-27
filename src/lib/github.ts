@@ -59,28 +59,20 @@ async function load(): Promise<Repos> {
   return Object.fromEntries(entries);
 }
 
-/** GitHub's colours for the languages these repos use; grey for the rest. */
-const COLORS: Record<string, string> = {
-  TypeScript: "#3178c6",
-  JavaScript: "#f1e05a",
-  Python: "#3572a5",
-  CSS: "#663399",
-  HTML: "#e34c26",
-  Shell: "#89e051",
-  PLpgSQL: "#336790",
-  Dockerfile: "#384d54",
-};
+/** Shades of the site's accent, darkest for the biggest share: the bar stays
+ *  as quiet as the rest of the page. Read by RepoStats as CSS colours. */
+const SHADES = [1, 0.62, 0.4, 0.26, 0.16];
 
 /** The top languages by share, with the rest folded into "Other". */
 export function languageShares(languages: Record<string, number>, top = 4) {
   const total = Object.values(languages).reduce((a, b) => a + b, 0) || 1;
   const sorted = Object.entries(languages).sort((a, b) => b[1] - a[1]);
-  const shown = sorted.slice(0, top).map(([name, bytes]) => ({
+  const shown = sorted.slice(0, top).map(([name, bytes], i) => ({
     name,
     pct: (bytes / total) * 100,
-    color: COLORS[name] ?? "#8b8b95",
+    color: `rgb(var(--accent) / ${SHADES[i]})`,
   }));
   const rest = sorted.slice(top).reduce((a, [, b]) => a + b, 0);
-  if (rest > 0) shown.push({ name: "Other", pct: (rest / total) * 100, color: "#8b8b95" });
+  if (rest > 0) shown.push({ name: "Other", pct: (rest / total) * 100, color: `rgb(var(--accent) / ${SHADES[4]})` });
   return shown.filter((l) => l.pct >= 0.1);
 }

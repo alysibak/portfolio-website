@@ -9,6 +9,14 @@ const [first, ...rest] = site.name.split(" ");
 <Base title={`${site.name} · Software developer co-op, ${site.seeking.label}`} center>
   <div class="flex min-h-[calc(100vh-5rem)] flex-col justify-center px-6 md:px-8">
     <div class="mx-auto w-full max-w-xl">
+      {/* The lines print in once per visit, like terminal output. Later visits
+          to this page in the same tab skip it. Runs before the lines paint. */}
+      <script is:inline>
+        try {
+          if (sessionStorage.getItem("printed")) document.documentElement.dataset.printed = "";
+          sessionStorage.setItem("printed", "1");
+        } catch (e) {}
+      </script>
       {/* Filled in by the script below for /for/<company> links. */}
       <p class="meta mb-4 hidden text-accent" data-for-greeting></p>
       <h1 class="text-[2.25rem] font-medium leading-tight tracking-tight md:text-[2.5rem]">
@@ -16,14 +24,16 @@ const [first, ...rest] = site.name.split(" ");
         {rest.join(" ")}<span class="cursor-blink" aria-hidden="true"></span>
       </h1>
 
-      <p class="mt-5 text-[0.9375rem] text-muted">{site.roleLine}</p>
-      <p class="mt-3 text-[0.9375rem] leading-relaxed text-muted">{site.now}</p>
-      <p class="meta mt-2 text-subtle">{site.school} · {site.location}</p>
-      <p class="meta mt-1 text-accent" data-expires={site.seeking.start}>{site.availability}</p>
+      <p class="print-line mt-5 text-[1rem] text-muted" style="--i:1">{site.roleLine}</p>
+      <p class="print-line mt-3 text-[1rem] leading-relaxed text-muted" style="--i:2">{site.now}</p>
+      <p class="print-line meta mt-2 text-subtle" style="--i:3">{site.school} · {site.location}</p>
+      <p class="print-line meta mt-1 text-accent" style="--i:4" data-expires={site.seeking.start}>{site.availability}</p>
 
-      <ShellHint variant="home" />
+      <div class="print-line" style="--i:5">
+        <ShellHint variant="home" />
+      </div>
 
-      <nav aria-label="Site" class="meta mt-10 flex flex-col gap-2.5 text-muted">
+      <nav aria-label="Site" class="print-line meta mt-10 flex flex-col gap-2.5 text-muted" style="--i:6">
         {navLinks.map((link) => (
           <a href={link.href} class:list={["w-fit", link.href === site.resume ? "link-accent" : "link"]}>{link.label}</a>
         ))}

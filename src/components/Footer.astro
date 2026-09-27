@@ -2,17 +2,11 @@
 import ThemeToggle from "./ThemeToggle.astro";
 import { site } from "../lib/data";
 
-interface Props {
-  /** Off on the home page, which already states availability above the fold. */
-  showAvailability?: boolean;
-}
-
-const { showAvailability = true } = Astro.props;
 ---
 
-<footer class="site-footer border-t border-border px-6 py-8 md:px-8">
-  <div class="mx-auto max-w-xl">
-    <div class="meta flex flex-wrap gap-x-5 gap-y-2 text-subtle">
+<footer class="site-footer border-t border-border px-6 py-6 md:px-8">
+  <div class="meta mx-auto flex max-w-xl flex-wrap items-center justify-between gap-x-5 gap-y-2 text-subtle">
+    <span class="flex flex-wrap items-center gap-x-5 gap-y-2">
       <span class="inline-flex items-center gap-2">
         <a href={`mailto:${site.email}`} class="link-accent" data-email>{site.email}</a>
         <button
@@ -25,20 +19,14 @@ const { showAvailability = true } = Astro.props;
       </span>
       <a href={site.github} target="_blank" rel="noopener noreferrer" class="link">GitHub<span class="sr-only"> (opens in a new tab)</span></a>
       <a href={site.linkedin} target="_blank" rel="noopener noreferrer" class="link">LinkedIn<span class="sr-only"> (opens in a new tab)</span></a>
-      <a href={site.resume} class="link">Resume</a>
+    </span>
+    <span class="flex items-center gap-3">
+      {/* My local time, so a visitor in another time zone knows when I'm around. */}
+      <span class="hidden text-[0.75rem]" data-local-time data-tz={site.timeZone} title={`Local time in ${site.location}`}>
+        <span data-clock></span> my time
+      </span>
       <span class="-my-1.5"><ThemeToggle /></span>
-    </div>
-    {showAvailability && <p class="meta mt-3 text-subtle" data-expires={site.seeking.start}>{site.availability}</p>}
-    {/* A tmux-style status line: where you are, the theme, and my local time. */}
-    <div class="meta mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[0.6875rem] text-subtle">
-      <span aria-hidden="true">
-        <span class="bg-accent px-1 text-paper">[portfolio]</span> 0:<span data-status-path>~</span>*
-        <span class="ml-2">theme:<span data-status-theme>system</span></span>
-      </span>
-      <span class="hidden" data-local-time data-tz={site.timeZone}>
-        <span data-clock></span> for me in {site.location.split(",")[0]}
-      </span>
-    </div>
+    </span>
   </div>
 </footer>
 
@@ -70,16 +58,8 @@ const { showAvailability = true } = Astro.props;
   }
   document.addEventListener("astro:page-load", expire);
 
-  // Status line: the page as a shell path, the theme, and my local time, so a
-  // visitor in another time zone knows whether it's a good moment to email.
-  function status() {
-    const path = document.querySelector("[data-status-path]");
-    if (path) path.textContent = `~${window.location.pathname.replace(/\/+$/, "")}`;
-    const theme = document.querySelector("[data-status-theme]");
-    if (theme) {
-      const root = document.documentElement;
-      theme.textContent = root.dataset.crt ?? root.dataset.theme ?? "system";
-    }
+  // My local time, refreshed every half minute.
+  function localTime() {
     const local = document.querySelector<HTMLElement>("[data-local-time]");
     const clock = local?.querySelector("[data-clock]");
     if (local && clock) {
@@ -88,7 +68,6 @@ const { showAvailability = true } = Astro.props;
           hour: "numeric",
           minute: "2-digit",
           timeZone: local.dataset.tz,
-          timeZoneName: "short",
         }).format(new Date());
         local.classList.remove("hidden");
       } catch {
@@ -96,7 +75,6 @@ const { showAvailability = true } = Astro.props;
       }
     }
   }
-  document.addEventListener("astro:page-load", status);
-  window.addEventListener("themechange", status);
-  setInterval(status, 30_000);
+  document.addEventListener("astro:page-load", localTime);
+  setInterval(localTime, 30_000);
 </script>

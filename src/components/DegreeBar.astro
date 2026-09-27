@@ -40,7 +40,7 @@ const nowPct = Math.min(
   <div class="relative mt-9 h-4 rounded-sm border border-border bg-paper" aria-hidden="true" data-degree={`${first},${span}`}>
     <span class="absolute inset-y-0 left-0 rounded-l-sm bg-accent/20" style={`width:${nowPct}%`} data-degree-fill></span>
     {coops.map((c) => <span class="absolute inset-y-0 bg-accent" style={`left:${c.left}%;width:${c.width}%`}></span>)}
-    <span class="degree-want absolute -inset-y-1 rounded-sm border-[1.5px] border-dashed border-amber" style={`left:${seeking.left}%;width:${seeking.width}%`}></span>
+    <span class="degree-want absolute -inset-y-1 rounded-sm border-[1.5px] border-dashed border-ink/60" style={`left:${seeking.left}%;width:${seeking.width}%`}></span>
     <span class="absolute -inset-y-1.5 w-0.5 bg-ink" style={`left:${nowPct}%`} data-degree-now>
       <span class="meta absolute bottom-full left-1/2 mb-0.5 -translate-x-1/2 text-[0.625rem] font-medium">now</span>
     </span>
@@ -52,7 +52,7 @@ const nowPct = Math.min(
   <ul class="meta mt-3 flex flex-wrap gap-x-4 gap-y-1 text-muted" aria-hidden="true">
     <li class="flex items-center gap-1.5"><span class="h-2 w-3.5 rounded-sm bg-accent/20"></span>Degree so far</li>
     <li class="flex items-center gap-1.5"><span class="h-2 w-3.5 rounded-sm bg-accent"></span>Co-op terms</li>
-    <li class="flex items-center gap-1.5"><span class="degree-want h-2.5 w-3.5 rounded-sm border-[1.5px] border-dashed border-amber"></span>{site.seeking.label}: open</li>
+    <li class="flex items-center gap-1.5"><span class="degree-want h-2.5 w-3.5 rounded-sm border-[1.5px] border-dashed border-ink/60"></span>{site.seeking.label}: open</li>
   </ul>
 </div>
 

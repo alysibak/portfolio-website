@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --font-sans: "Source Sans 3", system-ui, sans-serif;
+  /* Text in a serif, details in a monospace. */
+  --font-text: "Source Serif 4", Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /* Colour channels, read by Tailwind as rgb(var(--name) / alpha). */
@@ -12,7 +13,7 @@
   --muted: 85 85 95;
   --subtle: 112 112 121;
   --border: 228 228 224;
-  --accent: 30 58 95;
+  --accent: 71 85 105;
   --good: 47 107 58;
   --bad: 155 44 44;
   --teal: 39 107 98;
@@ -29,7 +30,7 @@
   --muted: 180 180 189;
   --subtle: 143 143 154;
   --border: 42 42 49;
-  --accent: 157 189 230;
+  --accent: 160 174 192;
   --good: 125 194 140;
   --bad: 235 149 149;
   --teal: 111 199 185;
@@ -46,7 +47,7 @@
     --muted: 180 180 189;
     --subtle: 143 143 154;
     --border: 42 42 49;
-    --accent: 157 189 230;
+    --accent: 160 174 192;
     --good: 125 194 140;
     --bad: 235 149 149;
     --teal: 111 199 185;
@@ -133,7 +134,7 @@ html {
 
 body {
   @apply bg-paper text-ink antialiased;
-  font-family: var(--font-sans);
+  font-family: var(--font-text);
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
@@ -515,7 +516,7 @@ button.shell-kbd {
     --muted: 40 40 46;
     --subtle: 80 80 88;
     --border: 200 200 196;
-    --accent: 30 58 95;
+    --accent: 71 85 105;
     --grid-dot: 255 255 255;
     --good: 47 107 58;
     --bad: 155 44 44;
@@ -907,5 +908,63 @@ button.shell-kbd {
   .cursor-blink {
     animation: none;
     opacity: 0;
+  }
+}
+
+/* Home: lines appear one after another, once, like terminal output. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-printed]) .print-line {
+    animation: t-print 0.01s step-end backwards;
+    animation-delay: calc(120ms + var(--i, 0) * 80ms);
+  }
+}
+
+/* Work: a plain index. On wide screens the preview sits in the right margin,
+   beside the list and aligned with the text column; phones get a picture
+   under each project instead. */
+.work-index {
+  @apply relative max-w-xl;
+}
+
+.work-list > li + li {
+  @apply mt-12;
+}
+
+.work-preview {
+  display: none;
+}
+
+@media (min-width: 75rem) {
+  .work-thumb {
+    display: none;
+  }
+
+  .work-preview {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: calc(100% + 3rem);
+    height: 100%;
+    width: min(24rem, calc(50vw - 18rem - 4.5rem));
+  }
+
+  .work-preview .preview {
+    position: sticky;
+    top: 7rem;
+  }
+}
+
+/* Screenshots stay grey until pointed at, on devices that can point. */
+@media (hover: hover) {
+  .preview-img,
+  [data-shots] img {
+    filter: grayscale(1);
+    transition: filter 0.3s ease;
+  }
+
+  .work-index[data-hot] .preview-img,
+  [data-shots]:hover img,
+  [data-shots]:focus-within img {
+    filter: none;
   }
 }

@@ -151,7 +151,6 @@ test("diff compares two projects' stacks", async ({ page }) => {
 test("the footer shows my local time", async ({ page }) => {
   await page.goto("/work");
   await expect(page.locator("[data-local-time]")).toContainText(/\d:\d\d/);
-  await expect(page.locator("[data-status-path]")).toHaveText("~/work");
 });
 
 test("the home page is the plain terminal entry", async ({ page }) => {

@@ -18,7 +18,7 @@ const colors = {
   muted: "#55555f",
   subtle: "#707079",
   border: "#e4e4e0",
-  accent: "#1e3a5f",
+  accent: "#475569",
   good: "#2f6b3a",
 };
 
@@ -131,7 +131,7 @@ function card(c: OgCard, shot: string | null): Node {
       background: colors.paper,
       backgroundImage: `radial-gradient(${colors.border} 1.5px, transparent 1.5px)`,
       backgroundSize: "28px 28px",
-      fontFamily: "Source Sans 3",
+      fontFamily: "Source Serif 4",
       color: colors.ink,
       position: "relative",
       overflow: "hidden",
@@ -198,8 +198,8 @@ export const getStaticPaths: GetStaticPaths = () => ogCards.map((c) => ({ params
 
 export const GET: APIRoute = async ({ props }) => {
   const fonts = await Promise.all([
-    font("source-sans-3", "source-sans-3-latin-400-normal.woff"),
-    font("source-sans-3", "source-sans-3-latin-600-normal.woff"),
+    font("source-serif-4", "source-serif-4-latin-400-normal.woff"),
+    font("source-serif-4", "source-serif-4-latin-600-normal.woff"),
     font("jetbrains-mono", "jetbrains-mono-latin-400-normal.woff"),
   ]);
   const c = (props as { card: OgCard }).card;
@@ -207,8 +207,8 @@ export const GET: APIRoute = async ({ props }) => {
     width: 1200,
     height: 630,
     fonts: [
-      { name: "Source Sans 3", data: fonts[0], weight: 400, style: "normal" },
-      { name: "Source Sans 3", data: fonts[1], weight: 600, style: "normal" },
+      { name: "Source Serif 4", data: fonts[0], weight: 400, style: "normal" },
+      { name: "Source Serif 4", data: fonts[1], weight: 600, style: "normal" },
       { name: "JetBrains Mono", data: fonts[2], weight: 400, style: "normal" },
     ],
   });
