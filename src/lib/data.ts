@@ -159,7 +159,7 @@ export const projects: Project[] = [
     id: "carinfo",
     title: "CarInfo",
     tagline:
-      "Vehicle research platform over a 28,000-vehicle EPA dataset with NHTSA safety enrichment.",
+      "Vehicle research platform over a 35,800-vehicle EPA dataset with NHTSA safety enrichment.",
     year: "2024–",
     role: "solo",
     context: "Personal project. Live and open source.",
@@ -178,19 +178,22 @@ export const projects: Project[] = [
     diagram: {
       flow: [
         { label: "EPA + NHTSA data", owned: false },
-        { label: "Import", owned: true },
+        { label: "Import + validator", owned: true },
         { label: "Trust labels", owned: true, key: true },
-        { label: "Research UI", owned: true },
+        { label: "Search + car pages", owned: true },
       ],
-      beside: [{ label: "Ontario cost config", owned: true }],
+      beside: [
+        { label: "Regional cost engine", owned: true },
+        { label: "Accounts + billing", owned: true },
+      ],
     },
-    stack: ["React", "TypeScript", "Vite", "Express", "PostgreSQL", "Vitest", "Playwright"],
+    stack: ["React", "TypeScript", "Vite", "Express", "PostgreSQL", "Clerk", "Stripe", "Vitest", "Playwright"],
     resume: {
       label: "car discovery and comparison platform",
       stack: ["React", "TypeScript", "Express", "PostgreSQL"],
       bullets: [
-        "Built a full-stack comparison platform over a large public vehicle dataset",
-        "Found and fixed a data import issue that was skewing cost estimates",
+        "Built a full-stack car research platform over 35,800 EPA vehicle listings, with plain-language search and a source for every figure",
+        "Found and fixed import issues skewing values, restoring 7,547 dropped listings; values now sit within 25% of 74 Canadian references",
       ],
     },
     code: {
@@ -220,26 +223,27 @@ const withDisp = shortRange.filter(
         {
           title: "Provenance and trust system",
           reasoning:
-            "Every field is labelled verified, curated, or estimated. Surface confidence rather than laundering it.",
+            "Every figure is labelled verified, curated, or estimated, and says where it came from. Horsepower now covers 86% of listings, each with its source.",
           tradeoff: "A denser interface and more schema surface.",
         },
         {
-          title: "Ownership-cost model recalibrated to Ontario assumptions",
-          reasoning: "Regional assumptions live behind one centralized config.",
-          tradeoff:
-            "Accurate for one region and explicitly not others, which the config makes visible instead of hiding.",
+          title: "One engine for values and running costs",
+          reasoning:
+            "The cost calculator and the car page share one engine. Running costs follow the chosen region, and market values are checked against 74 Canadian listing references, all within 25%.",
+          tradeoff: "Collector and never-sold cars show no value at all, rather than a wrong one.",
         },
         {
-          title: "UI redesign across 15 routes and 25+ components",
-          reasoning: "Three-tier progressive disclosure.",
-          tradeoff: "Three tiers means three states to maintain per surface.",
+          title: "Search that reads plain language",
+          reasoning:
+            "It understands trims, prices, years, MPG, horsepower, seats, body types, rivals (\"cars like a camry\"), comparisons (\"civic vs corolla\") and generations (\"e46 m3\"), and shows one row per model.",
+          tradeoff: "Words it can't measure are named back instead of guessed, so a vague search says so.",
         },
       ],
       outcome:
-        "Live, open source, with per-field trust levels visible to the reader.",
+        "Live and open source. 35,800 vehicles across 92 makes after restoring 7,547 listings the importer had dropped, 76 test files run in parallel CI (lint, unit, build with a size budget, end-to-end, audit), and no WCAG 2.2 AA violations on the main pages.",
     },
     catOutput: `carinfo, 2024-present
-vehicle research platform over a 28,000-vehicle epa dataset
+vehicle research platform over a 35,800-vehicle epa dataset
 with nhtsa safety enrichment. solo. live and open source.
 
   problem   federal datasets differ in shape and quality.
@@ -251,13 +255,15 @@ with nhtsa safety enrichment. solo. live and open source.
             output against expectations rather than trusting
             the import.
 
-  decisions provenance system labels every field verified,
-            curated, or estimated.
-            ownership-cost model recalibrated to ontario behind
-            one centralized regional config.
-            ui redesign across 15 routes and 25+ components.
+  decisions every figure says where it came from; horsepower
+            covers 86% of listings.
+            one engine for values and running costs, checked
+            against 74 canadian listings, all within 25%.
+            search reads plain language: "cars like a camry",
+            "civic vs corolla", "e46 m3".
 
-  outcome   per-field trust levels visible to the reader.
+  outcome   7,547 dropped listings restored. 76 test files in
+            parallel ci. no wcag 2.2 aa violations.
 
   -> carinfo-client.vercel.app
   -> github.com/alysibak/carinfo`,
@@ -603,7 +609,7 @@ export const principles = [
 
 /** Numbers from projects and teaching only. Employer work stays vague. */
 export const highlights: Stat[] = [
-  { value: 28000, label: "vehicles in CarInfo" },
+  { value: 35800, label: "vehicles in CarInfo" },
   { value: 419, label: "misclassified hybrids caught" },
   { value: 57000, suffix: "+", label: "WWI records in TimeVault" },
   { value: 250, suffix: "+", label: "students supported as a TA" },
